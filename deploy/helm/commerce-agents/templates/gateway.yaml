@@ -1,0 +1,56 @@
+{{- if or (eq .Values.gateway.shoppingHost .Values.gateway.merchantHost) (eq .Values.gateway.shoppingIp .Values.gateway.merchantIp) }}
+{{- fail "Shopping and merchant gateways require distinct hosts and private load balancer IPs" }}
+{{- end }}
+{{- range $role := list "shopping" "merchant" }}
+{{- $host := ternary $.Values.gateway.shoppingHost $.Values.gateway.merchantHost (eq $role "shopping") }}
+{{- $ip := ternary $.Values.gateway.shoppingIp $.Values.gateway.merchantIp (eq $role "shopping") }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: {name: {{ $role }}-edge-options}
+data:
+  service: |
+    metadata:
+      annotations:
+        service.beta.kubernetes.io/port_80_health-probe_port: null
+        service.beta.kubernetes.io/port_80_health-probe_protocol: null
+        service.beta.kubernetes.io/port_80_health-probe_request-path: null
+    spec:
+      externalTrafficPolicy: Local
+      loadBalancerSourceRanges: [{{ $.Values.network.applicationGatewayCidr | quote }}]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ $role }}-edge
+  annotations:
+    service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+    service.beta.kubernetes.io/azure-load-balancer-ipv4: {{ $ip | quote }}
+    service.beta.kubernetes.io/azure-load-balancer-internal-subnet: workload
+spec:
+  gatewayClassName: {{ $.Values.gateway.className }}
+  infrastructure:
+    parametersRef: {group: "", kind: ConfigMap, name: {{ $role }}-edge-options}
+    annotations:
+      service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+      service.beta.kubernetes.io/azure-load-balancer-ipv4: {{ $ip | quote }}
+      service.beta.kubernetes.io/azure-load-balancer-internal-subnet: workload
+      service.beta.kubernetes.io/azure-allowed-ip-ranges: {{ $.Values.network.applicationGatewayCidr | quote }}
+  listeners:
+    - name: http
+      port: 80
+      protocol: HTTP
+      hostname: {{ required "Gateway host is required" $host | quote }}
+      allowedRoutes: {namespaces: {from: Same}}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata: {name: {{ $role }}}
+spec:
+  parentRefs: [{name: {{ $role }}-edge, sectionName: http}]
+  hostnames: [{{ $host | quote }}]
+  rules:
+    - matches: [{path: {type: PathPrefix, value: /}}]
+      timeouts: {request: 225s, backendRequest: 220s}
+      backendRefs: [{name: {{ $role }}-gateway, port: 8080}]
+{{- end }}

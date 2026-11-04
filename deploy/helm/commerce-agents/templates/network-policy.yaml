@@ -1,0 +1,94 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: default-deny}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: dns}
+spec:
+  podSelector: {}
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: kube-system}
+          podSelector:
+            matchLabels: {k8s-app: kube-dns}
+      ports: [{protocol: UDP, port: 53}, {protocol: TCP, port: 53}]
+{{- range $name, $workload := .Values.workloads }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: {{ $name }}}
+spec:
+  podSelector:
+    matchLabels: {app.kubernetes.io/name: {{ $name }}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    {{- if eq $workload.mode "gateway" }}
+    - from:
+        - podSelector:
+            matchLabels: {gateway.networking.k8s.io/gateway-name: {{ $workload.role }}-edge}
+      ports: [{protocol: TCP, port: 8080}]
+    {{- else if ne $workload.mode "worker" }}
+    - from:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/name: {{ $workload.role }}-gateway}
+      ports: [{protocol: TCP, port: {{ ternary 3000 8080 (eq $workload.mode "web") }}}]
+    {{- else }}
+    []
+    {{- end }}
+  egress:
+    {{- if eq $workload.mode "gateway" }}
+    - to:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/name: {{ $workload.role }}-api}
+      ports: [{protocol: TCP, port: 8080}]
+    - to:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/name: {{ $workload.role }}-web}
+      ports: [{protocol: TCP, port: 3000}]
+    {{- end }}
+    {{- if ne $workload.mode "web" }}
+    {{- $cidrs := concat $.Values.network.cosmosCidrs $.Values.network.identityCidrs $.Values.network.telemetryCidrs }}
+    {{- if or (eq $workload.mode "api") (eq $workload.mode "worker") }}
+    {{- $cidrs = concat $cidrs $.Values.network.modelCidrs }}
+    {{- end }}
+    {{- if $workload.secrets }}
+    {{- $cidrs = concat $cidrs $.Values.network.vaultCidrs }}
+    {{- end }}
+    {{- range $cidr := $cidrs }}
+    - to: [{ipBlock: {cidr: {{ $cidr | quote }}}}]
+      ports: [{protocol: TCP, port: 443}]
+    {{- end }}
+    {{- else }}
+    []
+    {{- end }}
+{{- end }}
+{{- range $role := list "shopping" "merchant" }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: {{ $role }}-edge}
+spec:
+  podSelector:
+    matchLabels: {gateway.networking.k8s.io/gateway-name: {{ $role }}-edge}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from: [{ipBlock: {cidr: {{ $.Values.network.applicationGatewayCidr | quote }}}}]
+      ports: [{protocol: TCP, port: 80}, {protocol: TCP, port: 8080}]
+    - from: [{ipBlock: {cidr: 168.63.129.16/32}}]
+      ports: [{protocol: TCP, port: 15021}]
+  egress:
+    - to:
+        - podSelector:
+            matchLabels: {app.kubernetes.io/name: {{ $role }}-gateway}
+      ports: [{protocol: TCP, port: 8080}]
+    - to:
+        - namespaceSelector:
+            matchLabels: {kubernetes.io/metadata.name: aks-istio-system}
+      ports: [{protocol: TCP, port: 15012}, {protocol: TCP, port: 443}]
+{{- end }}

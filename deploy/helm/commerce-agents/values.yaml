@@ -1,0 +1,90 @@
+vertical: retail
+images:
+  runtime: ""
+  gateway: ""
+  shoppingWeb: ""
+  merchantWeb: ""
+tenantId: ""
+vaultName: ""
+globalEnv:
+  COMMERCE_COSMOS_DATABASE: commerce
+  COMMERCE_COSMOS_CONTAINER: runtime
+  COMMERCE_AUTH_CONTAINER: identity
+  COSMOS_CONNECTION_MODE: gateway
+  COMMERCE_STREAM_SEGMENT_SECONDS: "210"
+network:
+  # Private endpoint IPs, not entire VNets. Cosmos SDK must use HTTPS gateway mode.
+  cosmosCidrs: []
+  modelCidrs: []
+  vaultCidrs: []
+  # Resolved public Entra/OIDC/telemetry HTTPS dependencies; routed through Firewall.
+  identityCidrs: []
+  telemetryCidrs: []
+  applicationGatewayCidr: 10.40.4.0/24
+gateway:
+  className: approuting-istio
+  shoppingHost: ""
+  merchantHost: ""
+  shoppingIp: 10.40.8.20
+  merchantIp: 10.40.8.21
+replicas: 2
+autoscaling:
+  minReplicas: 2
+  maxReplicas: 10
+  cpuPercent: 70
+resources:
+  requests: {cpu: 250m, memory: 512Mi}
+  limits: {cpu: "1", memory: 1Gi}
+workloads:
+  shopping-api:
+    role: shopping
+    mode: api
+    clientId: ""
+    env:
+      COMMERCE_GUEST_ISSUER: ""
+      COMMERCE_GUEST_JWKS_URL: ""
+    secrets: []
+  merchant-api:
+    role: merchant
+    mode: api
+    clientId: ""
+    env: {}
+    secrets: []
+  shopping-worker:
+    role: shopping
+    mode: worker
+    clientId: ""
+    env:
+      COMMERCE_GUEST_ISSUER: ""
+      COMMERCE_GUEST_JWKS_URL: ""
+    secrets: []
+  merchant-worker:
+    role: merchant
+    mode: worker
+    clientId: ""
+    env: {}
+    secrets: []
+  shopping-gateway:
+    role: shopping
+    mode: gateway
+    clientId: ""
+    env: {}
+    secrets: []
+  merchant-gateway:
+    role: merchant
+    mode: gateway
+    clientId: ""
+    env: {}
+    secrets: []
+  shopping-web:
+    role: shopping
+    mode: web
+    clientId: ""
+    env: {}
+    secrets: []
+  merchant-web:
+    role: merchant
+    mode: web
+    clientId: ""
+    env: {}
+    secrets: []
