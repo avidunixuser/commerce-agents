@@ -1,0 +1,58 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {"value": "<short-unique-prefix>"},
+    "location": {"value": "<validated-public-azure-region>"},
+    "vertical": {"value": "retail"},
+    "privateAccessCidrs": {"value": ["<VPN-or-ExpressRoute-source-CIDR>"]},
+    "storefrontHost": {"value": "<storefront-hostname>"},
+    "merchantHost": {"value": "<private-merchant-hostname>"},
+    "certificateSecretUri": {"value": "<versionless-Key-Vault-PFX-secret-URI>"},
+    "images": {
+      "value": {
+        "runtime": "<registry>.azurecr.io/commerce/runtime@sha256:<digest>",
+        "gateway": "<registry>.azurecr.io/commerce/gateway@sha256:<digest>",
+        "shoppingWeb": "<registry>.azurecr.io/commerce/retail-shopping@sha256:<digest>",
+        "merchantWeb": "<registry>.azurecr.io/commerce/retail-merchant@sha256:<digest>"
+      }
+    },
+    "modelAvailabilityVerified": {"value": false},
+    "existingOpenAIName": {"value": "<private-existing-account-in-this-resource-group>"},
+    "runtimeEnvironment": {
+      "value": {
+        "shopping-api": {
+          "COMMERCE_AUTH_ISSUER": "<customer-issuer>",
+          "COMMERCE_AUTH_AUDIENCE": "<api-audience>",
+          "COMMERCE_AUTH_JWKS_URL": "<customer-JWKS>",
+          "COMMERCE_GUEST_ISSUER": "https://<shopping-gateway-public-hostname>",
+          "COMMERCE_GUEST_JWKS_URL": "https://<shopping-gateway-public-hostname>/.well-known/jwks.json",
+          "COMMERCE_ALLOWED_TENANTS": "<tenant-list>",
+          "COMMERCE_PROVIDER_ID": "<configured-provider-id>",
+          "COMMERCE_BACKEND_FACTORY": "<installed-backend-module>:<factory>"
+        },
+        "merchant-api": {"COMMERCE_AUTH_ISSUER": "<workforce-issuer>", "COMMERCE_AUTH_AUDIENCE": "<merchant-api-audience>", "COMMERCE_AUTH_JWKS_URL": "<workforce-JWKS>", "COMMERCE_ALLOWED_TENANTS": "<tenant-list>", "COMMERCE_PROVIDER_ID": "<provider-id>", "COMMERCE_BACKEND_FACTORY": "<installed-backend-module>:<factory>"},
+        "shopping-worker": {"COMMERCE_AUTH_ISSUER": "<customer-issuer>", "COMMERCE_AUTH_AUDIENCE": "<api-audience>", "COMMERCE_AUTH_JWKS_URL": "<customer-JWKS>", "COMMERCE_GUEST_ISSUER": "https://<shopping-gateway-public-hostname>", "COMMERCE_GUEST_JWKS_URL": "https://<shopping-gateway-public-hostname>/.well-known/jwks.json", "COMMERCE_ALLOWED_TENANTS": "<tenant-list>", "COMMERCE_PROVIDER_ID": "<provider-id>", "COMMERCE_BACKEND_FACTORY": "<installed-backend-module>:<factory>"},
+        "merchant-worker": {"COMMERCE_AUTH_ISSUER": "<workforce-issuer>", "COMMERCE_AUTH_AUDIENCE": "<merchant-api-audience>", "COMMERCE_AUTH_JWKS_URL": "<workforce-JWKS>", "COMMERCE_ALLOWED_TENANTS": "<tenant-list>", "COMMERCE_PROVIDER_ID": "<provider-id>", "COMMERCE_BACKEND_FACTORY": "<installed-backend-module>:<factory>"},
+        "shopping-gateway": {"COMMERCE_OIDC_ISSUER": "<customer-issuer>", "COMMERCE_OIDC_CLIENT_ID": "<client-id>", "COMMERCE_OIDC_API_AUDIENCE": "<api-audience>", "COMMERCE_OIDC_SCOPE": "<delegated-api-scope>", "COMMERCE_TENANT_ID": "<tenant-id>", "COMMERCE_GATEWAY_ISSUER": "https://<shopping-gateway-public-hostname>", "COMMERCE_GATEWAY_SIGNING_KID": "<key-id>"},
+        "merchant-gateway": {"COMMERCE_OIDC_ISSUER": "<workforce-issuer>", "COMMERCE_OIDC_CLIENT_ID": "<client-id>", "COMMERCE_OIDC_API_AUDIENCE": "<merchant-api-audience>", "COMMERCE_OIDC_SCOPE": "<delegated-api-scope>", "COMMERCE_TENANT_ID": "<tenant-id>", "COMMERCE_GATEWAY_ISSUER": "<gateway-issuer>", "COMMERCE_GATEWAY_SIGNING_KID": "<key-id>"}
+      }
+    },
+    "secretReferences": {
+      "value": {
+        "shopping-gateway": [
+          {"name": "oidc-client-secret", "envName": "COMMERCE_OIDC_CLIENT_SECRET", "keyVaultUrl": "<Key-Vault-secret-URI>"},
+          {"name": "signing-key", "envName": "COMMERCE_GATEWAY_SIGNING_KEY", "keyVaultUrl": "<Key-Vault-secret-URI>"},
+          {"name": "encryption-keys", "envName": "COMMERCE_AUTH_ENCRYPTION_KEYS", "keyVaultUrl": "<Key-Vault-secret-URI>"}
+        ],
+        "merchant-gateway": [
+          {"name": "oidc-client-secret", "envName": "COMMERCE_OIDC_CLIENT_SECRET", "keyVaultUrl": "<Key-Vault-secret-URI>"},
+          {"name": "signing-key", "envName": "COMMERCE_GATEWAY_SIGNING_KEY", "keyVaultUrl": "<Key-Vault-secret-URI>"},
+          {"name": "encryption-keys", "envName": "COMMERCE_AUTH_ENCRYPTION_KEYS", "keyVaultUrl": "<Key-Vault-secret-URI>"}
+        ]
+      }
+    },
+    "enableWorkloads": {"value": false},
+    "enableIngress": {"value": false}
+  }
+}

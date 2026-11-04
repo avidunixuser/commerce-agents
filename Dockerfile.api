@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1
+FROM python:3.11-slim AS build
+WORKDIR /src
+COPY requirements*.txt ./
+COPY commerce-common ./commerce-common
+COPY shopping-agent ./shopping-agent
+COPY merchant-agent ./merchant-agent
+COPY apps/host ./apps/host
+RUN sed '/^-e /d; /^-r /d' requirements.txt > constraints.txt \
+    && if [ -f requirements-azure.txt ]; then sed '/^-e /d; /^-r /d' requirements-azure.txt >> constraints.txt; fi \
+    && pip wheel --no-cache-dir --constraint constraints.txt --wheel-dir /wheels \
+    "./commerce-common[examples,azure]" ./shopping-agent/core ./shopping-agent/runtime-messages-api \
+    ./merchant-agent/core ./merchant-agent/runtime-messages-api "./apps/host[telemetry]"
+
+FROM python:3.11-slim AS runtime
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/app/examples COMMERCE_APP_ROOT=/app
+RUN groupadd --gid 10001 commerce && useradd --uid 10001 --gid commerce --create-home commerce
+COPY --from=build /wheels /wheels
+RUN pip install --no-cache-dir --no-index --find-links=/wheels \
+    "commerce-common[examples,azure]" "commerce-azure-host[telemetry]" shopping-agent-runtime \
+    merchant-agent-runtime && rm -rf /wheels
+WORKDIR /app
+COPY LICENSE ./LICENSE
+COPY --chown=10001:10001 examples ./examples
+COPY --chown=10001:10001 shopping-agent/skills ./shopping-agent/skills
+COPY --chown=10001:10001 merchant-agent/skills ./merchant-agent/skills
+USER 10001:10001
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=5s CMD ["python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health/live', timeout=3)"]
+ENTRYPOINT ["python", "-m", "commerce_host"]
+CMD ["api"]

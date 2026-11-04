@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {"value": "<short-unique-prefix>"},
+    "location": {"value": "<validated-public-azure-region>"},
+    "kubernetesVersion": {"value": "<supported-AKS-version>"},
+    "adminGroupObjectIds": {"value": ["<Entra-admin-group-object-id>"]},
+    "privateAccessCidrs": {"value": ["<VPN-or-ExpressRoute-source-CIDR>"]},
+    "storefrontHost": {"value": "<storefront-hostname>"},
+    "merchantHost": {"value": "<private-merchant-hostname>"},
+    "certificateSecretUri": {"value": "<versionless-Key-Vault-PFX-secret-URI>"},
+    "storefrontGatewayFqdn": {"value": "<private-DNS-for-shopping-Gateway-LB-IP>"},
+    "merchantGatewayFqdn": {"value": "<private-DNS-for-merchant-Gateway-LB-IP>"},
+    "modelAvailabilityVerified": {"value": false},
+    "existingOpenAIName": {"value": "<private-existing-account-in-this-resource-group>"},
+    "gatewaySecretNames": {"value": {}},
+    "enableIngress": {"value": false}
+  }
+}

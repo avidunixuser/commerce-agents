@@ -1,0 +1,210 @@
+{{- range $name, $workload := .Values.workloads }}
+{{- if ne $name (printf "%s-%s" $workload.role $workload.mode) }}
+{{- fail (printf "workload %s must retain its role/mode identity" $name) }}
+{{- end }}
+{{- $reserved := list "COMMERCE_ROLE" "COMMERCE_VERTICAL" "COMMERCE_MODE" "COMMERCE_APP_ROOT" "COMMERCE_ENVIRONMENT" "COMMERCE_PRIVATE_BOUNDARY" "COMMERCE_API_UPSTREAM" "COMMERCE_WEB_UPSTREAM" "COMMERCE_PUBLIC_ORIGIN" "OTEL_SERVICE_NAME" "APPLICATIONINSIGHTS_AUTHENTICATION_STRING" "PYTHONDONTWRITEBYTECODE" "PORT" "HOSTNAME" "NODE_ENV" }}
+{{- $configured := mergeOverwrite (deepCopy $.Values.globalEnv) $workload.env }}
+{{- if and (eq $workload.role "shopping") (has $workload.mode (list "api" "worker")) }}
+{{- range $key := list "COMMERCE_GUEST_ISSUER" "COMMERCE_GUEST_JWKS_URL" }}
+{{- if not (hasPrefix "https://" (required (printf "%s requires %s" $name $key) (index $configured $key))) }}
+{{- fail (printf "%s requires HTTPS %s" $name $key) }}
+{{- end }}
+{{- end }}
+{{- if eq (index $configured "COMMERCE_GUEST_ISSUER") (index $configured "COMMERCE_AUTH_ISSUER") }}
+{{- fail (printf "%s guest authority must differ from primary OIDC issuer" $name) }}
+{{- end }}
+{{- end }}
+{{- range $key, $_ := $configured }}
+{{- if has $key $reserved }}{{ fail (printf "%s cannot override %s" $name $key) }}{{ end }}
+{{- end }}
+{{- $seenSecrets := dict }}
+{{- range $secret := $workload.secrets }}
+{{- if or (has $secret.envName $reserved) (hasKey $configured $secret.envName) (hasKey $seenSecrets $secret.envName) }}
+{{- fail (printf "%s has duplicate or protected secret environment %s" $name $secret.envName) }}
+{{- end }}
+{{- $_ := set $seenSecrets $secret.envName true }}
+{{- end }}
+{{- range $secret := $workload.existingSecretRefs }}
+{{- if or (has $secret.envName $reserved) (hasKey $configured $secret.envName) (hasKey $seenSecrets $secret.envName) }}
+{{- fail (printf "%s has duplicate or protected secret environment %s" $name $secret.envName) }}
+{{- end }}
+{{- $_ := set $seenSecrets $secret.envName true }}
+{{- end }}
+{{- if eq $workload.mode "gateway" }}
+{{- range $key := list "COMMERCE_OIDC_CLIENT_SECRET" "COMMERCE_GATEWAY_SIGNING_KEY" "COMMERCE_AUTH_ENCRYPTION_KEYS" }}
+{{- if not (hasKey $seenSecrets $key) }}{{ fail (printf "%s requires secret reference %s" $name $key) }}{{ end }}
+{{- end }}
+{{- end }}
+{{- $web := eq $workload.mode "web" }}
+{{- $port := ternary 3000 8080 $web }}
+{{- $imageKey := ternary (printf "%sWeb" $workload.role) (ternary "gateway" "runtime" (eq $workload.mode "gateway")) $web }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ $name }}
+  annotations:
+    azure.workload.identity/client-id: {{ required (printf "%s.clientId is required" $name) $workload.clientId | quote }}
+automountServiceAccountToken: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $name }}
+  labels: {app.kubernetes.io/name: {{ $name }}, commerce-role: {{ $workload.role }}}
+spec:
+  replicas: {{ $.Values.replicas }}
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate: {maxSurge: 1, maxUnavailable: 0}
+  selector:
+    matchLabels: {app.kubernetes.io/name: {{ $name }}}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $name }}
+        commerce-role: {{ $workload.role }}
+        commerce-mode: {{ $workload.mode }}
+        azure.workload.identity/use: "true"
+    spec:
+      serviceAccountName: {{ $name }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 240
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile: {type: RuntimeDefault}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: DoNotSchedule
+          labelSelector:
+            matchLabels: {app.kubernetes.io/name: {{ $name }}}
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels: {app.kubernetes.io/name: {{ $name }}}
+      containers:
+        - name: app
+          image: {{ required (printf "images.%s digest is required" $imageKey) (index $.Values.images $imageKey) | quote }}
+          imagePullPolicy: IfNotPresent
+          {{- if not $web }}
+          command: {{ ternary (list "python" "-m" "commerce_gateway") (list "python" "-m" "commerce_host" $workload.mode) (eq $workload.mode "gateway") | toJson }}
+          {{- end }}
+          ports: [{name: http, containerPort: {{ $port }}}]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: ["ALL"]}
+          env:
+            - {name: COMMERCE_ENVIRONMENT, value: production}
+            - {name: COMMERCE_MODE, value: production}
+            - {name: COMMERCE_APP_ROOT, value: /app}
+            - {name: COMMERCE_ROLE, value: {{ $workload.role | quote }}}
+            - {name: COMMERCE_VERTICAL, value: {{ $.Values.vertical | quote }}}
+            - {name: COMMERCE_PRIVATE_BOUNDARY, value: {{ eq $workload.role "merchant" | quote }}}
+            - {name: OTEL_SERVICE_NAME, value: {{ $name | quote }}}
+            {{- if not $web }}
+            - {name: APPLICATIONINSIGHTS_AUTHENTICATION_STRING, value: {{ printf "Authorization=AAD;ClientId=%s" $workload.clientId | quote }}}
+            {{- end }}
+            - {name: PYTHONDONTWRITEBYTECODE, value: "1"}
+            {{- if $web }}
+            - {name: PORT, value: "3000"}
+            - {name: HOSTNAME, value: "0.0.0.0"}
+            - {name: NODE_ENV, value: production}
+            {{- end }}
+            {{- if eq $workload.mode "gateway" }}
+            - {name: COMMERCE_API_UPSTREAM, value: {{ printf "http://%s-api:8080" $workload.role | quote }}}
+            - {name: COMMERCE_WEB_UPSTREAM, value: {{ printf "http://%s-web:3000" $workload.role | quote }}}
+            - {name: COMMERCE_PUBLIC_ORIGIN, value: {{ ternary (printf "https://%s" $.Values.gateway.shoppingHost) (printf "https://%s:8443" $.Values.gateway.merchantHost) (eq $workload.role "shopping") | quote }}}
+            {{- end }}
+            {{- range $key, $value := $configured }}
+            - {name: {{ $key }}, value: {{ $value | quote }}}
+            {{- end }}
+            {{- range $secret := $workload.secrets }}
+            - name: {{ $secret.envName }}
+              valueFrom:
+                secretKeyRef: {name: {{ $name }}-secrets, key: {{ $secret.alias }}}
+            {{- end }}
+            {{- range $secret := $workload.existingSecretRefs }}
+            - name: {{ $secret.envName }}
+              valueFrom:
+                secretKeyRef: {name: {{ $secret.secretName }}, key: {{ $secret.key }}}
+            {{- end }}
+          resources: {{ toYaml $.Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet: {path: {{ ternary "/" "/health/live" $web }}, port: http}
+            periodSeconds: 5
+            failureThreshold: 30
+          livenessProbe:
+            httpGet: {path: {{ ternary "/" "/health/live" $web }}, port: http}
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet: {path: {{ ternary "/" "/health/ready" $web }}, port: http}
+            periodSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command: {{ ternary (list "node" "-e" "setTimeout(()=>{},10000)") (list "python" "-c" "import time; time.sleep(10)") $web | toJson }}
+          volumeMounts:
+            - {name: scratch, mountPath: /tmp}
+            {{- if $web }}
+            - {name: cache, mountPath: {{ printf "/app/%s/%s/.next/cache" $.Values.vertical (ternary "storefront-web" "merchant-web" (eq $workload.role "shopping")) }}}
+            {{- end }}
+            {{- if $workload.secrets }}
+            - {name: secrets, mountPath: /mnt/secrets-store, readOnly: true}
+            {{- end }}
+      volumes:
+        - {name: scratch, emptyDir: {sizeLimit: 64Mi}}
+        {{- if $web }}
+        - {name: cache, emptyDir: {sizeLimit: 128Mi}}
+        {{- end }}
+        {{- if $workload.secrets }}
+        - name: secrets
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes: {secretProviderClass: {{ $name }}}
+        {{- end }}
+{{- if ne $workload.mode "worker" }}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: {{ $name }}}
+spec:
+  type: ClusterIP
+  selector: {app.kubernetes.io/name: {{ $name }}}
+  ports: [{name: http, port: {{ $port }}, targetPort: http}]
+{{- end }}
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata: {name: {{ $name }}}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: {app.kubernetes.io/name: {{ $name }}}
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata: {name: {{ $name }}}
+spec:
+  scaleTargetRef: {apiVersion: apps/v1, kind: Deployment, name: {{ $name }}}
+  minReplicas: {{ $.Values.autoscaling.minReplicas }}
+  maxReplicas: {{ $.Values.autoscaling.maxReplicas }}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target: {type: Utilization, averageUtilization: {{ $.Values.autoscaling.cpuPercent }}}
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies: [{type: Pods, value: 1, periodSeconds: 60}]
+{{- end }}

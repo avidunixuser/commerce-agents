@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "required": ["vertical", "images", "workloads", "network", "gateway"],
+  "properties": {
+    "vertical": {"enum": ["retail", "travel", "telecom", "entertainment"]},
+    "images": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime", "gateway", "shoppingWeb", "merchantWeb"],
+      "properties": {
+        "runtime": {"$ref": "#/definitions/image"},
+        "gateway": {"$ref": "#/definitions/image"},
+        "shoppingWeb": {"$ref": "#/definitions/image"},
+        "merchantWeb": {"$ref": "#/definitions/image"}
+      }
+    },
+    "replicas": {"type": "integer", "minimum": 2},
+    "autoscaling": {
+      "type": "object",
+      "properties": {
+        "minReplicas": {"type": "integer", "minimum": 2},
+        "maxReplicas": {"type": "integer", "minimum": 2},
+        "cpuPercent": {"type": "integer", "minimum": 10, "maximum": 90}
+      }
+    },
+    "gateway": {
+      "type": "object",
+      "properties": {
+        "className": {"const": "approuting-istio"},
+        "shoppingHost": {"type": "string", "minLength": 1},
+        "merchantHost": {"type": "string", "minLength": 1},
+        "shoppingIp": {"type": "string", "minLength": 1},
+        "merchantIp": {"type": "string", "minLength": 1}
+      }
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "applicationGatewayCidr": {"const": "10.40.4.0/24"},
+        "cosmosCidrs": {"$ref": "#/definitions/privateCidrs"},
+        "modelCidrs": {"$ref": "#/definitions/privateCidrs"},
+        "vaultCidrs": {"$ref": "#/definitions/privateCidrs"},
+        "identityCidrs": {"$ref": "#/definitions/httpsCidrs"},
+        "telemetryCidrs": {"$ref": "#/definitions/httpsCidrs"}
+      }
+    },
+    "workloads": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shopping-api", "merchant-api", "shopping-worker", "merchant-worker", "shopping-gateway", "merchant-gateway", "shopping-web", "merchant-web"],
+      "patternProperties": {
+        "^(shopping|merchant)-(api|worker|gateway|web)$": {
+          "type": "object",
+          "required": ["role", "mode", "clientId", "env", "secrets"],
+          "properties": {
+            "role": {"enum": ["shopping", "merchant"]},
+            "mode": {"enum": ["api", "worker", "gateway", "web"]},
+            "clientId": {"type": "string", "pattern": "^[a-fA-F0-9-]{36}$"},
+            "env": {
+              "type": "object",
+              "propertyNames": {"not": {"enum": ["COMMERCE_ROLE", "COMMERCE_VERTICAL", "COMMERCE_MODE", "COMMERCE_ENVIRONMENT", "COMMERCE_PRIVATE_BOUNDARY", "COMMERCE_API_UPSTREAM", "COMMERCE_WEB_UPSTREAM", "COMMERCE_PUBLIC_ORIGIN"]}},
+              "additionalProperties": {"type": "string"}
+            },
+            "secrets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["remoteName", "alias", "envName"],
+                "properties": {
+                  "remoteName": {"type": "string", "pattern": "^[a-zA-Z0-9-]+$"},
+                  "alias": {"type": "string", "pattern": "^[a-z0-9-]+$"},
+                  "envName": {"type": "string", "pattern": "^[A-Z_][A-Z_0-9]+$"}
+                }
+              },
+              "existingSecretRefs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["envName", "secretName", "key"],
+                  "properties": {
+                    "envName": {"type": "string", "pattern": "^[A-Z_][A-Z_0-9]+$"},
+                    "secretName": {"type": "string", "minLength": 1},
+                    "key": {"type": "string", "minLength": 1}
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "globalEnv": {
+      "type": "object",
+      "propertyNames": {"not": {"enum": ["COMMERCE_ROLE", "COMMERCE_VERTICAL", "COMMERCE_MODE", "COMMERCE_ENVIRONMENT", "COMMERCE_PRIVATE_BOUNDARY", "COMMERCE_API_UPSTREAM", "COMMERCE_WEB_UPSTREAM", "COMMERCE_PUBLIC_ORIGIN"]}},
+      "additionalProperties": {"type": "string"}
+    }
+  },
+  "definitions": {
+    "image": {"type": "string", "pattern": "^[a-z0-9.-]+\\.azurecr\\.io/[a-z0-9/._-]+@sha256:[a-f0-9]{64}$"},
+    "privateCidrs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^(10\\.|172\\.(1[6-9]|2[0-9]|3[01])\\.|192\\.168\\.).*/32$"}
+    },
+    "httpsCidrs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {"type": "string", "pattern": "^[0-9.]+/32$"}
+    }
+  }
+}
