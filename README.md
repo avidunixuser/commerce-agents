@@ -1,5 +1,13 @@
 # Azure Commerce Agents
 
+<picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="docs/assets/azure-commerce-architecture.png">
+  <img src="docs/assets/azure-commerce-architecture.gif" alt="Architecture: public shoppers and privately connected merchants enter separate WAF listeners, OIDC gateways, Next.js portals and role APIs. Cosmos outbox workers use Claude Foundry or Azure OpenAI and authoritative commerce adapters. Shared images deploy on Container Apps or AKS." width="1600">
+</picture>
+
+[View the static diagram](docs/assets/azure-commerce-architecture.png) |
+[Architecture and release gates](docs/azure-application.md)
+
 This repository adapts [Anthropic's Commerce Agents](https://github.com/anthropics/commerce-agents)
 at `fd4d59224ab96b43c6dc6888207c67b3bd5a24cf`, retaining its history, Apache-2.0
 license, attribution, core safety gates, and local demos. The Azure application adds
