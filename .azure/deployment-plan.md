@@ -73,7 +73,7 @@ Applied the standalone Bicep recipe from `azure-validate` to both targets:
 - [ ] Subscription Azure Policy evaluation.
 - [x] Application regressions, browser contracts and production web builds.
 - [x] Helm lint/render and strict Kubernetes/Gateway/CSI schema validation.
-- [ ] Production container builds and runtime smoke checks (Docker unavailable locally).
+- [x] Production container builds and frontend serving checks in actual PR CI.
 
 **All validation checks pass: No.** No Azure account query, ARM validation,
 what-if, live policy query or provisioning was performed. No subscription or
@@ -83,31 +83,36 @@ checks pass and deployment is separately approved.
 
 ## 7. Validation proof
 
-Completed on the Windows preparation host with Python 3.13.5. Linux Python
-3.11/3.12 and image checks are also configured in CI; local evidence does not
-claim those runner results.
+Local checks completed on the Windows preparation host with Python 3.13.5.
+Actual GitHub Actions results for application commit `672f43a` supplement that
+evidence: [Linux/web CI](https://github.com/avidunixuser/commerce-agents/actions/runs/41927736133)
+and [image CI](https://github.com/avidunixuser/commerce-agents/actions/runs/41927736443)
+both passed.
 
 | Check | Command / evidence | Actual outcome |
 |---|---|---|
 | Full Python regression | `.venv\Scripts\python.exe -m pytest -q -k 'not test_the_file_store_is_owner_only_and_keeps_purge_generations_across_instances'` | 1,281 passed, 1 skipped, 1 deselected |
+| Linux Python 3.11 and 3.12 | Actual CI `pytest -q`, without the Windows deselection | 1,282 passed, 1 skipped on each version |
 | Dependency consistency | `python -m pip --python .venv\Scripts\python.exe check` | No broken requirements |
 | Python lint/format | `python -m ruff check .`; `python -m ruff format --check .` in the project environment | Passed; 247 files formatted |
 | Upstream repository contracts | `python scripts\check.py` in the project environment | Clean: all verticals, skills, fixtures, seven upstream packages and managed-agent manifests |
 | Browser contracts | `npm --prefix examples run test --workspace web-shared` | 9 passed |
 | Production frontends | `npm --prefix examples run build` | All eight applications built; gateway workstream also checked standalone serving |
+| Production images | Actual `containers` CI matrix | API/gateway and all eight frontend images built; non-root configuration/import checks and eight frontend HTTP serving checks passed |
 | Provider/approval integration | Included in full regression | All 16 vertical/role/provider grounded-turn cases, real async credential construction, and actual core-executor approval/result replay passed without live inference |
 | Bicep | `az bicep build --file infra\container-apps\main.bicep`; same for `infra\aks\main.bicep`, using disposable `--outfile` paths | Both exited 0; final nested ARM privacy/network/RBAC assertions passed |
 | Infrastructure contracts | `python -m unittest discover -s infra\scripts -p test_*.py -v` | 20 passed after final scope corrections |
 | Helm/Kubernetes | `python infra\scripts\validate.py --helm <pinned-helm> --kubeconform <pinned-kubeconform>` | Prior unchanged-chart matrix: 456 valid objects across eight renders; 9 insecure-input rejection cases passed; pinned versions/commands in infrastructure runbook |
-| CI configuration | YAML parse of `.github\workflows\*.yml` | All three files parsed; image workflow builds API/gateway and all eight frontend images, with frontend serving checks |
+| CI configuration | YAML parse of `.github\workflows\*.yml` | All three files parsed; application, web, dependency-confusion and image jobs passed in actual CI |
 
 The deselected test is the unchanged upstream POSIX `0600` assertion that cannot
 pass with Windows file-mode semantics. It is **not** skipped or weakened in the
 repository: Linux CI runs it normally. The existing skipped test and upstream
 dependency warnings are not presented as additional passing checks.
 
-No local Docker daemon/tool is available, so no image build is claimed here.
-Live Cosmos transaction behavior, OIDC registrations, effective RBAC, TLS/private
+No local Docker daemon/tool is available; image evidence above is from actual
+Linux CI, not a local build or Azure runtime test. Live Cosmos transaction
+behavior, OIDC registrations, effective RBAC, TLS/private
 DNS/networking, Gateway admission/routing, model availability/quota/private
 inference, telemetry export and authoritative commerce adapter certification
 remain release gates. The Foundry preview `modelProviderData` schema caveat is
