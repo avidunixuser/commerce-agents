@@ -5,6 +5,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  output: "standalone",
+  outputFileTracingRoot: require("node:path").resolve(__dirname, "../.."),
   transpilePackages: ["web-shared"],
 };
 

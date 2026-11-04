@@ -33,7 +33,15 @@ export function useSession(
     generations.set(api, generation);
     const current = () => generations.get(api) === generation;
     void (async () => {
-      const started = await api.startSession(profile ? { user_id: profile } : undefined);
+      let started;
+      try {
+        started = await api.startSession(profile ? { user_id: profile } : undefined);
+      } catch (error) {
+        window.dispatchEvent(new CustomEvent("commerce-api-error", {
+          detail: error instanceof Error ? error.message : "Session start failed.",
+        }));
+        return;
+      }
       if (!current()) return;
       api.session = started?.sessionId ?? null;
       setSession({ sessionId: started?.sessionId ?? null, operator: started?.operator, shopper: started?.shopper });

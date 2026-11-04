@@ -126,6 +126,7 @@ export function AssistantPanel({
       </div>
 
       <div className="border-t border-(--line) p-3">
+        {chat.busy && <button type="button" onClick={() => void chat.cancel()}>Cancel response</button>}
         <Composer
           send={chat.send}
           ready={chat.ready}

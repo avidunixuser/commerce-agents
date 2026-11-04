@@ -1,0 +1,42 @@
+# syntax=docker/dockerfile:1
+FROM node:22-bookworm-slim AS build
+WORKDIR /app/examples
+COPY examples/package.json examples/package-lock.json ./
+COPY examples/web-shared ./web-shared
+COPY examples/retail/storefront-web ./retail/storefront-web
+COPY examples/retail/merchant-web ./retail/merchant-web
+COPY examples/travel/storefront-web ./travel/storefront-web
+COPY examples/travel/merchant-web ./travel/merchant-web
+COPY examples/telecom/storefront-web ./telecom/storefront-web
+COPY examples/telecom/merchant-web ./telecom/merchant-web
+COPY examples/entertainment/storefront-web ./entertainment/storefront-web
+COPY examples/entertainment/merchant-web ./entertainment/merchant-web
+RUN npm ci --no-audit --no-fund
+ARG VERTICAL
+ARG WEB_APP
+ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
+RUN case "$VERTICAL" in retail|travel|telecom|entertainment) ;; *) exit 1 ;; esac \
+    && case "$WEB_APP" in storefront-web|merchant-web) ;; *) exit 1 ;; esac \
+    && npm run build --workspace "acme-${VERTICAL}-${WEB_APP}" \
+    && mkdir -p /output \
+    && cp -a "${VERTICAL}/${WEB_APP}/.next/standalone/." /output/ \
+    && mkdir -p /output/licenses \
+    && cp node_modules/@fontsource-variable/big-shoulders/LICENSE /output/licenses/Big-Shoulders-OFL.txt \
+    && cp node_modules/@fontsource-variable/archivo/LICENSE /output/licenses/Archivo-OFL.txt \
+    && cp node_modules/@fontsource/ibm-plex-mono/LICENSE /output/licenses/IBM-Plex-Mono-OFL.txt \
+    && mkdir -p "/output/${VERTICAL}/${WEB_APP}/.next" \
+    && cp -a "${VERTICAL}/${WEB_APP}/.next/static" "/output/${VERTICAL}/${WEB_APP}/.next/static" \
+    && mkdir -p "${VERTICAL}/${WEB_APP}/public" \
+    && cp -a "${VERTICAL}/${WEB_APP}/public" "/output/${VERTICAL}/${WEB_APP}/public" \
+    && printf '#!/bin/sh\nexec node /app/%s/%s/server.js\n' "$VERTICAL" "$WEB_APP" > /output/start.sh \
+    && chmod 555 /output/start.sh
+
+FROM node:22-bookworm-slim AS runtime
+ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
+WORKDIR /app
+COPY LICENSE ./LICENSE
+COPY --from=build --chown=node:node /output ./
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s CMD ["node", "-e", "fetch('http://127.0.0.1:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+ENTRYPOINT ["/app/start.sh"]

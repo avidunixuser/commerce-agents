@@ -1,0 +1,56 @@
+# Production-shaped local topology. TLS, OIDC, Cosmos, and MI are deployment inputs;
+# this intentionally cannot run with fabricated credentials or an insecure auth fallback.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: commerce-api:local
+    command: ["api"]
+    env_file: ["${COMMERCE_API_ENV_FILE:?Set an external API configuration file}"]
+    environment:
+      COMMERCE_ROLE: "${COMMERCE_ROLE:?Set shopping or merchant}"
+      COMMERCE_VERTICAL: "${COMMERCE_VERTICAL:?Set the vertical}"
+      COMMERCE_MODE: production
+    networks: [backend]
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  worker:
+    image: commerce-api:local
+    command: ["worker"]
+    env_file: ["${COMMERCE_API_ENV_FILE:?Set an external API configuration file}"]
+    environment:
+      COMMERCE_ROLE: "${COMMERCE_ROLE:?Set shopping or merchant}"
+      COMMERCE_VERTICAL: "${COMMERCE_VERTICAL:?Set the vertical}"
+      COMMERCE_MODE: production
+    networks: [backend]
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        VERTICAL: "${COMMERCE_VERTICAL:?Set the vertical}"
+        WEB_APP: "${COMMERCE_WEB_APP:?Set storefront-web or merchant-web}"
+    networks: [backend]
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+  gateway:
+    build:
+      context: .
+      dockerfile: Dockerfile.gateway
+    env_file: ["${COMMERCE_GATEWAY_ENV_FILE:?Set an external gateway configuration file}"]
+    environment:
+      COMMERCE_ROLE: "${COMMERCE_ROLE:?Set shopping or merchant}"
+      COMMERCE_API_UPSTREAM: http://api:8080
+      COMMERCE_WEB_UPSTREAM: http://web:3000
+    ports: ["127.0.0.1:8080:8080"]
+    networks: [backend]
+    read_only: true
+    security_opt: ["no-new-privileges:true"]
+    cap_drop: [ALL]
+networks:
+  backend:

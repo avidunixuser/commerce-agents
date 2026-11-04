@@ -6,6 +6,7 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "../icons";
 import { Avatar } from "../ui";
+import { AuthControls } from "../AuthControls";
 
 export interface PortalNavItem<V extends string> {
   id: V;
@@ -54,7 +55,9 @@ export function PortalShell<V extends string>({
   children: ReactNode;
 }) {
   return (
-    <div className="flex h-dvh bg-(--ground) text-(--ink)">
+    <div className="flex h-dvh flex-col bg-(--ground) text-(--ink)">
+      <AuthControls />
+      <div className="flex min-h-0 flex-1">
       <aside className="hidden w-16 shrink-0 flex-col border-r border-(--line) bg-(--chrome) px-2 py-3.5 lg:flex xl:w-[220px] xl:px-3">
         <div className="flex items-center gap-2.5 px-1 pb-4 xl:px-2">
           {brand.mark}
@@ -165,6 +168,7 @@ export function PortalShell<V extends string>({
           </main>
           {rail}
         </div>
+      </div>
       </div>
     </div>
   );

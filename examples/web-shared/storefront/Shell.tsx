@@ -5,6 +5,7 @@
 
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityButton } from "../ActivityButton";
+import { AuthControls } from "../AuthControls";
 import type { AgentApi } from "../api";
 import { Composer } from "../Composer";
 import { Icon, type IconName } from "../icons";
@@ -121,6 +122,7 @@ export function StoreShell<V extends string>({
   return (
     <FrameContext.Provider value={frame}>
       <div className="flex h-dvh flex-col text-(--ink)">
+        <AuthControls />
         <header className="flex h-[58px] shrink-0 items-center gap-2 border-b border-(--line) bg-(--chrome) px-3 sm:gap-5 sm:px-5">
           <div className="flex shrink-0 items-center">{brand}</div>
           <nav className="flex min-w-0 items-center gap-1" aria-label="Views">
@@ -149,6 +151,7 @@ export function StoreShell<V extends string>({
             })}
           </nav>
           <div className="ml-auto flex items-center gap-2">
+            {chat.busy && <button type="button" onClick={() => void api.cancelChat()}>Cancel response</button>}
             <ActivityButton
               streaming={chat.streaming}
               newMemoryCount={chat.newMemoryKeys.size}
@@ -235,7 +238,7 @@ export function StoreShell<V extends string>({
             name={shopper.name}
             detail={shopper.tier}
             api={api}
-            profiles={profiles}
+            profiles={api.root === "" ? undefined : profiles}
             profileId={profileId}
             onSwitchProfile={onSwitchProfile}
             onClose={() => setAccountOpen(false)}

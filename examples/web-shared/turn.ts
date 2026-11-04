@@ -91,6 +91,7 @@ export interface AgentTurn {
   /** A reply is streaming. */
   busy: boolean;
   send: (text: string) => Promise<void>;
+  cancel: () => Promise<void>;
   turnCount: number;
   /** Replies that have finished; a page re-reads what a reply may have changed when it moves. */
   completed: number;
@@ -129,7 +130,10 @@ export function useAgentTurn(api: AgentApi, options: AgentTurnOptions): AgentTur
       slot.timer = null;
     }
   }, []);
-  useEffect(() => clearTimers, [clearTimers]);
+  useEffect(() => () => {
+    clearTimers();
+    void api.cancelChat();
+  }, [api, clearTimers]);
 
   const updateTurn = useCallback(
     (turn: number, update: (item: AssistantChatItem) => AssistantChatItem) => {
@@ -467,12 +471,13 @@ export function useAgentTurn(api: AgentApi, options: AgentTurnOptions): AgentTur
             handleEvent(turn, event);
           }
         }
-      } catch {
-        updateTurn(turn, (item) =>
-          item.segments.length
-            ? item
-            : { ...item, segments: [{ type: "error", text: unreachable }] },
-        );
+      } catch (error) {
+        const text = error instanceof DOMException && error.name === "AbortError"
+          ? "Response cancelled."
+          : error instanceof Error ? error.message : unreachable;
+        updateTurn(turn, (item) => ({
+          ...item, segments: [...item.segments, { type: "error", text }],
+        }));
       } finally {
         // Partials freeze as they are; unadopted skeletons and failed slots go at turn end.
         flush(turn);
@@ -511,6 +516,7 @@ export function useAgentTurn(api: AgentApi, options: AgentTurnOptions): AgentTur
     ready: sessionId != null,
     busy,
     send,
+    cancel: () => api.cancelChat(),
     ...turnState,
     trace,
     memory,
