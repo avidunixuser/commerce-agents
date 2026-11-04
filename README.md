@@ -1,4 +1,15 @@
-# Claude Commerce Agents
+# Azure Commerce Agents
+
+This repository adapts [Anthropic's Commerce Agents](https://github.com/anthropics/commerce-agents)
+at `fd4d59224ab96b43c6dc6888207c67b3bd5a24cf`, retaining its history, Apache-2.0
+license, attribution, core safety gates, and local demos. The Azure application adds
+Cosmos persistence, durable workers, an OIDC/guest gateway, Azure OpenAI Responses
+and Foundry Claude providers, and independent Container Apps and AKS targets.
+
+Start with the [Azure application guide](docs/azure-application.md),
+[host contracts](apps/host/README.md), [gateway setup](docs/gateway-auth.md), and
+[private infrastructure guide](docs/azure-infrastructure.md). Cloud deployment and
+real commerce integrations are release gates, not completed live integrations.
 
 Two commerce agents built on Claude: a **shopping agent** a business embeds in its app for
 customers, and a **merchant agent** its staff use to run the back office. Each is defined
@@ -16,7 +27,7 @@ SDK, and Managed Agents; four runnable verticals show both over the same librari
 Python 3.11+ and Node 22. Clone, install, add a key, run a vertical:
 
 ```bash
-git clone https://github.com/anthropics/commerce-agents.git && cd commerce-agents
+git clone https://github.com/avidunixuser/commerce-agents.git && cd commerce-agents
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt       # the seven packages and their pinned dependencies
 cp .env.example .env                  # add ANTHROPIC_API_KEY
@@ -64,6 +75,9 @@ its analytics, catalog, inventory, pricing, and campaign systems.
 | Directory | Contents | pip package, `import` name |
 |---|---|---|
 | [`commerce-common/`](commerce-common/) | What both roles share: config, fencing, memory, skills, grounding, presentation, executor frame, events | `commerce-common`, `commerce_common` |
+| [`apps/host/`](apps/host/) | Authenticated role APIs, atomic Cosmos stores, outbox workers, replay, approvals and migration | `commerce-azure-host`, `commerce_host` |
+| [`apps/gateway/`](apps/gateway/) | Server-owned OIDC sessions, guest assertions and same-origin application routing | `commerce_gateway` |
+| [`infra/`](infra/) and [`deploy/helm/`](deploy/helm/) | Public-Azure private networking/services, independent Container Apps/AKS targets and hardened workloads | — |
 | [`shopping-agent/core/`](shopping-agent/core/) | Shopping types, `StorefrontBackend`, prompt, tool contracts, gates, executor | `shopping-agent-core`, `shopping_agent` |
 | [`shopping-agent/runtime-messages-api/`](shopping-agent/runtime-messages-api/) | `ShoppingAgent`, the turn loop on the Messages API | `shopping-agent-runtime`, `shopping_agent_runtime` |
 | [`shopping-agent/runtime-agent-sdk/`](shopping-agent/runtime-agent-sdk/) | The shopping agent on the Agent SDK, with a console | `shopping-agent-sdk`, `shopping_agent_sdk` |

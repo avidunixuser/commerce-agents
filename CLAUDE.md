@@ -18,6 +18,7 @@ paths each, four vertical examples, and a Claude Code plugin.
 - `plugins/commerce-builder/`: six skills, four commands; `.claude-plugin/marketplace.json` points at it.
 - `docs/`: `safety.md`, `backends.md`, `deployment.md`. `scripts/`: install, demo, smoke, screenshots, check, deploy, verify.
 - `tests/`: the suites that span packages (both roles on all three paths); each package keeps its own `tests/`.
+- `apps/host/`: authenticated role APIs, Cosmos aggregates, durable workers, and host contract tests.
 
 `requirements.txt` installs the seven packages and their pinned dependencies (`requirements-dev.txt`
 adds pytest and ruff); `scripts/install.sh` runs it.
@@ -30,6 +31,7 @@ adds pytest and ruff); `scripts/install.sh` runs it.
 - Third-party content is fenced data; writes are provenance-gated and capped in code; `checkout` charges nothing; merchant writes apply only through host approval.
 - Core is domain-neutral; a vertical adds UI through `PresentationExtension` and keeps the rest to itself.
 - Each mechanism is defined once, in `commerce_common` or a role core, and shared by all three paths.
+- `commerce_common/providers.py` supplies typed model transports to the existing Messages API role loops; provider-private continuation stays separate from portable history.
 
 ## Fictional and original
 

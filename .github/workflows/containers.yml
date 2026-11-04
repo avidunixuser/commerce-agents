@@ -1,0 +1,64 @@
+name: containers
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  python-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: [api, gateway]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build non-root application image
+        run: docker build -f Dockerfile.${{ matrix.image }} -t commerce-${{ matrix.image }}:ci .
+      - name: Verify configured runtime user
+        run: |
+          user="$(docker image inspect --format '{{.Config.User}}' commerce-${{ matrix.image }}:ci)"
+          test -n "$user" && test "$user" != root && test "$user" != 0
+      - name: Verify API packages and shared skills
+        if: matrix.image == 'api'
+        run: |
+          docker run --rm --entrypoint python commerce-api:ci -c \
+            "import commerce_host, shopping_agent_runtime, merchant_agent_runtime, openai, azure.cosmos; from pathlib import Path; assert Path('/app/shopping-agent/skills').is_dir(); assert Path('/app/merchant-agent/skills').is_dir()"
+      - name: Verify gateway package
+        if: matrix.image == 'gateway'
+        run: docker run --rm --entrypoint python commerce-gateway:ci -c "import commerce_gateway"
+
+  frontend-images:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        vertical: [retail, travel, telecom, entertainment]
+        app: [storefront-web, merchant-web]
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Build standalone frontend
+        run: |
+          docker build -f Dockerfile.web \
+            --build-arg VERTICAL=${{ matrix.vertical }} \
+            --build-arg WEB_APP=${{ matrix.app }} \
+            -t commerce-web:ci .
+      - name: Verify configured runtime user
+        run: |
+          user="$(docker image inspect --format '{{.Config.User}}' commerce-web:ci)"
+          test -n "$user" && test "$user" != root && test "$user" != 0
+      - name: Serve the standalone application
+        run: |
+          container="$(docker run --detach --rm \
+            --env PORT=3000 --env HOSTNAME=0.0.0.0 \
+            --publish 127.0.0.1:3000:3000 commerce-web:ci)"
+          trap 'docker logs "$container"; docker stop "$container" >/dev/null' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --output /dev/null http://127.0.0.1:3000/; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
