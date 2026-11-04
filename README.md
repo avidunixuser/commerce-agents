@@ -6,7 +6,22 @@
 </picture>
 
 [View the static diagram](docs/assets/azure-commerce-architecture.png) |
+[Detailed Azure services, private networking and RBAC](docs/azure-service-architecture.md) |
 [Architecture and release gates](docs/azure-application.md)
+
+<details>
+<summary>Static Azure service, network boundary and managed identity diagram</summary>
+
+[![Static Azure architecture showing both hosting alternatives, network boundaries, private endpoints, managed identities and scoped service RBAC](docs/assets/azure-service-architecture.png)](docs/assets/azure-service-architecture.png)
+
+[Full-size editable SVG](docs/assets/azure-service-architecture.svg) |
+[Complete service inventory and identity-to-role matrix](docs/azure-service-architecture.md)
+
+Code-derived reference, not a live Azure inventory. Container Apps and AKS are
+alternative installations. Azure Monitor public ingestion and the AKS HTTP
+backend hop are explicitly distinguished from private endpoint access.
+
+</details>
 
 This repository adapts [Anthropic's Commerce Agents](https://github.com/anthropics/commerce-agents)
 at `fd4d59224ab96b43c6dc6888207c67b3bd5a24cf`, retaining its history, Apache-2.0
