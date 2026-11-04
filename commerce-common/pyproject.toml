@@ -19,6 +19,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+azure = [
+  "openai>=2.53,<3",
+  "azure-identity>=1.24,<2",
+  "aiohttp>=3.12.15,<4",
+]
 # The optional modules: commerce_common.agent_sdk and commerce_common.mcp_server.
 sdk = ["claude-agent-sdk>=0.2.139", "mcp>=1.2"]
 mcp = ["mcp>=1.2"]

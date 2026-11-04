@@ -24,9 +24,10 @@ from pydantic import BaseModel, ValidationError
 from commerce_common.delegation import DelegateExtension, DelegationContext
 from commerce_common.execution import without_status
 from commerce_common.prompt_assembly import with_tool_cache_control
+from commerce_common.providers import ClaudeProvider, ModelProvider, RoundRequest
 from commerce_common.skills import SkillRegistry
 from commerce_common.streaming import AgentEvent
-from commerce_common.turn import accumulate_usage, log_model_call
+from commerce_common.turn import accumulate_usage, assistant_message, log_model_call
 from merchant_agent import (
     AnalysisResult,
     AnalysisTable,
@@ -83,10 +84,14 @@ def present_analysis(result: BaseModel, context: DelegationContext) -> tuple[Any
 
 
 def build_analysis_delegate(
-    client: AsyncAnthropic, backend: MerchantBackend, config: MerchantAgentConfig
+    client: AsyncAnthropic | None,
+    backend: MerchantBackend,
+    config: MerchantAgentConfig,
+    *,
+    provider: ModelProvider | None = None,
 ) -> DelegateExtension:
     definition = build_analysis_tool_definition()
-    runner = AnalysisRunner(client=client, backend=backend, config=config)
+    runner = AnalysisRunner(client=client, backend=backend, config=config, provider=provider)
     return DelegateExtension(
         name=ANALYSIS_TOOL,
         description=definition["description"],
@@ -105,11 +110,18 @@ class AnalysisRunner:
     """Builds the delegate's tool surface once per deployment and runs one loop per call."""
 
     def __init__(
-        self, *, client: AsyncAnthropic, backend: MerchantBackend, config: MerchantAgentConfig
+        self,
+        *,
+        client: AsyncAnthropic | None,
+        backend: MerchantBackend,
+        config: MerchantAgentConfig,
+        provider: ModelProvider | None = None,
     ) -> None:
         self._client = client
         self._backend = backend
         self._config = config
+        self._provider = provider
+        (provider or ClaudeProvider(client)).validate_config(config, purpose="analysis")
         self._system = build_analysis_system_prompt(config)
         self._sql_supported = backend_supports_analysis_query(backend)
         self._tools = self._build_tools()
@@ -218,7 +230,8 @@ class AnalysisRunner:
             if container_id is not None:
                 request["container"] = container_id
             call_started = time.monotonic()
-            response = await self._client.messages.create(**request)
+            provider = self._provider or ClaudeProvider(self._client)
+            response = await provider.complete(RoundRequest.from_dict(request))
             log_model_call(
                 logger,
                 request,
@@ -232,12 +245,8 @@ class AnalysisRunner:
             container = getattr(response, "container", None)
             if container is not None and getattr(container, "id", None):
                 container_id = container.id
-            content_dicts = [
-                block.model_dump(exclude_none=True, exclude={"citations"})
-                for block in response.content
-            ]
-            if content_dicts:
-                messages.append({"role": "assistant", "content": content_dicts})
+            if reply := assistant_message(response):
+                messages.append(reply)
 
             # Answered whatever the stop reason: a paused sandbox turn with a pending
             # client call is rejected on resume unless the call has its result.

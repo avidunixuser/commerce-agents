@@ -20,12 +20,13 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from functools import lru_cache
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, runtime_checkable
 
 from anthropic import AsyncAnthropic
 from anthropic.types import ToolParam
 
 from .fencing import Fence
+from .providers import ModelProvider, complete_model
 from .streaming import ToolOutcome
 from .turn import log_model_call, session_tag
 from .types import MemoryCategory, MemoryFact
@@ -98,6 +99,21 @@ class MemoryStore(Protocol):
         ...
 
 
+@runtime_checkable
+class ConditionalExtractionStore(Protocol):
+    """Optional atomic extraction extension, separate from legacy MemoryStore.
+
+    The revision changes on every subject mutation, including deletion and purge.
+    ``commit_extracted`` compares and writes atomically, returning False on conflict.
+    """
+
+    async def extraction_revision(self, subject_id: str) -> str: ...
+
+    async def commit_extracted(
+        self, subject_id: str, facts: list[MemoryFact], revision: str
+    ) -> bool: ...
+
+
 MEMORY_STORE_METHODS: tuple[str, ...] = tuple(
     name
     for name, member in vars(MemoryStore).items()
@@ -115,6 +131,10 @@ def check_memory_store(store: MemoryStore) -> MemoryStore:
                 f"{type(store).__name__} does not implement MemoryStore.{name}; the store "
                 f"contract is {', '.join(MEMORY_STORE_METHODS)}"
             )
+    extensions = ("extraction_revision", "commit_extracted")
+    optional = [callable(getattr(store, name, None)) for name in extensions]
+    if any(optional) and not all(optional):
+        raise TypeError("Conditional extraction requires extraction_revision and commit_extracted")
     return store
 
 
@@ -274,20 +294,26 @@ class InMemoryMemoryStore:
     def __init__(self) -> None:
         self._data: dict[str, dict[str, MemoryFact]] = {}
         self._purges: dict[str, int] = {}
+        self._revisions: dict[str, int] = {}
 
     async def get_facts(self, subject_id: str) -> list[MemoryFact]:
-        return list(self._data.get(subject_id, {}).values())
+        return [fact.model_copy(deep=True) for fact in self._data.get(subject_id, {}).values()]
 
     async def upsert_facts(self, subject_id: str, facts: list[MemoryFact]) -> None:
         bucket = self._data.setdefault(subject_id, {})
         for fact in facts:
-            bucket[fact.key] = fact
+            bucket[fact.key] = fact.model_copy(deep=True)
+        if facts:
+            self._revisions[subject_id] = self._revisions.get(subject_id, 0) + 1
 
     async def search_facts(self, subject_id: str, query: str) -> list[MemoryFact]:
         return match_facts(await self.get_facts(subject_id), query)
 
     async def delete_fact(self, subject_id: str, key: str) -> bool:
-        return self._data.get(subject_id, {}).pop(key, None) is not None
+        deleted = self._data.get(subject_id, {}).pop(key, None) is not None
+        # A delete of an absent key also invalidates in-flight extraction of that key.
+        self._revisions[subject_id] = self._revisions.get(subject_id, 0) + 1
+        return deleted
 
     async def clear(self, subject_id: str) -> None:
         self._data.pop(subject_id, None)
@@ -295,6 +321,24 @@ class InMemoryMemoryStore:
 
     async def purge_generation(self, subject_id: str) -> int:
         return self._purges.get(subject_id, 0)
+
+    async def extraction_revision(self, subject_id: str) -> str:
+        generation = await self.purge_generation(subject_id)
+        return f"{generation}:{self._revisions.get(subject_id, 0)}"
+
+    async def commit_extracted(
+        self, subject_id: str, facts: list[MemoryFact], revision: str
+    ) -> bool:
+        current = f"{self._purges.get(subject_id, 0)}:{self._revisions.get(subject_id, 0)}"
+        if current != revision:
+            return False
+        # No await between compare and write: atomic within this single-process store.
+        bucket = self._data.setdefault(subject_id, {})
+        for fact in facts:
+            bucket[fact.key] = fact.model_copy(deep=True)
+        if facts:
+            self._revisions[subject_id] = self._revisions.get(subject_id, 0) + 1
+        return True
 
 
 class JsonFileMemoryStore:
@@ -405,6 +449,26 @@ class RetentionMemoryStore:
     async def purge_generation(self, subject_id: str) -> int:
         return await self.inner.purge_generation(subject_id)
 
+    async def extraction_revision(self, subject_id: str) -> str:
+        if not isinstance(self.inner, ConditionalExtractionStore):
+            raise TypeError("Inner memory store does not support conditional extraction")
+        return await self.inner.extraction_revision(subject_id)
+
+    async def commit_extracted(
+        self, subject_id: str, facts: list[MemoryFact], revision: str
+    ) -> bool:
+        if not isinstance(self.inner, ConditionalExtractionStore):
+            raise TypeError("Inner memory store does not support conditional extraction")
+        # Expiration remains a read filter; do not make separate deletions before CAS.
+        return await self.inner.commit_extracted(subject_id, facts, revision)
+
+
+def _conditional_store(store: MemoryStore) -> ConditionalExtractionStore | None:
+    inner = store
+    while isinstance(inner, RetentionMemoryStore):
+        inner = inner.inner
+    return store if isinstance(inner, ConditionalExtractionStore) else None
+
 
 def with_retention(store: MemoryStore, retention_days: int | None) -> MemoryStore:
     """The store as configured: unwrapped when retention is off, otherwise wrapped in a
@@ -437,7 +501,7 @@ def _same_fact(a: str, b: str) -> bool:
 
 
 async def extract_facts(
-    client: AsyncAnthropic,
+    client: AsyncAnthropic | ModelProvider,
     model: str,
     transcript: str,
     existing_facts: list[MemoryFact],
@@ -468,7 +532,7 @@ async def extract_facts(
         ],
     }
     started = time.monotonic()
-    response = await client.messages.create(**request)
+    response = await complete_model(client, request)
     log_model_call(logger, request, response, started, source_session_id, purpose="memory")
     held = {fact.key: _normalize(fact.value) for fact in existing_facts}
     known = set(held.values())
@@ -507,7 +571,7 @@ async def extract_facts(
 async def extract_and_store(
     store: MemoryStore,
     subject_id: str,
-    client: AsyncAnthropic,
+    client: AsyncAnthropic | ModelProvider,
     model: str,
     transcript: str,
     *,
@@ -516,9 +580,14 @@ async def extract_and_store(
     write_filter: MemoryWriteFilter | None,
     source_session_id: str | None = None,
 ) -> list[MemoryFact]:
-    """Extract against what the store holds and write the result, unless the subject's
-    purge generation moved while the model was running. Returns the facts written."""
-    generation = await store.purge_generation(subject_id)
+    """Extract and conditionally commit once when the store supports atomic revisions.
+
+    A conflicting edit, deletion or purge discards the whole extracted batch. Legacy
+    stores retain their generation-only check; it is not an atomic production commit.
+    """
+    conditional = _conditional_store(store)
+    revision = await conditional.extraction_revision(subject_id) if conditional else None
+    generation = await store.purge_generation(subject_id) if conditional is None else None
     existing = await store.get_facts(subject_id)
     new_facts = await extract_facts(
         client,
@@ -530,7 +599,12 @@ async def extract_and_store(
         write_filter=write_filter,
         source_session_id=source_session_id,
     )
-    if not new_facts or await store.purge_generation(subject_id) != generation:
+    if not new_facts:
+        return []
+    if conditional is not None:
+        committed = await conditional.commit_extracted(subject_id, new_facts, revision)
+        return new_facts if committed else []
+    if await store.purge_generation(subject_id) != generation:
         return []
     await store.upsert_facts(subject_id, new_facts)
     return new_facts
@@ -638,11 +712,18 @@ class MemoryRuntime:
         )
 
     async def extract(
-        self, client: AsyncAnthropic, subject_id: str, session_id: str, transcript: str
+        self,
+        client: AsyncAnthropic | ModelProvider,
+        subject_id: str,
+        session_id: str,
+        transcript: str,
+        *,
+        strict: bool = False,
     ) -> list[MemoryFact]:
         """The post-turn pass. Returns nothing when memory is off, the transcript is
         empty, or the extraction fails: memory never fails a turn, and a failure is
-        logged at warning level with its traceback."""
+        logged at warning level with its traceback. ``strict`` re-raises failures for
+        durable workers, so failed extraction can be retried."""
         if not self.enabled or self.store is None or not transcript:
             return []
         try:
@@ -663,4 +744,6 @@ class MemoryRuntime:
                 session_tag(session_id),
                 exc_info=True,
             )
+            if strict:
+                raise
             return []

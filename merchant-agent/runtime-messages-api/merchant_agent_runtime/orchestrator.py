@@ -22,7 +22,7 @@ import logging
 import time
 from collections.abc import AsyncIterator, Sequence
 from pathlib import Path
-from typing import Any, cast
+from typing import Any
 
 from anthropic import AsyncAnthropic
 
@@ -40,6 +40,7 @@ from commerce_common.prompt_assembly import (
     with_eager_input,
     with_tool_cache_control,
 )
+from commerce_common.providers import ClaudeProvider, ModelProvider, RoundRequest
 from commerce_common.skills import SkillRegistry
 from commerce_common.streaming import AgentEvent, ToolOutcome
 from commerce_common.turn import (
@@ -96,6 +97,9 @@ class MerchantAgent:
         memory_store: MemoryStore | None = None,
         memory_write_filter: MemoryWriteFilter | None = None,
         client: AsyncAnthropic | None = None,
+        provider: ModelProvider | None = None,
+        extraction_provider: ModelProvider | None = None,
+        analysis_provider: ModelProvider | None = None,
         extra_presentation_tools: Sequence[PresentationExtension] = (),
         extra_delegates: Sequence[DelegateExtension] = (),
         executor_class: type[MerchantToolExecutor] = MerchantToolExecutor,
@@ -107,11 +111,21 @@ class MerchantAgent:
         self.backend = backend
         self.skills = skills
         self.memory: MemoryRuntime = build_memory(self.config, memory_store, memory_write_filter)
-        self.client = client or AsyncAnthropic(timeout=self.config.request_timeout_s)
+        self.client = client or (
+            None if provider is not None else AsyncAnthropic(timeout=self.config.request_timeout_s)
+        )
+        self.provider = provider
+        self.extraction_provider = extraction_provider or provider
+        if provider is not None:
+            provider.validate_config(self.config)
         self.extra_presentation_tools = tuple(extra_presentation_tools)
         self.extra_delegates = tuple(extra_delegates)
         built_in = (
-            [build_analysis_delegate(self.client, self.backend, self.config)]
+            [
+                build_analysis_delegate(
+                    self.client, self.backend, self.config, provider=analysis_provider or provider
+                )
+            ]
             if self.config.enable_analysis
             else []
         )
@@ -236,7 +250,8 @@ class MerchantAgent:
                 # generator at a yield — all pass through it. Once ``collect`` has joined
                 # every task, cancel is a no-op, so the happy path pays nothing.
                 try:
-                    async with self.client.messages.stream(**cast(Any, request)) as stream:
+                    model_provider = self.provider or ClaudeProvider(self.client)
+                    async with model_provider.stream(RoundRequest.from_dict(request)) as stream:
                         async for event in streamed.relay(
                             stream, dispatcher, executor.tool_call_event
                         ):
@@ -341,11 +356,18 @@ class MerchantAgent:
         yield AgentEvent.turn_complete(stop_reason, usage, elapsed_ms(turn_started), cleared)
 
     async def update_memory(
-        self, messages: list[dict[str, Any]], session: MerchantSessionContext
+        self,
+        messages: list[dict[str, Any]],
+        session: MerchantSessionContext,
+        *,
+        strict: bool = False,
     ) -> list[MemoryFact]:
-        """Extract what the finished turn taught about the operation and store it. Run
-        it once the reply has streamed; returns the facts written and never raises."""
+        """Extract after the reply. Failures are logged; ``strict`` re-raises for workers."""
         transcript = transcript_text(latest_exchange(messages, HOST_TEXTS), HOST_TEXTS)
         return await self.memory.extract(
-            self.client, session.merchant_id, session.session_id, transcript
+            self.extraction_provider or self.client,
+            session.merchant_id,
+            session.session_id,
+            transcript,
+            strict=strict,
         )

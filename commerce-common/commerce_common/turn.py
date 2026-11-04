@@ -266,6 +266,35 @@ class StreamedRound:
     # What the model-call record reports for a round the accumulator abandoned.
     stop_reason: str = "abandoned"
     abandoned: bool = False
+    _provider_indices: dict[int, int] = field(default_factory=dict)
+
+    def feed_provider(self, raw: Any) -> StreamedTool | None:
+        """Record typed transport-neutral fragments in the same round accumulator."""
+        if raw.kind == "usage":
+            if raw.usage:
+                self.usage = raw.usage
+            return None
+        if raw.kind == "tool_start":
+            if raw.index in self._provider_indices:
+                raise ValueError("Duplicate streamed block index")
+            index = len(self.blocks)
+            self._provider_indices[raw.index] = index
+            self.blocks.append({"type": "tool_use", "id": raw.id, "name": raw.name, "input": {}})
+            tool = StreamedTool(raw.name, raw.id)
+            self.tools[index] = tool
+            return tool
+        if raw.kind == "text":
+            # A provider output item may contain several text parts; all are portable text.
+            self.blocks.append({"type": "text", "text": raw.text})
+            return None
+        index = self._provider_indices.get(raw.index)
+        tool = self.tools.get(index) if index is not None else None
+        if tool is not None:
+            if raw.kind == "arguments":
+                tool.buffer += raw.text
+            elif raw.kind == "tool_end":
+                tool.closed = True
+        return tool
 
     def feed(self, raw: Any) -> StreamedTool | None:
         """Record one raw stream event; returns the tool it touched, if any."""
@@ -353,16 +382,32 @@ class StreamedRound:
         Only the SDK's rejection of an open tool's input is caught (the round ends
         ``abandoned``); anything a partial hook raises propagates."""
         events = aiter(stream)
+        from .providers import ProviderError, StreamEvent
+
         while True:
             try:
                 raw = await anext(events)
             except StopAsyncIteration:
                 return
-            except ValueError:
+            except ValueError as exc:
+                if isinstance(exc, ProviderError):
+                    raise
                 if not self.tool_open():
                     raise
                 self.abandoned = True
                 return
+            if isinstance(raw, StreamEvent):
+                tool = self.feed_provider(raw)
+                if raw.kind == "text" and raw.text:
+                    yield AgentEvent.text_delta(raw.text)
+                elif raw.kind == "arguments" and tool is not None:
+                    if (frame := self.frame(tool)) is not None:
+                        yield frame
+                elif raw.kind == "tool_end" and tool is not None:
+                    args = tool.parsed()
+                    if dispatcher.dispatch(tool.name, tool.id, args):
+                        yield announce(tool.name, tool.id, args or {})
+                continue
             tool = self.feed(raw)
             raw_type = getattr(raw, "type", "")
             if raw_type == "content_block_delta":
@@ -481,7 +526,15 @@ def log_model_call(
         stacklevel=2,
     )
     if caller.isEnabledFor(logging.DEBUG):
-        caller.debug("model request %s %s", tags, json.dumps(request, default=str), stacklevel=2)
+        safe_request = request | {
+            "messages": [
+                {key: value for key, value in message.items() if key != "_provider"}
+                for message in request.get("messages", [])
+            ]
+        }
+        caller.debug(
+            "model request %s %s", tags, json.dumps(safe_request, default=str), stacklevel=2
+        )
         body = (
             response.model_dump_json()
             if hasattr(response, "model_dump_json")
@@ -495,7 +548,12 @@ def assistant_message(final: Any) -> dict[str, Any] | None:
     content = [
         block.model_dump(exclude_none=True, exclude={"citations"}) for block in final.content
     ]
-    return {"role": "assistant", "content": content} if content else None
+    if not content and not getattr(final, "continuation", None):
+        return None
+    message = {"role": "assistant", "content": content}
+    if continuation := getattr(final, "continuation", None):
+        message["_provider"] = continuation
+    return message
 
 
 def outcome_events(tool: str, tool_use_id: str, outcome: ToolOutcome) -> Iterator[AgentEvent]:

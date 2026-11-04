@@ -65,3 +65,10 @@ The gates themselves (fencing, provenance, caps, memory validation) are in
 Credentials: the default client reads `ANTHROPIC_API_KEY` (or a token and base URL) from
 the environment. Tests run without any: `pytest shopping-agent/runtime-messages-api/tests`
 scripts the model with `commerce_common.testing.FakeClient`.
+
+For production Azure transports, pass `provider=` and optional `extraction_provider=`
+instead of `client=`. The purpose-specific factory, required capability settings and
+provider continuation persistence contract are in
+[`commerce-common/README.md`](../../commerce-common/README.md#model-providers).
+The same executor and turn loop run on both transports. Durable memory workers use
+`update_memory(messages, session, strict=True)` to propagate failures for retry.

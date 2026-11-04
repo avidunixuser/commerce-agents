@@ -1,5 +1,12 @@
 # merchant-agent/runtime-messages-api (package `merchant_agent_runtime`)
 
+Production Azure transports use `provider=`, `extraction_provider=` and
+`analysis_provider=` without replacing the role executor or turn loop. The
+purpose-specific factory, capability guards and private continuation persistence
+contract are in [`commerce-common/README.md`](../../commerce-common/README.md#model-providers).
+Durable memory workers use `update_memory(messages, session, strict=True)` so failures
+can be retried rather than recorded as completed jobs.
+
 The merchant agent's turn loop on the Messages API. `MerchantAgent` builds the static
 prompt and tool array once, and on each turn prefetches the merchant context and memory
 facts, streams the model, executes tool calls concurrently through
