@@ -1,0 +1,228 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2600" height="2500" viewBox="0 0 2600 2500" role="img" aria-labelledby="title description">
+<title id="title">Azure commerce service, network and managed identity architecture</title>
+<desc id="description">Code-defined reference, not live inventory. Container Apps and AKS are alternative installations. Private endpoint NICs are inside the VNet; Cosmos, ACR, Key Vault and conditional model accounts are Azure-managed services outside it. Exact identity and RBAC scopes, public telemetry exceptions and operator prerequisites are shown and documented in azure-service-architecture.md.</desc>
+<rect width="2600" height="2500" fill="#f4f8fc"/>
+<text x="60" y="79.7" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="46" font-weight="700">Azure commerce: services, boundaries and access</text>
+<text x="60" y="126.9" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="23" font-weight="400">Bicep + Helm reference | all 35 explicit resource types indexed in the companion guide | NOT a live Azure inventory</text>
+<rect x="60" y="160" width="770" height="128" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="61" y="175" width="5" height="98" rx="2" fill="#0067b8" stroke="#0067b8" stroke-width="2"/>
+<text x="80" y="195.5" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">Public shoppers</text>
+<text x="80" y="232.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Shopping hostname -&gt; public WAF listener, HTTPS/443</text>
+<text x="80" y="258.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">No public merchant listener or browser model credentials</text>
+<rect x="850" y="160" width="810" height="128" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="851" y="175" width="5" height="98" rx="2" fill="#7453a6" stroke="#7453a6" stroke-width="2"/>
+<text x="870" y="195.5" fill="#7453a6" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">Privately connected workforce</text>
+<text x="870" y="232.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Merchant hostname -&gt; private WAF 10.40.4.10:8443</text>
+<text x="870" y="258.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Operator supplies private transport, DNS and approved CIDRs</text>
+<rect x="1680" y="160" width="860" height="128" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1681" y="175" width="5" height="98" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1700" y="195.5" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">Existing identity and authoritative systems</text>
+<text x="1700" y="232.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Entra / customer OIDC app registrations; external commerce APIs</text>
+<text x="1700" y="258.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Operator-owned integrations; app approval roles are NOT Azure RBAC</text>
+<rect x="40" y="325" width="2520" height="1415" rx="18" fill="#edf3f9" stroke="#8ba6bf" stroke-width="2"/>
+<text x="60" y="366.5" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">DEPLOYMENT SCOPE  /  subscription, resource group and region are deployment inputs</text>
+<rect x="60" y="390" width="1580" height="1290" rx="16" fill="#e5f1fc" stroke="#6a9bc6" stroke-width="3"/>
+<text x="80" y="433.0" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="28" font-weight="700">VNet 10.40.0.0/16  |  private workloads + endpoint NICs</text>
+<text x="80" y="468.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Five subnets; VNet DNS 10.40.0.4. ACA and AKS below are ALTERNATIVES, not co-deployed.</text>
+<rect x="1680" y="390" width="860" height="800" rx="16" fill="#f5fbfb" stroke="#6aa8aa" stroke-width="2"/>
+<text x="1700" y="430.5" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">Azure-managed data/model services OUTSIDE the VNet</text>
+<rect x="1680" y="1220" width="860" height="340" rx="16" fill="#fff9ee" stroke="#d4ad64" stroke-width="2"/>
+<text x="1700" y="1259.7" fill="#93621b" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Azure Monitor  |  controlled public-platform ingestion</text>
+<polyline points="445,288 445,300 1648,300 1648,477 830,477 830,495" fill="none" stroke="#0067b8" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="830.0,495.0 825.2,485.1 834.8,485.1" fill="#0067b8"/>
+<polyline points="1240,288 1240,308 1660,308 1660,485 900,485 900,495" fill="none" stroke="#7453a6" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="900.0,495.0 895.2,485.1 904.8,485.1" fill="#7453a6"/>
+<polyline points="843,735 843,768 455,768 455,790" fill="none" stroke="#0067b8" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="455.0,790.0 450.2,780.1 459.8,780.1" fill="#0067b8"/>
+<polyline points="843,768 1235,768 1235,790" fill="none" stroke="#0067b8" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1235.0,790.0 1230.2,780.1 1239.8,780.1" fill="#0067b8"/>
+<text x="500" y="755.8" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">ACA: HTTPS/443</text>
+<text x="1000" y="755.8" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">AKS: private HTTP/80 (not mTLS)</text>
+<polyline points="455,1240 455,1290" fill="none" stroke="#0067b8" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="455.0,1290.0 450.2,1280.1 459.8,1280.1" fill="#0067b8"/>
+<polyline points="1235,1240 1235,1268 900,1268 900,1290" fill="none" stroke="#0067b8" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="900.0,1290.0 895.2,1280.1 904.8,1280.1" fill="#0067b8"/>
+<polyline points="1100,1380 1080,1380" fill="none" stroke="#087f8c" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="1080.0,1380.0 1089.9,1375.2 1089.9,1384.8" fill="#087f8c"/>
+<polyline points="1080,1450 1090,1450 1090,1668 1670,1668 1670,504 1700,504" fill="none" stroke="#087f8c" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1700.0,504.0 1690.1,508.8 1690.1,499.2" fill="#087f8c"/>
+<polyline points="1670,634 1700,634" fill="none" stroke="#087f8c" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1700.0,634.0 1690.1,638.8 1690.1,629.2" fill="#087f8c"/>
+<polyline points="1670,762 1700,762" fill="none" stroke="#087f8c" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1700.0,762.0 1690.1,766.8 1690.1,757.2" fill="#087f8c"/>
+<polyline points="1670,903 1700,903" fill="none" stroke="#087f8c" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1700.0,903.0 1690.1,907.8 1690.1,898.2" fill="#087f8c"/>
+<polyline points="1670,1069 1700,1069" fill="none" stroke="#087f8c" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="1700.0,1069.0 1690.1,1073.8 1690.1,1064.2" fill="#087f8c"/>
+<text x="1450" y="1660.8" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="700">Private Link</text>
+<rect x="80" y="495" width="490" height="240" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="81" y="510" width="5" height="210" rx="2" fill="#0067b8" stroke="#0067b8" stroke-width="2"/>
+<text x="100" y="528.9" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="23" font-weight="700">AzureFirewallSubnet: 10.40.0.0/26</text>
+<text x="100" y="565.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Azure Firewall Standard + Standard egress PIP</text>
+<text x="100" y="589.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Firewall Policy + rule collection group</text>
+<text x="100" y="613.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">DNS proxy 10.40.0.4 -&gt; Azure DNS</text>
+<text x="100" y="637.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Workload/runner 0/0 UDR -&gt; firewall</text>
+<text x="100" y="661.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Approved FQDN/platform rules; no broad internet</text>
+<text x="100" y="685.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">MI: none; no runtime app-data grant</text>
+<rect x="590" y="495" width="505" height="240" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="591" y="510" width="5" height="210" rx="2" fill="#0067b8" stroke="#0067b8" stroke-width="2"/>
+<text x="610" y="528.9" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="23" font-weight="700">Gateway subnet: 10.40.4.0/24</text>
+<text x="610" y="565.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Application Gateway WAF_v2 + 2 WAF policies</text>
+<text x="610" y="589.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Standard public PIP :443 -&gt; shopping</text>
+<text x="610" y="613.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Private 10.40.4.10 :8443 -&gt; merchant</text>
+<text x="610" y="637.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">NSG: private CIDRs only for :8443</text>
+<text x="610" y="661.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">waf-tls UAMI -&gt; R3, exact TLS secret</text>
+<text x="610" y="685.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Public merchant route denied; TLS 1.2+</text>
+<rect x="1115" y="495" width="505" height="240" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1116" y="510" width="5" height="210" rx="2" fill="#7453a6" stroke="#7453a6" stroke-width="2"/>
+<text x="1135" y="528.9" fill="#7453a6" font-family="Segoe UI,Arial,sans-serif" font-size="23" font-weight="700">Runner subnet: 10.40.6.0/24</text>
+<text x="1135" y="565.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Subnet + UDR only; no runner compute created</text>
+<text x="1135" y="589.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Private CI/build connectivity is operator-supplied</text>
+<text x="1135" y="613.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">CI AcrPush / deployment permissions NOT assigned</text>
+<text x="1135" y="637.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">VPN / ExpressRoute / hybrid DNS not provisioned</text>
+<text x="1135" y="661.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">No runtime MI or app-data grant on this subnet</text>
+<rect x="80" y="790" width="750" height="450" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="81" y="805" width="5" height="420" rx="2" fill="#0067b8" stroke="#0067b8" stroke-width="2"/>
+<text x="100" y="825.5" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">OPTION A  /  Azure Container Apps</text>
+<text x="100" y="862.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Workload subnet 10.40.2.0/23; delegated environment</text>
+<text x="100" y="888.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Internal workload-profile environment; Consumption profile</text>
+<text x="100" y="914.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">8 apps: shopping + merchant gateway, API, worker and web</text>
+<text x="100" y="940.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Gateways: VNet-visible ingress, restricted to WAF subnet</text>
+<text x="100" y="966.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">APIs/web: environment-local; workers: no ingress</text>
+<text x="100" y="992.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">2 gateway UAMIs: R1 / R6 + R3 if Key Vault references</text>
+<text x="100" y="1018.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">4 API/worker UAMIs: R1 / R6 + configured R4 / R5</text>
+<text x="100" y="1044.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Shared pull UAMI: R2; frontends attach pull identity only</text>
+<text x="100" y="1070.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Environment MI: none; platform logs use workspace key</text>
+<text x="100" y="1096.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Private environment DNS + wildcard A -&gt; internal ILB</text>
+<text x="100" y="1122.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Warm replicas / probes / draining; same immutable images</text>
+<rect x="850" y="790" width="770" height="450" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="851" y="805" width="5" height="420" rx="2" fill="#0067b8" stroke="#0067b8" stroke-width="2"/>
+<text x="870" y="825.5" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">OPTION B  /  private Azure Kubernetes Service</text>
+<text x="870" y="862.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Workload subnet 10.40.8.0/22; Standard private API</text>
+<text x="870" y="888.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Managed Entra + Azure RBAC; local accounts disabled</text>
+<text x="870" y="914.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">System + workload VMSS; Azure CNI Overlay / Cilium</text>
+<text x="870" y="940.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">2 managed Gateway API ILBs + HTTPRoutes (HTTP/80)</text>
+<text x="870" y="966.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">8 Deployments + ServiceAccounts/FICs; 6 ClusterIP Services</text>
+<text x="870" y="992.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">8 workload UAMIs; API/worker/gateway grants as option A</text>
+<text x="870" y="1018.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">2 web UAMIs: no Azure roles; node UAMI: R2; control: R7</text>
+<text x="870" y="1044.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">OIDC issuer + exact service-account federation subjects</text>
+<text x="870" y="1070.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Default-deny + explicit DNS/dependencies; HPA/PDB/probes</text>
+<text x="870" y="1096.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Key Vault CSI + Azure Policy; Container Insights OFF by default</text>
+<text x="870" y="1122.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Private API DNS; pods 10.244/16; services 10.100/16</text>
+<rect x="80" y="1290" width="1000" height="180" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="81" y="1305" width="5" height="150" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="100" y="1325.5" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">Endpoint subnet: 10.40.5.0/24</text>
+<text x="100" y="1362.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Sql -&gt; Cosmos | registry -&gt; ACR | vault -&gt; Key Vault</text>
+<text x="100" y="1388.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">account -&gt; OpenAI / Foundry when configured</text>
+<text x="100" y="1414.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">PE NICs are inside the VNet; TLS/443 reaches services outside it</text>
+<text x="100" y="1440.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Endpoint network policies Disabled; per-endpoint DNS zone groups</text>
+<rect x="1100" y="1290" width="520" height="350" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1101" y="1305" width="5" height="320" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1120" y="1324.7" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Private DNS + VNet links</text>
+<text x="1120" y="1360.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">privatelink.documents.azure.com</text>
+<text x="1120" y="1384.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">privatelink.azurecr.io</text>
+<text x="1120" y="1408.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">privatelink.vaultcore.azure.net</text>
+<text x="1120" y="1432.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">privatelink.openai.azure.com (conditional)</text>
+<text x="1120" y="1456.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">privatelink.services.ai.azure.com (conditional)</text>
+<text x="1120" y="1480.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">ACA: environment domain + wildcard A</text>
+<text x="1120" y="1504.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">AKS API DNS: system-managed</text>
+<text x="1120" y="1528.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">No resource MI / runtime DNS ARM grant</text>
+<text x="1120" y="1552.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Hybrid DNS forwarding: operator-supplied</text>
+<rect x="80" y="1500" width="1000" height="140" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="81" y="1515" width="5" height="110" rx="2" fill="#7453a6" stroke="#7453a6" stroke-width="2"/>
+<text x="100" y="1535.5" fill="#7453a6" font-family="Segoe UI,Arial,sans-serif" font-size="25" font-weight="700">Controlled egress  /  not everything uses Private Link</text>
+<text x="100" y="1572.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Entra / ARM / approved platform dependencies through the firewall</text>
+<text x="100" y="1598.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Azure Monitor ingestion: public platform endpoints; NO AMPLS deployed</text>
+<text x="100" y="1624.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">External commerce adapters require approved destinations and real contracts</text>
+<rect x="1700" y="450" width="820" height="128" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="465" width="5" height="98" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1720" y="484.7" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Cosmos DB for NoSQL  |  R1</text>
+<text x="1720" y="520.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">SQL grants: APIs/workers -&gt; runtime; gateways -&gt; identity container</text>
+<text x="1720" y="544.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Database + 2 /pk containers; TTL; autoscale; public/local auth OFF</text>
+<text x="1720" y="568.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Account MI: none. Atomic batches stay within one logical partition.</text>
+<rect x="1700" y="594" width="820" height="100" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="609" width="5" height="70" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1720" y="628.7" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">ACR Premium  |  R2</text>
+<text x="1720" y="664.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">AcrPull: ACA pull UAMI OR AKS node UAMI, registry scope only</text>
+<text x="1720" y="688.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">MI: none | private data endpoint | admin/public/bypass OFF</text>
+<rect x="1700" y="710" width="820" height="125" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="725" width="5" height="95" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1720" y="744.7" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Key Vault Standard  |  R3</text>
+<text x="1720" y="780.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Gateways -&gt; referenced secret names; WAF UAMI -&gt; TLS secret</text>
+<text x="1720" y="804.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">MI: none | RBAC | purge protection | public/bypass OFF</text>
+<text x="1720" y="828.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Operator seeds secrets/certificates; no vault-wide runtime grants</text>
+<rect x="1700" y="851" width="820" height="125" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="866" width="5" height="95" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1720" y="885.7" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Conditional Azure OpenAI S0 + deployments  |  R4</text>
+<text x="1720" y="921.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Four API/worker UAMIs: OpenAI User at configured account scope</text>
+<text x="1720" y="945.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">New account MI: none | public/local auth OFF | Responses API</text>
+<text x="1720" y="969.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Existing account settings are not changed; verify them separately</text>
+<rect x="1700" y="992" width="820" height="175" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="1007" width="5" height="145" rx="2" fill="#087f8c" stroke="#087f8c" stroke-width="2"/>
+<text x="1720" y="1026.7" fill="#087f8c" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Conditional Foundry AIServices + commerce project  |  R5</text>
+<text x="1720" y="1062.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Account + project each have a new SystemAssigned MI</text>
+<text x="1720" y="1086.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">No outbound role grants authored for those two resource MIs</text>
+<text x="1720" y="1110.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Caller role: actions=[]; dataActions=Microsoft.CognitiveServices/*</text>
+<text x="1720" y="1134.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Four API/worker UAMIs at dedicated account scope; NOT message-only</text>
+<text x="1720" y="1158.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Anthropic deployments; new account public/local auth OFF; preview gate</text>
+<rect x="1700" y="1285" width="820" height="110" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="1300" width="5" height="80" rx="2" fill="#93621b" stroke="#93621b" stroke-width="2"/>
+<text x="1720" y="1319.7" fill="#93621b" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Application Insights  |  R6</text>
+<text x="1720" y="1355.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">MI: none; local auth disabled; 6 callers -&gt; Metrics Publisher @ component</text>
+<text x="1720" y="1379.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">Public-platform ingestion via controlled egress; no private endpoint</text>
+<rect x="1700" y="1410" width="820" height="110" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="1701" y="1425" width="5" height="80" rx="2" fill="#93621b" stroke="#93621b" stroke-width="2"/>
+<text x="1720" y="1444.7" fill="#93621b" font-family="Segoe UI,Arial,sans-serif" font-size="24" font-weight="700">Log Analytics workspace  |  PerGB2018 / 30 days</text>
+<text x="1720" y="1480.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">MI: none; no authored runtime query role; platform metric diagnostics</text>
+<text x="1720" y="1504.8" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="18" font-weight="400">ACA env logs use workspace key; AKS Container Insights optional</text>
+<text x="1700" y="1607.2" fill="#7453a6" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="700">LIVE VERIFICATION IS STILL REQUIRED</text>
+<text x="1700" y="1639.6" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Generated AKS identities/grants and inherited access are platform-managed.</text>
+<text x="1700" y="1670.6" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">No firewall/model log sink or end-to-end TLS is implied by this drawing.</text>
+<text x="80" y="1716.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Blue: ingress   |   Teal: private data/DNS   |   Purple: existing private access / controlled egress   |   R1-R7: exact grant matrix below</text>
+<text x="60" y="1809.6" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="30" font-weight="700">Identity -&gt; role -&gt; exact scope  /  no blanket Owner or Contributor for runtime</text>
+<rect x="60" y="1840" width="2480" height="500" rx="12" fill="#ffffff" stroke="#c3d3e2" stroke-width="2"/>
+<rect x="60" y="1840" width="2480" height="44" rx="10" fill="#dceaf7" stroke="#dceaf7" stroke-width="2"/>
+<text x="80" y="1869.4" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700">Code</text>
+<text x="210" y="1869.4" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700">Principal</text>
+<text x="770" y="1869.4" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700">Role</text>
+<text x="1500" y="1869.4" fill="#0067b8" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="700">Target scope / limit</text>
+<text x="80" y="1918.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R1</text>
+<text x="210" y="1918.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">4 API/worker + 2 gateway UAMIs</text>
+<text x="770" y="1918.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Cosmos DB Built-in Data Contributor (SQL)</text>
+<text x="1500" y="1918.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">runtime OR identity container, by caller role</text>
+<rect x="62" y="1941" width="2476" height="57" rx="0" fill="#f3f7fb" stroke="#f3f7fb" stroke-width="2"/>
+<text x="80" y="1975.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R2</text>
+<text x="210" y="1975.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">ACA pull OR AKS node UAMI</text>
+<text x="770" y="1975.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">AcrPull</text>
+<text x="1500" y="1975.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Registry only; no application-data privileges</text>
+<text x="80" y="2032.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R3</text>
+<text x="210" y="2032.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Gateways (if KV refs); WAF TLS UAMI</text>
+<text x="770" y="2032.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Key Vault Secrets User</text>
+<text x="1500" y="2032.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Each referenced secret name; never whole vault</text>
+<rect x="62" y="2055" width="2476" height="57" rx="0" fill="#f3f7fb" stroke="#f3f7fb" stroke-width="2"/>
+<text x="80" y="2089.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R4</text>
+<text x="210" y="2089.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">4 API/worker UAMIs</text>
+<text x="770" y="2089.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Cognitive Services OpenAI User</text>
+<text x="1500" y="2089.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Each configured OpenAI account</text>
+<text x="80" y="2146.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R5</text>
+<text x="210" y="2146.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">4 API/worker UAMIs</text>
+<text x="770" y="2146.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Custom Claude Data Plane</text>
+<text x="1500" y="2146.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Dedicated account; CognitiveServices/* data actions</text>
+<rect x="62" y="2169" width="2476" height="57" rx="0" fill="#f3f7fb" stroke="#f3f7fb" stroke-width="2"/>
+<text x="80" y="2203.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R6</text>
+<text x="210" y="2203.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">6 API/worker/gateway UAMIs</text>
+<text x="770" y="2203.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Monitoring Metrics Publisher</text>
+<text x="1500" y="2203.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">App Insights component; NOT Log Analytics query</text>
+<text x="80" y="2260.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">R7</text>
+<text x="210" y="2260.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">AKS control UAMI</text>
+<text x="770" y="2260.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Network Contributor / Reader / MI Operator</text>
+<text x="1500" y="2260.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Workload subnet / UDR table / node UAMI, respectively</text>
+<rect x="62" y="2283" width="2476" height="57" rx="0" fill="#f3f7fb" stroke="#f3f7fb" stroke-width="2"/>
+<text x="80" y="2317.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">None</text>
+<text x="210" y="2317.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">AKS web UAMIs; new Foundry SAIs</text>
+<text x="770" y="2317.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">No authored Azure outbound role</text>
+<text x="1500" y="2317.6" fill="#18354c" font-family="Segoe UI,Arial,sans-serif" font-size="19" font-weight="400">Web FIC exists; Foundry account/project SAIs exist</text>
+<text x="60" y="2392.2" fill="#7453a6" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="700">Private networking is not encryption: AKS WAF -&gt; managed Gateway is HTTP/80; no mesh mTLS is configured.</text>
+<text x="60" y="2430.2" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="21" font-weight="400">Tenant/principal/merchant approval checks are application-enforced; Cosmos RBAC is container-scoped, not partition-scoped.</text>
+<text x="60" y="2467.4" fill="#425a6e" font-family="Segoe UI,Arial,sans-serif" font-size="20" font-weight="400">Code-derived reference only. No Azure resources deployed. Full service inventory, source links, exact scopes and live gates: docs/azure-service-architecture.md</text>
+</svg>
