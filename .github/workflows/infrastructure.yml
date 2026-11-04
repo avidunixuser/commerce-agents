@@ -23,10 +23,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p .tools/kubeconform
-          curl --fail --location --silent --show-error https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz -o .tools/kubeconform.tar.gz
+          curl --fail --location --silent --show-error https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz -o .tools/kubeconform-linux-amd64.tar.gz
           curl --fail --location --silent --show-error https://github.com/yannh/kubeconform/releases/download/v0.6.7/CHECKSUMS -o .tools/kubeconform-checksums
           (cd .tools && grep ' kubeconform-linux-amd64.tar.gz$' kubeconform-checksums | sha256sum --check --strict)
-          tar -xzf .tools/kubeconform.tar.gz -C .tools/kubeconform
+          tar -xzf .tools/kubeconform-linux-amd64.tar.gz -C .tools/kubeconform
           az bicep install --version v0.46.1
       - name: Compile Bicep and validate every vertical and CSI configuration
         run: python infra/scripts/validate.py --kubeconform .tools/kubeconform/kubeconform
