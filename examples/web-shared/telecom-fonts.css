@@ -1,0 +1,13 @@
+@import "@fontsource/barlow/latin-100.css";
+@import "@fontsource/barlow/latin-300.css";
+@import "@fontsource/barlow/latin-400.css";
+@import "@fontsource/barlow/latin-500.css";
+@import "@fontsource/barlow/latin-600.css";
+@import "@fontsource/barlow/latin-700.css";
+@import "@fontsource/barlow/latin-800.css";
+@import "@fontsource-variable/spline-sans-mono";
+
+.font-mobile {
+  --font-body: "Barlow", sans-serif;
+  --font-mono: "Spline Sans Mono Variable", monospace;
+}

@@ -1,0 +1,8 @@
+@import "@fontsource-variable/archivo";
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/fraunces/opsz-italic.css";
+
+.font-travel {
+  --font-body: "Archivo Variable", sans-serif;
+  --font-display: "Fraunces Variable", serif;
+}
