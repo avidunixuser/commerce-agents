@@ -334,6 +334,96 @@ class PrivateBuildTests(unittest.TestCase):
                             pathlib.Path("params.json"),
                         )
 
+    def test_vm_preview_accepts_ignored_bootstrap_resources(self):
+        controller_id = (
+            f"{self.config.group_id}/providers/Microsoft.ManagedIdentity/"
+            f"userAssignedIdentities/{self.config.name}-controller"
+        )
+        changes = [{"changeType": "Create", "resourceId": r["id"]} for r in self.resources()]
+        changes.extend(
+            {"changeType": "Ignore", "resourceId": resource_id.upper()}
+            for resource_id in (self.config.builder_id, controller_id, self.config.nsg_id)
+        )
+        with patch.object(
+            build,
+            "az",
+            side_effect=[
+                {"properties": {"provisioningState": "Succeeded"}},
+                {
+                    "status": "Succeeded",
+                    "changes": changes,
+                    "potentialChanges": [],
+                    "diagnostics": None,
+                },
+            ],
+        ):
+            build.preview_vm(
+                self.config, self.state, pathlib.Path("vm.json"), pathlib.Path("params.json")
+            )
+
+    def test_vm_preview_rejects_foreign_ignored_resources(self):
+        for resource_id in (
+            self.resources()[0]["id"],
+            self.config.builder_id + "/federatedIdentityCredentials/unrelated",
+            self.config.builder_id + "-foreign",
+        ):
+            changes = [{"changeType": "Create", "resourceId": r["id"]} for r in self.resources()]
+            changes.append({"changeType": "Ignore", "resourceId": resource_id})
+            with (
+                self.subTest(resource_id=resource_id),
+                patch.object(
+                    build,
+                    "az",
+                    side_effect=[
+                        {"properties": {"provisioningState": "Succeeded"}},
+                        {"status": "Succeeded", "changes": changes},
+                    ],
+                ),
+                self.assertRaisesRegex(ValueError, "known bootstrap"),
+            ):
+                build.preview_vm(
+                    self.config, self.state, pathlib.Path("vm.json"), pathlib.Path("params.json")
+                )
+
+    def test_vm_preview_rejects_changes_to_bootstrap_resources(self):
+        for change_type in ("Create", "Modify", "Delete", "Unsupported", "NoChange"):
+            changes = [{"changeType": "Create", "resourceId": r["id"]} for r in self.resources()]
+            changes.append({"changeType": change_type, "resourceId": self.config.builder_id})
+            with (
+                self.subTest(change_type=change_type),
+                patch.object(
+                    build,
+                    "az",
+                    side_effect=[
+                        {"properties": {"provisioningState": "Succeeded"}},
+                        {"status": "Succeeded", "changes": changes},
+                    ],
+                ),
+                self.assertRaisesRegex(ValueError, "two exact"),
+            ):
+                build.preview_vm(
+                    self.config, self.state, pathlib.Path("vm.json"), pathlib.Path("params.json")
+                )
+
+    def test_vm_preview_rejects_unresolved_potential_changes_and_diagnostics(self):
+        changes = [{"changeType": "Create", "resourceId": r["id"]} for r in self.resources()]
+        for field in ("potentialChanges", "diagnostics"):
+            with (
+                self.subTest(field=field),
+                patch.object(
+                    build,
+                    "az",
+                    side_effect=[
+                        {"properties": {"provisioningState": "Succeeded"}},
+                        {"status": "Succeeded", "changes": changes, field: [{"unresolved": True}]},
+                    ],
+                ),
+                self.assertRaisesRegex(ValueError, "unresolved"),
+            ):
+                build.preview_vm(
+                    self.config, self.state, pathlib.Path("vm.json"), pathlib.Path("params.json")
+                )
+
     def test_hydration_binds_outputs_to_the_approved_bootstrap(self):
         outputs = {
             "controllerClientId": self.config.controller_client_id,

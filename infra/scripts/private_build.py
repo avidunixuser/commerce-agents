@@ -459,12 +459,31 @@ def preview_vm(
         "private VM provider validation did not succeed",
     )
     preview = az(config, "deployment", "group", "what-if", *arguments, "--no-pretty-print")
-    require(preview.get("status") == "Succeeded" and not preview.get("error"), "VM what-if failed")
+    require(
+        preview.get("status") == "Succeeded"
+        and not preview.get("error")
+        and not preview.get("potentialChanges")
+        and not preview.get("diagnostics"),
+        "VM what-if failed or contains unresolved changes/diagnostics",
+    )
     expected = {
         f"{config.group_id}/providers/Microsoft.Compute/virtualMachines/{state['name']}".lower(),
         f"{config.group_id}/providers/Microsoft.Network/networkInterfaces/{state['name']}-nic".lower(),
     }
-    changes = preview.get("changes", [])
+    controller_id = (
+        f"{config.group_id}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/"
+        f"{config.name}-controller"
+    )
+    ignored_ids = {config.builder_id.lower(), controller_id.lower(), config.nsg_id.lower()}
+    changes = []
+    for change in preview.get("changes", []):
+        if change["changeType"] == "Ignore":
+            require(
+                change["resourceId"].lower() in ignored_ids,
+                "VM preview may ignore only the known bootstrap identities and NIC NSG",
+            )
+        else:
+            changes.append(change)
     require(
         len(changes) == 2
         and all(change["changeType"] == "Create" for change in changes)
