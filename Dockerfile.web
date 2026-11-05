@@ -24,6 +24,10 @@ RUN case "$VERTICAL" in retail|travel|telecom|entertainment) ;; *) exit 1 ;; esa
     && cp node_modules/@fontsource-variable/big-shoulders/LICENSE /output/licenses/Big-Shoulders-OFL.txt \
     && cp node_modules/@fontsource-variable/archivo/LICENSE /output/licenses/Archivo-OFL.txt \
     && cp node_modules/@fontsource/ibm-plex-mono/LICENSE /output/licenses/IBM-Plex-Mono-OFL.txt \
+    && cp node_modules/@fontsource-variable/instrument-sans/LICENSE /output/licenses/Instrument-Sans-OFL.txt \
+    && cp node_modules/@fontsource-variable/fraunces/LICENSE /output/licenses/Fraunces-OFL.txt \
+    && cp node_modules/@fontsource/barlow/LICENSE /output/licenses/Barlow-OFL.txt \
+    && cp node_modules/@fontsource-variable/spline-sans-mono/LICENSE /output/licenses/Spline-Sans-Mono-OFL.txt \
     && mkdir -p "/output/${VERTICAL}/${WEB_APP}/.next" \
     && cp -a "${VERTICAL}/${WEB_APP}/.next/static" "/output/${VERTICAL}/${WEB_APP}/.next/static" \
     && mkdir -p "${VERTICAL}/${WEB_APP}/public" \

@@ -199,12 +199,12 @@ must honor this setting rather than deriving a source checkout from `__file__`.
 Next standalone
 tracing includes the shared workspace. `.dockerignore` excludes environment files,
 keys, caches, virtual environments, tests and local build artifacts.
-Production build scripts explicitly select Next's supported Webpack backend:
-Next 16.3's Turbopack Google-font import-map handling failed on this Windows
-checkout. Entertainment additionally uses locally packaged Fontsource Big Shoulders,
-Archivo and IBM Plex Mono faces to avoid Next's Google-URL extension parsing bug.
-These preserve the original faces/weights, are self-hosted, and carry the original
-SIL Open Font License notices; the web runtime image includes copies in `/app/licenses`.
+Production build scripts select Next's supported Webpack backend. All eight apps
+self-host their original font families through the shared per-vertical Fontsource
+stylesheets. Builds and browsers do not fetch fonts from external font services.
+Variable weights, travel's normal/italic optical sizing and telecom's selected
+static weights are preserved. Packages carry the original SIL Open Font License
+notices; the web runtime image includes copies in `/app/licenses`.
 Development server defaults are unchanged.
 
 `compose.yaml` models internal API/worker/web and loopback gateway only. Set

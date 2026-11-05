@@ -10,7 +10,7 @@ prompts to try on both surfaces, and what it adds to the libraries.
 | Path | Contents |
 |---|---|
 | `demo_common/` | Host code the four APIs share: app and middleware (`host.py`), session store (`sessions.py`), storefront routes (`storefront.py`), merchant router (`merchant.py`), memory routes and fixture seeder (`memory.py`), mock-backend helpers (`*_fixtures.py`) |
-| `web-shared/` | The npm package the eight web apps import: the API client, the session and turn hooks, the event types (`protocol.ts` mirrors `commerce_common/streaming.py`), the transcript and inspector components, shared primitives and icons, and the two app frames (`storefront/`, `portal/`) |
+| `web-shared/` | The npm package the eight web apps import: the API client, the session and turn hooks, the event types (`protocol.ts` mirrors `commerce_common/streaming.py`), the transcript and inspector components, shared primitives and icons, local per-vertical font stylesheets (`*-fonts.css`), and the two app frames (`storefront/`, `portal/`) |
 | `package.json` | The npm workspace: `web-shared` plus every `*/storefront-web` and `*/merchant-web` (`npm ci` installs all of them) |
 | `<vertical>/api/` | One FastAPI process: the two mock backends, the two agent configs (`agent_config.py`), the vertical's own routes and presentation extensions, and the merchant router mounted under `/api/merchant` |
 | `<vertical>/data/` | The fixtures both backends load, listed in the vertical's README |

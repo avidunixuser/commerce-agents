@@ -1,0 +1,5 @@
+@import "@fontsource-variable/instrument-sans";
+
+.font-retail {
+  --font-body: "Instrument Sans Variable", sans-serif;
+}
