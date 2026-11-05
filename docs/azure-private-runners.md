@@ -84,8 +84,11 @@ mode is forbidden in Actions. This proves private execution but is **not**
 evidence that GitHub environment approval/OIDC worked. Validate the actual VM
 deployment after bootstrap and before the first billable creation. Every
 controller run repeats provider validation and what-if, refusing anything but
-the exact two fresh VM/NIC creations; unexpected modifications, deletions or
-unsupported preview entries stop before creation.
+the exact two fresh VM/NIC creations. Azure's `Ignore` entries are accepted only
+for the two existing bootstrap identities and the NIC NSG, since those resources
+are outside the per-run template and remain untouched. Foreign ignored resources,
+unexpected modifications, deletions, unsupported entries, unresolved potential
+changes or diagnostics stop before creation.
 
 ### Lifetime, recovery and release limits
 
