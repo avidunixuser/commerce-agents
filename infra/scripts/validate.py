@@ -129,6 +129,155 @@ def check_arm(template: dict) -> None:
     assert "microsoft.network/routetables" in types
 
 
+def check_private_build(bootstrap: dict, node: dict) -> None:
+    permanent = list(resources(bootstrap))
+    kinds = {r["type"].lower() for r in permanent}
+    assert kinds <= {
+        "microsoft.resources/resourcegroups",
+        "microsoft.resources/deployments",
+        "microsoft.managedidentity/userassignedidentities",
+        "microsoft.managedidentity/userassignedidentities/federatedidentitycredentials",
+        "microsoft.authorization/roledefinitions",
+        "microsoft.authorization/roleassignments",
+        "microsoft.network/networksecuritygroups",
+        "microsoft.network/firewallpolicies/rulecollectiongroups",
+    }
+    grants = [
+        r for r in permanent if r["type"].lower() == "microsoft.authorization/roleassignments"
+    ]
+    assert len(grants) == 4
+    for grant in grants:
+        serialized = json.dumps(grant)
+        assert not any(
+            role in serialized
+            for role in (
+                "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
+                "b24988ac-6180-42a0-ab88-20f7382dd24c",
+            )
+        )
+    push = next(r for r in grants if "8311e382-0749-4cb8-b61a-304f252e45ec" in json.dumps(r))
+    assert "Microsoft.ContainerRegistry/registries" in push["scope"]
+    attachment = next(r for r in grants if "f1a07417-d97a-45cb-824c-7a7467783830" in json.dumps(r))
+    assert "Microsoft.ManagedIdentity/userAssignedIdentities" in attachment["scope"]
+    assert "-builder" in attachment["scope"]
+    assert push["properties"]["principalId"] == "[parameters('builderPrincipalId')]"
+    assert all(g["properties"]["principalType"] == "ServicePrincipal" for g in grants)
+    custom_grants = [g for g in grants if g not in (push, attachment)]
+    assert len(custom_grants) == 2
+    assert sum("scope" not in g for g in custom_grants) == 1
+    assert any(
+        "runners" in g.get("scope", "") and "Microsoft.Network/virtualNetworks" in g["scope"]
+        for g in custom_grants
+    )
+    definitions = [
+        r for r in permanent if r["type"].lower() == "microsoft.authorization/roledefinitions"
+    ]
+    assert len(definitions) == 2
+    for role in definitions:
+        props = role["properties"]
+        assert props["assignableScopes"] == ["[resourceGroup().id]"]
+        permissions = props["permissions"][0]
+        assert permissions["dataActions"] == []
+        assert permissions["notActions"] == permissions["notDataActions"] == []
+        allowed = {
+            "Microsoft.Resources/deployments/*",
+            "Microsoft.Resources/subscriptions/resourceGroups/read",
+            "Microsoft.Resources/subscriptions/resourceGroups/resources/read",
+            "Microsoft.Compute/virtualMachines/read",
+            "Microsoft.Compute/virtualMachines/write",
+            "Microsoft.Compute/virtualMachines/delete",
+            "Microsoft.Compute/virtualMachines/instanceView/read",
+            "Microsoft.Compute/virtualMachines/runCommands/read",
+            "Microsoft.Compute/virtualMachines/runCommands/write",
+            "Microsoft.Compute/virtualMachines/runCommands/delete",
+            "Microsoft.Network/networkInterfaces/read",
+            "Microsoft.Network/networkInterfaces/write",
+            "Microsoft.Network/networkInterfaces/delete",
+            "Microsoft.Network/networkInterfaces/join/action",
+            "Microsoft.Network/networkSecurityGroups/read",
+            "Microsoft.Network/networkSecurityGroups/join/action",
+            "Microsoft.Network/virtualNetworks/subnets/read",
+            "Microsoft.Network/virtualNetworks/subnets/join/action",
+        }
+        assert set(permissions["actions"]) <= allowed
+    subnet_actions = {
+        "Microsoft.Network/virtualNetworks/subnets/read",
+        "Microsoft.Network/virtualNetworks/subnets/join/action",
+    }
+    assert {frozenset(r["properties"]["permissions"][0]["actions"]) for r in definitions} == {
+        frozenset(subnet_actions),
+        frozenset(allowed - subnet_actions),
+    }
+    federation = next(
+        r for r in permanent if r["type"].lower().endswith("/federatedidentitycredentials")
+    )
+    assert federation["properties"]["issuer"] == "https://token.actions.githubusercontent.com"
+    assert federation["properties"]["audiences"] == ["api://AzureADTokenExchange"]
+    subject_contract = (
+        ":environment:commerce-build:ref:refs/heads/main:event_name:workflow_dispatch:"
+        "workflow_ref:{1}/.github/workflows/private-build.yml@refs/heads/main:"
+        "runner_environment:github-hosted"
+    )
+    assert subject_contract in json.dumps(bootstrap)
+    assert (
+        len(
+            [
+                r
+                for r in permanent
+                if r["type"].lower() == "microsoft.managedidentity/userassignedidentities"
+            ]
+        )
+        == 2
+    )
+    firewall = next(r for r in permanent if r["type"].lower().endswith("/rulecollectiongroups"))
+    rule = firewall["properties"]["ruleCollections"][0]["rules"][0]
+    assert "runners" in json.dumps(rule["sourceAddresses"])
+    assert rule["protocols"] == [{"protocolType": "Https", "port": 443}]
+    assert "*" not in rule["targetFqdns"] and "*.blob.core.windows.net" not in rule["targetFqdns"]
+    nsg = next(
+        r for r in permanent if r["type"].lower() == "microsoft.network/networksecuritygroups"
+    )
+    rules = {r["name"]: r["properties"] for r in nsg["properties"]["securityRules"]}
+    assert rules["deny-inbound"]["access"] == rules["deny-other-outbound"]["access"] == "Deny"
+    assert rules["deny-lateral"]["destinationAddressPrefixes"] == [
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+    ]
+    assert not any(p["direction"] == "Inbound" and p["access"] == "Allow" for p in rules.values())
+    temporary = list(resources(node))
+    assert {r["type"].lower() for r in temporary} == {
+        "microsoft.compute/virtualmachines",
+        "microsoft.network/networkinterfaces",
+    }
+    vm = next(r for r in temporary if r["type"].lower() == "microsoft.compute/virtualmachines")
+    props = vm["properties"]
+    assert props["hardwareProfile"]["vmSize"] == "Standard_D4ds_v5"
+    assert props["storageProfile"]["osDisk"]["diffDiskSettings"] == {
+        "option": "Local",
+        "placement": "ResourceDisk",
+    }
+    assert props["storageProfile"]["dataDisks"] == []
+    assert props["securityProfile"]["uefiSettings"] == {
+        "secureBootEnabled": True,
+        "vTpmEnabled": True,
+    }
+    assert props["osProfile"]["linuxConfiguration"]["disablePasswordAuthentication"] is True
+    assert vm["identity"] == {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {"[format('{0}', parameters('builderIdentityId'))]": {}},
+    }
+    nic = next(r for r in temporary if r["type"].lower() == "microsoft.network/networkinterfaces")
+    assert nic["properties"]["enableIPForwarding"] is False
+    assert nic["properties"]["enableAcceleratedNetworking"] is True
+    assert nic["properties"]["networkSecurityGroup"]["id"] == "[parameters('nsgId')]"
+    assert (
+        nic["properties"]["ipConfigurations"][0]["properties"]["subnet"]["id"]
+        == "[parameters('subnetId')]"
+    )
+    assert "publicIPAddress" not in nic["properties"]["ipConfigurations"][0]["properties"]
+
+
 def fixtures() -> dict:
     values = yaml.safe_load((CHART / "values.yaml").read_text())
     for name in values["images"]:
@@ -238,6 +387,21 @@ def main() -> None:
     parser.add_argument("--az", default=shutil.which("az") or "az")
     args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    private_templates = []
+    for source in ("main", "vm"):
+        output = OUT / f"private-build-{source}.json"
+        run(
+            args.az,
+            "bicep",
+            "build",
+            "--file",
+            str(ROOT / "infra" / "private-build" / f"{source}.bicep"),
+            "--outfile",
+            str(output),
+        )
+        private_templates.append(json.loads(output.read_text(encoding="utf-8-sig")))
+    check_private_build(*private_templates)
+    print("PASS private-build: isolated VM, network and exact RBAC shape")
     for target in ("container-apps", "aks"):
         output = OUT / f"{target}.json"
         run(

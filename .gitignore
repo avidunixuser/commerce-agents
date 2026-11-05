@@ -9,6 +9,7 @@ dist/
 venv/
 .pytest_cache/
 .ruff_cache/
+.validation/
 .coverage
 htmlcov/
 

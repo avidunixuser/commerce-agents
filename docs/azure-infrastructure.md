@@ -44,6 +44,14 @@ Keep actual deployment parameters and cloud outputs outside version control.
 Local `.azure/` environment files are ignored; the reviewed deployment plan is
 the only retained file from that directory.
 
+The optional subscription entrypoint `infra/private-build/main.bicep` adds
+isolated image-build identities, a NIC NSG and runner-only firewall rules to
+an existing foundation without enabling workloads or ingress. Its separate
+`vm.bicep` describes a fresh, private ephemeral build host, not a registered
+GitHub runner. See [private image-build commissioning and recovery](azure-private-runners.md#protected-private-image-builds)
+for exact permissions, OIDC approval, cost and cleanup boundaries. This path
+requires separate validation/provisioning approval and does not install AKS.
+
 ### Incremental deployment and subscription prerequisites
 
 Before retrying or updating either hosting target, inspect the existing
