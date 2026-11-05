@@ -15,6 +15,7 @@ param certificateSecretUri string
 param storefrontGatewayFqdn string
 param merchantGatewayFqdn string
 param additionalEgressFqdns array = []
+param existingSubnetNsgIds object = {}
 @allowed([true])
 param modelAvailabilityVerified bool
 param createOpenAI bool = false
@@ -38,7 +39,7 @@ param enableContainerInsights bool = false
 
 module network '../modules/network.bicep' = {
   name: 'network'
-  params: { name: name, location: location, privateAccessCidrs: privateAccessCidrs, applicationFqdns: additionalEgressFqdns, aks: true }
+  params: { name: name, location: location, privateAccessCidrs: privateAccessCidrs, applicationFqdns: additionalEgressFqdns, aks: true, existingSubnetNsgIds: existingSubnetNsgIds }
 }
 module services '../modules/services.bicep' = {
   name: 'services'

@@ -1,9 +1,9 @@
 name: Infrastructure
 on:
   pull_request:
-    paths: ["infra/**", "deploy/helm/**", ".github/workflows/infrastructure.yml"]
+    paths: ["infra/**", "deploy/helm/**", ".github/workflows/infrastructure.yml", ".github/workflows/private-build.yml"]
   push:
-    paths: ["infra/**", "deploy/helm/**", ".github/workflows/infrastructure.yml"]
+    paths: ["infra/**", "deploy/helm/**", ".github/workflows/infrastructure.yml", ".github/workflows/private-build.yml"]
   workflow_dispatch:
 permissions:
   contents: read

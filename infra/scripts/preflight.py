@@ -53,9 +53,38 @@ GATEWAY_SECRETS = {
 }
 
 
-def validate(p: dict, target: str) -> None:
+def validate(p: dict, target: str, *, phase: str = "application") -> None:
+    if target not in {"container-apps", "aks"}:
+        raise ValueError("Unknown deployment target")
+    if phase not in {"application", "foundation"}:
+        raise ValueError("Unknown deployment phase")
     if "parameters" in p:
         p = {key: value["value"] for key, value in p["parameters"].items()}
+    foundation = phase == "foundation"
+    if foundation:
+        if target != "container-apps":
+            raise ValueError("Foundation-only validation supports Container Apps, not AKS")
+        if any(p.get(flag) is not False for flag in ("enableWorkloads", "enableIngress")):
+            raise ValueError(
+                "Foundation requires explicit enableWorkloads=false and enableIngress=false"
+            )
+        if any(
+            p.get(key)
+            for key in (
+                "images",
+                "runtimeEnvironment",
+                "secretReferences",
+                "storefrontHost",
+                "merchantHost",
+                "certificateSecretUri",
+                "modelDeployments",
+                "claudeDeployments",
+                "claudeAttestation",
+            )
+        ):
+            raise ValueError(
+                "Foundation excludes application configuration, ingress credentials, model deployments and Marketplace attestation"
+            )
     if any(marker in json.dumps(p) for marker in ("<", "REPLACE_", ".invalid")):
         raise ValueError("Replace every example placeholder before preflight")
     if p.get("modelAvailabilityVerified") is not True:
@@ -70,24 +99,29 @@ def validate(p: dict, target: str) -> None:
             raise ValueError(f"{kind}: select new OR existing, not both")
         configured += bool(create or existing)
         deployments_key = "modelDeployments" if kind == "OpenAI" else "claudeDeployments"
-        if create and not p.get(deployments_key):
+        if create and not foundation and not p.get(deployments_key):
             raise ValueError(
                 f"{kind}: explicit model/version/deployment/SKU/capacity inputs required"
             )
     if not configured:
         raise ValueError("At least one private model resource is required")
-    if p.get("createClaude") and not all(
-        p.get("claudeAttestation", {}).get(key)
-        for key in ("organizationName", "countryCode", "industry")
+    if (
+        not foundation
+        and p.get("createClaude")
+        and not all(
+            p.get("claudeAttestation", {}).get(key)
+            for key in ("organizationName", "countryCode", "industry")
+        )
     ):
         raise ValueError(
             "New Claude deployments require real organization attestation and Marketplace terms approval"
         )
-    for host in ("storefrontHost", "merchantHost"):
-        if not HOST.fullmatch(p.get(host, "")):
-            raise ValueError(f"{host}: supply a DNS hostname, not a URL")
-    if p["storefrontHost"] == p["merchantHost"]:
-        raise ValueError("Storefront and merchant hosts must differ")
+    if not foundation:
+        for host in ("storefrontHost", "merchantHost"):
+            if not HOST.fullmatch(p.get(host, "")):
+                raise ValueError(f"{host}: supply a DNS hostname, not a URL")
+        if p["storefrontHost"] == p["merchantHost"]:
+            raise ValueError("Storefront and merchant hosts must differ")
     cidrs = p.get("privateAccessCidrs", [])
     if not cidrs:
         raise ValueError("Private connectivity CIDRs are required")
@@ -102,6 +136,25 @@ def validate(p: dict, target: str) -> None:
             raise ValueError("Merchant source CIDRs must be bounded private IPv4 networks")
     if p.get("runtimeContainer") == "identity":
         raise ValueError("The gateway identity container cannot also hold runtime data")
+    subnet_nsgs = p.get("existingSubnetNsgIds", {})
+    if (
+        not isinstance(subnet_nsgs, dict)
+        or set(subnet_nsgs) - {"workload", "endpoints", "runners"}
+        or not all(
+            isinstance(resource_id, str)
+            and re.fullmatch(
+                r"/subscriptions/[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}"
+                r"/resourceGroups/[a-zA-Z0-9_.()-]+"
+                r"/providers/Microsoft\.Network/networkSecurityGroups/[a-zA-Z0-9_.()-]+",
+                resource_id,
+                re.IGNORECASE,
+            )
+            for resource_id in subnet_nsgs.values()
+        )
+    ):
+        raise ValueError("Supply existing NSG resource IDs for workload/endpoints/runners only")
+    if foundation:
+        return
     if target == "container-apps":
         images = p.get("images", {})
         if set(images) != {"runtime", "gateway", "shoppingWeb", "merchantWeb"}:
@@ -196,16 +249,26 @@ def validate(p: dict, target: str) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", choices=("container-apps", "aks"), required=True)
+    parser.add_argument("--phase", choices=("application", "foundation"), default="application")
     parser.add_argument("--parameters", type=pathlib.Path, required=True)
     args = parser.parse_args()
     try:
-        validate(json.loads(args.parameters.read_text(encoding="utf-8-sig")), args.target)
+        validate(
+            json.loads(args.parameters.read_text(encoding="utf-8-sig")),
+            args.target,
+            phase=args.phase,
+        )
     except (ValueError, KeyError) as error:
         print(f"BLOCKED: {error}", file=sys.stderr)
         raise SystemExit(1) from error
-    print(
-        "Offline input checks passed. Live model entitlement/quota/private endpoints, DNS, RBAC and ingress checks remain mandatory."
-    )
+    if args.phase == "foundation":
+        print(
+            "Foundation-only offline input checks passed. Live resource validation remains required; application/model deployment and inference are not validated."
+        )
+    else:
+        print(
+            "Offline input checks passed. Live model entitlement/quota/private endpoints, DNS, RBAC and ingress checks remain mandatory."
+        )
 
 
 if __name__ == "__main__":

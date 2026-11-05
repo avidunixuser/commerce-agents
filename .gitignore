@@ -9,6 +9,7 @@ dist/
 venv/
 .pytest_cache/
 .ruff_cache/
+.validation/
 .coverage
 htmlcov/
 
@@ -16,6 +17,8 @@ htmlcov/
 .env
 .env.*
 !.env.example
+.azure/*
+!.azure/deployment-plan.md
 
 # Node / Next.js (vertical example frontends)
 node_modules/

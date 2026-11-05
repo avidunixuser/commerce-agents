@@ -1,0 +1,18 @@
+{
+  "subscription_id": "REPLACE_WITH_CONFIRMED_SUBSCRIPTION_UUID",
+  "tenant_id": "REPLACE_WITH_CONFIRMED_TENANT_UUID",
+  "location": "swedencentral",
+  "build_resource_group": "rg-commerce-build-swc",
+  "foundation_resource_group": "rg-commerce-aca-swc",
+  "name": "commerce-build",
+  "vnet_name": "REPLACE_WITH_EXISTING_VNET",
+  "firewall_policy_name": "REPLACE_WITH_EXISTING_FIREWALL_POLICY",
+  "registry_name": "REPLACE_WITH_EXISTING_PRIVATE_ACR",
+  "repository": "REPLACE_OWNER/REPLACE_REPOSITORY",
+  "oidc_subject_prefix": "REPLACE_WITH_DISCOVERED_IMMUTABLE_PREFIX",
+  "image_version": "REPLACE_WITH_REVIEWED_EXACT_GEN2_UBUNTU_VERSION",
+  "dns_proxy_address": "10.40.0.4",
+  "private_endpoint_cidr": "10.40.5.0/24",
+  "controller_client_id": "",
+  "builder_client_id": ""
+}

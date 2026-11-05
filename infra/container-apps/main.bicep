@@ -27,6 +27,7 @@ param modelDeployments array = []
 param claudeDeployments array = []
 param claudeAttestation object = {}
 param additionalEgressFqdns array = []
+param existingSubnetNsgIds object = {}
 param databaseName string = 'commerce'
 param runtimeContainer string = 'runtime'
 var containerNames = [runtimeContainer, 'identity']
@@ -43,7 +44,7 @@ var workloads = [
 ]
 module network '../modules/network.bicep' = {
   name: 'network'
-  params: { name: name, location: location, privateAccessCidrs: privateAccessCidrs, applicationFqdns: additionalEgressFqdns }
+  params: { name: name, location: location, privateAccessCidrs: privateAccessCidrs, applicationFqdns: additionalEgressFqdns, existingSubnetNsgIds: existingSubnetNsgIds }
 }
 module services '../modules/services.bicep' = {
   name: 'services'

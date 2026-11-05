@@ -1,0 +1,23 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {"value": "<short-unique-prefix>"},
+    "location": {"value": "<validated-public-azure-region>"},
+    "privateAccessCidrs": {"value": ["<approved-private-source-CIDR>"]},
+    "storefrontHost": {"value": ""},
+    "merchantHost": {"value": ""},
+    "certificateSecretUri": {"value": ""},
+    "images": {"value": {}},
+    "runtimeEnvironment": {"value": {}},
+    "secretReferences": {"value": {}},
+    "modelAvailabilityVerified": {"value": false},
+    "createOpenAI": {"value": true},
+    "createClaude": {"value": true},
+    "modelDeployments": {"value": []},
+    "claudeDeployments": {"value": []},
+    "claudeAttestation": {"value": {}},
+    "enableWorkloads": {"value": false},
+    "enableIngress": {"value": false}
+  }
+}

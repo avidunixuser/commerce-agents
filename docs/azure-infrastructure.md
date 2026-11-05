@@ -12,6 +12,65 @@ No subscription, model entitlement, quota, private inference availability,
 network connectivity or production commerce integration is inferred from
 successful offline validation.
 
+## Container Apps foundation-only stage
+
+Use `infra/container-apps/foundation.parameters.example.json` when creating only
+the private foundation, with application rollout deferred. Populate the real
+prefix, approved region and bounded private source CIDRs, and establish the
+account/service availability prerequisites before setting
+`modelAvailabilityVerified=true`.
+
+```powershell
+python infra\scripts\preflight.py --target container-apps --phase foundation --parameters <local-foundation-parameters.json>
+```
+
+This explicit mode requires `enableWorkloads=false` and `enableIngress=false`.
+Images, runtime environment, secret references, hostnames, certificate URI,
+model deployment arrays and Claude marketplace attestation must stay empty.
+It creates the internal ACA environment, private shared services, identities
+and configured AI accounts/project, **not** Container Apps workloads, WAF,
+model deployments, marketplace acceptance or a working commerce application.
+The network module creates the firewall's public IP; the firewall is active
+and billable even without workloads.
+
+The default preflight phase remains `application`, including all original
+authentication, digest-pinned image, model-deployment and approval checks.
+Foundation validation cannot authorize application enablement or certify live
+inference. Before rollout, supply the real integrations and approved model
+attestation, then repeat full application and live deployment validation.
+AKS is not supported by this narrow foundation-only preflight mode.
+
+Keep actual deployment parameters and cloud outputs outside version control.
+Local `.azure/` environment files are ignored; the reviewed deployment plan is
+the only retained file from that directory.
+
+The optional subscription entrypoint `infra/private-build/main.bicep` adds
+isolated image-build identities, a NIC NSG and runner-only firewall rules to
+an existing foundation without enabling workloads or ingress. Its separate
+`vm.bicep` describes a fresh, private ephemeral build host, not a registered
+GitHub runner. See [private image-build commissioning and recovery](azure-private-runners.md#protected-private-image-builds)
+for exact permissions, OIDC approval, cost and cleanup boundaries. This path
+requires separate validation/provisioning approval and does not install AKS.
+
+### Incremental deployment and subscription prerequisites
+
+Before retrying or updating either hosting target, inspect the existing
+`workload`, `endpoints` and `runners` subnet NSG associations. Supply their
+full resource IDs in the optional `existingSubnetNsgIds` object, keyed by those
+subnet names. This preserves externally managed associations without changing
+their NSG rules; the gateway NSG remains managed by this deployment. The
+default empty object preserves the original fresh-install behavior. Review
+what-if and do not remove automatically attached governance controls.
+
+If creating the ordinary Azure-allocated firewall IP fails with
+`SubscriptionNotRegisteredForFeature` for
+`Microsoft.Network/AllowBringYourOwnPublicIpAddress`, obtain subscription
+administrator approval before registering the feature. Wait for `Registered`,
+refresh Microsoft.Network provider registration, then repeat validation and
+incremental what-if before retrying. The template does not request a custom
+IP prefix; changing API versions is not a reliable workaround for a
+subscription feature restriction.
+
 ## Resource and trust boundaries
 
 | Component | Configuration |
