@@ -16,6 +16,8 @@ htmlcov/
 .env
 .env.*
 !.env.example
+.azure/*
+!.azure/deployment-plan.md
 
 # Node / Next.js (vertical example frontends)
 node_modules/

@@ -3,7 +3,12 @@ param location string
 param privateAccessCidrs array
 param applicationFqdns array
 param aks bool = false
+@description('Existing workload, endpoints and runners subnet NSG IDs to preserve during incremental deployment. Their rules remain externally managed.')
+param existingSubnetNsgIds object = {}
 var vnetPrefix = '10.40.0.0/16'
+var workloadNsgId = existingSubnetNsgIds[?'workload'] ?? ''
+var endpointsNsgId = existingSubnetNsgIds[?'endpoints'] ?? ''
+var runnersNsgId = existingSubnetNsgIds[?'runners'] ?? ''
 
 var firewallIp = '10.40.0.4'
 var merchantIp = '10.40.4.10'
@@ -208,18 +213,30 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
       { name: 'AzureFirewallSubnet', properties: { addressPrefix: '10.40.0.0/26' } }
       {
         name: 'workload'
-        properties: {
+        properties: union({
           addressPrefix: aks ? '10.40.8.0/22' : '10.40.2.0/23'
           routeTable: { id: route.id }
           delegations: aks ? [] : [{
             name: 'container-apps'
             properties: { serviceName: 'Microsoft.App/environments' }
           }]
-        }
+        }, empty(workloadNsgId) ? {} : { networkSecurityGroup: { id: workloadNsgId } })
       }
-      { name: 'endpoints', properties: { addressPrefix: '10.40.5.0/24', privateEndpointNetworkPolicies: 'Disabled' } }
+      {
+        name: 'endpoints'
+        properties: union({
+          addressPrefix: '10.40.5.0/24'
+          privateEndpointNetworkPolicies: 'Disabled'
+        }, empty(endpointsNsgId) ? {} : { networkSecurityGroup: { id: endpointsNsgId } })
+      }
       { name: 'gateway', properties: { addressPrefix: '10.40.4.0/24', networkSecurityGroup: { id: gatewayNsg.id } } }
-      { name: 'runners', properties: { addressPrefix: '10.40.6.0/24', routeTable: { id: route.id } } }
+      {
+        name: 'runners'
+        properties: union({
+          addressPrefix: '10.40.6.0/24'
+          routeTable: { id: route.id }
+        }, empty(runnersNsgId) ? {} : { networkSecurityGroup: { id: runnersNsgId } })
+      }
     ]
   }
 }

@@ -47,6 +47,27 @@ def fixture():
 
 
 class PreflightTests(unittest.TestCase):
+    def test_retained_subnet_nsgs(self):
+        params = fixture()
+        nsg_id = (
+            "/subscriptions/00000000-0000-0000-0000-000000000000"
+            "/resourceGroups/validation/providers/Microsoft.Network/networkSecurityGroups/nsg"
+        )
+        params["existingSubnetNsgIds"] = dict.fromkeys(("workload", "endpoints", "runners"), nsg_id)
+        validate(params, "container-apps")
+        for value in (
+            None,
+            [],
+            {"gateway": nsg_id},
+            {"workload": ""},
+            {"endpoints": nsg_id.replace("networkSecurityGroups", "routeTables")},
+            {"runners": 123},
+        ):
+            with self.subTest(value=value):
+                params["existingSubnetNsgIds"] = value
+                with self.assertRaises(ValueError):
+                    validate(params, "container-apps")
+
     def test_aca_examples_include_shopping_guest_settings(self):
         path = (
             pathlib.Path(__file__).resolve().parents[1]
@@ -195,6 +216,91 @@ class PreflightTests(unittest.TestCase):
             params["runtimeEnvironment"][workload][key] = "https://mismatch.example.test"
             with self.subTest(workload=workload, key=key), self.assertRaises(ValueError):
                 validate(params, "container-apps")
+
+
+class FoundationPreflightTests(unittest.TestCase):
+    def fixture(self):
+        return {
+            "modelAvailabilityVerified": True,
+            "createOpenAI": True,
+            "createClaude": True,
+            "privateAccessCidrs": ["10.40.6.0/24"],
+            "enableWorkloads": False,
+            "enableIngress": False,
+            "images": {},
+            "runtimeEnvironment": {},
+            "secretReferences": {},
+            "storefrontHost": "",
+            "merchantHost": "",
+            "certificateSecretUri": "",
+            "modelDeployments": [],
+            "claudeDeployments": [],
+            "claudeAttestation": {},
+        }
+
+    def test_empty_application_and_model_configuration_accepted_only_explicitly(self):
+        params = self.fixture()
+        validate(params, "container-apps", phase="foundation")
+        validate(
+            {"parameters": {key: {"value": value} for key, value in params.items()}},
+            "container-apps",
+            phase="foundation",
+        )
+        with self.assertRaises(ValueError):
+            validate(params, "container-apps")
+
+    def test_workloads_and_ingress_must_be_explicitly_disabled(self):
+        for flag in ("enableWorkloads", "enableIngress"):
+            for value in (True, None, 0, "false"):
+                params = self.fixture()
+                params[flag] = value
+                with self.subTest(flag=flag, value=value), self.assertRaises(ValueError):
+                    validate(params, "container-apps", phase="foundation")
+            params = self.fixture()
+            del params[flag]
+            with self.assertRaises(ValueError):
+                validate(params, "container-apps", phase="foundation")
+
+    def test_application_ingress_model_and_marketplace_configuration_rejected(self):
+        for key in (
+            "images",
+            "runtimeEnvironment",
+            "secretReferences",
+            "storefrontHost",
+            "merchantHost",
+            "certificateSecretUri",
+            "modelDeployments",
+            "claudeDeployments",
+            "claudeAttestation",
+        ):
+            params = self.fixture()
+            params[key] = "configured"
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                validate(params, "container-apps", phase="foundation")
+
+    def test_private_boundary_and_model_account_checks_remain_required(self):
+        for key, value in (
+            ("privateAccessCidrs", []),
+            ("privateAccessCidrs", ["0.0.0.0/0"]),
+            ("privateAccessCidrs", ["8.8.8.0/24"]),
+            ("modelAvailabilityVerified", False),
+            ("runtimeContainer", "identity"),
+            ("existingClaudeName", "duplicate-account"),
+        ):
+            params = self.fixture()
+            params[key] = value
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                validate(params, "container-apps", phase="foundation")
+        params = self.fixture()
+        params.update(createOpenAI=False, createClaude=False)
+        with self.assertRaises(ValueError):
+            validate(params, "container-apps", phase="foundation")
+
+    def test_aks_and_unknown_phases_are_rejected(self):
+        with self.assertRaises(ValueError):
+            validate(self.fixture(), "aks", phase="foundation")
+        with self.assertRaises(ValueError):
+            validate(self.fixture(), "container-apps", phase="unknown")
 
 
 if __name__ == "__main__":
