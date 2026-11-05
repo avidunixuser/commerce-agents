@@ -90,6 +90,10 @@ are outside the per-run template and remain untouched. Foreign ignored resources
 unexpected modifications, deletions, unsupported entries, unresolved potential
 changes or diagnostics stop before creation.
 
+The bootstrap keeps runtime configuration private with `umask 077`, but sets
+the public Microsoft repository keyring and APT source file to mode `0644` so
+APT's sandbox can read them. Signature verification remains enabled.
+
 ### Lifetime, recovery and release limits
 
 The local 128-GiB ephemeral OS is discarded with the VM. Never reuse a dirty

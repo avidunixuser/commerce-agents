@@ -6,6 +6,8 @@ import dataclasses
 import json
 import os
 import pathlib
+import stat
+import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -290,6 +292,42 @@ class PrivateBuildTests(unittest.TestCase):
             patch.object(build, "az", side_effect=fake_az),
         ):
             build.remote_build(self.config, self.state, "smoke", pathlib.Path(directory))
+
+    @unittest.skipIf(os.name == "nt", "APT sandbox permissions require a POSIX filesystem")
+    def test_public_apt_files_are_readable_under_restrictive_umask(self):
+        source = (build.ROOT / "infra" / "scripts" / "private_build.sh").read_text()
+        start = source.index(
+            "curl --fail --silent --show-error https://packages.microsoft.com/keys/"
+        )
+        end = source.index("apt-get ", start)
+        bootstrap = (
+            source[start:end]
+            .replace("/usr/share/keyrings/commerce-microsoft.gpg", "key.gpg")
+            .replace("/etc/apt/sources.list.d/commerce-azure-cli.list", "source.list")
+        )
+        script = (
+            "umask 077\n"
+            "curl() { printf '%s' public-key; }\n"
+            "gpg() { cat > key.gpg; }\n" + bootstrap + "printf '%s' private-config > private.env\n"
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            subprocess.run(
+                ["bash", "-eu", "-o", "pipefail", "-c", script],
+                cwd=directory,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            for name in ("key.gpg", "source.list"):
+                self.assertEqual(
+                    stat.S_IMODE((pathlib.Path(directory) / name).stat().st_mode), 0o644
+                )
+            self.assertEqual(
+                stat.S_IMODE((pathlib.Path(directory) / "private.env").stat().st_mode), 0o600
+            )
+            self.assertIn(
+                "signed-by=key.gpg", (pathlib.Path(directory) / "source.list").read_text()
+            )
 
     def test_active_foreign_deployment_cannot_be_canceled(self):
         with (

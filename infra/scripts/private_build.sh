@@ -35,8 +35,10 @@ apt-get -o Acquire::Retries=3 -o DPkg::Lock::Timeout=180 update -qq
 apt-get -o Acquire::Retries=3 -o DPkg::Lock::Timeout=180 install -y -qq ca-certificates curl gnupg docker.io git
 curl --fail --silent --show-error https://packages.microsoft.com/keys/microsoft.asc |
   gpg --dearmor --yes --output /usr/share/keyrings/commerce-microsoft.gpg
+chmod 0644 /usr/share/keyrings/commerce-microsoft.gpg
 printf 'deb [arch=amd64 signed-by=/usr/share/keyrings/commerce-microsoft.gpg] https://packages.microsoft.com/repos/azure-cli/ noble main\n' \
   > /etc/apt/sources.list.d/commerce-azure-cli.list
+chmod 0644 /etc/apt/sources.list.d/commerce-azure-cli.list
 apt-get -o Acquire::Retries=3 -o DPkg::Lock::Timeout=180 update -qq
 apt-get -o Acquire::Retries=3 -o DPkg::Lock::Timeout=180 install -y -qq azure-cli
 systemctl enable --now docker
