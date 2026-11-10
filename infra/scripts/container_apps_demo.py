@@ -163,7 +163,53 @@ def images_from_manifest(config: dict, manifest: dict) -> dict:
     return {key: manifest[source] for key, source in IMAGE_KEYS.items()}
 
 
-def parameters(config: dict, stage: str, manifest: dict | None = None) -> dict:
+def identity_principals(config: dict, identities: list[dict] | None) -> dict[str, str]:
+    require(
+        isinstance(identities, list) and all(isinstance(item, dict) for item in identities),
+        "Fresh managed-identity inventory required",
+    )
+    result = {}
+    for key, suffix in {
+        "shoppingApi": "shopping-api",
+        "merchantApi": "merchant-api",
+        "shoppingGateway": "shopping-gateway",
+        "merchantGateway": "merchant-gateway",
+    }.items():
+        name = f"{config['name']}-{suffix}"
+        matches = [item for item in identities if item.get("name") == name]
+        require(len(matches) == 1, f"Exact managed identity required: {name}")
+        identity = matches[0]
+        expected = (
+            f"/subscriptions/{config['subscriptionId']}/resourceGroups/{config['resourceGroup']}"
+            f"/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{name}"
+        )
+        require(
+            isinstance(identity.get("id"), str)
+            and identity["id"].lower() == expected.lower()
+            and identity.get("tenantId") == config["tenantId"]
+            and isinstance(identity.get("type"), str)
+            and identity["type"].lower() == "microsoft.managedidentity/userassignedidentities",
+            f"Managed identity tenant/resource mismatch: {name}",
+        )
+        principal = identity.get("principalId")
+        require(
+            isinstance(principal, str)
+            and str(uuid.UUID(principal)) == principal
+            and uuid.UUID(principal).int != 0,
+            f"Real managed-identity principal required: {name}",
+        )
+        result[key] = principal
+    require(len(set(result.values())) == 4, "Separate workload identities required")
+    return result
+
+
+def parameters(
+    config: dict,
+    stage: str,
+    manifest: dict | None = None,
+    *,
+    identities: list[dict] | None = None,
+) -> dict:
     validate(config)
     if stage == "foundation":
         keys = {
@@ -175,18 +221,20 @@ def parameters(config: dict, stage: str, manifest: dict | None = None) -> dict:
             "dnsProxyAddress",
             "routeTableName",
             "workspaceName",
-            "insightsName",
             "registryName",
             "cosmosName",
             "vaultName",
-            "openAIName",
             "databaseName",
-            "modelName",
-            "modelVersion",
         }
         values = {key: config[key] for key in keys}
+    elif stage == "access":
+        keys = {"name", "openAIName", "insightsName", "vaultName", "modelName", "modelVersion"}
+        values = {key: config[key] for key in keys}
         values.update(
-            enableModel=False, enableApiAccess=False, secretsReady=False, modelCapacity=100
+            principalIds=identity_principals(config, identities),
+            enableModel=True,
+            secretsReady=False,
+            modelCapacity=100,
         )
     elif stage == "apps":
         require(manifest is not None, "Reviewed private-build manifest required")
@@ -217,7 +265,7 @@ def parameters(config: dict, stage: str, manifest: dict | None = None) -> dict:
             enablePublicIngress=False,
         )
     else:
-        raise ValueError("Only foundation and apps stages produce non-secret parameter files")
+        raise ValueError("Only foundation, access and apps stages produce non-secret parameters")
     return {
         "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
         "contentVersion": "1.0.0.0",
@@ -229,11 +277,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--manifest", type=Path)
-    parser.add_argument("stage", choices=("foundation", "apps"))
+    parser.add_argument("--identities", type=Path)
+    parser.add_argument("stage", choices=("foundation", "access", "apps"))
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8-sig"))
     manifest = json.loads(args.manifest.read_text(encoding="utf-8-sig")) if args.manifest else None
-    print(json.dumps(parameters(config, args.stage, manifest), indent=2))
+    require(
+        args.identities is None or args.stage == "access", "Identity inventory is for access only"
+    )
+    identities = (
+        json.loads(args.identities.read_text(encoding="utf-8-sig")) if args.identities else None
+    )
+    print(json.dumps(parameters(config, args.stage, manifest, identities=identities), indent=2))
 
 
 if __name__ == "__main__":

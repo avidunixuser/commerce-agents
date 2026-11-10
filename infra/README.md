@@ -13,6 +13,11 @@ The Bicep targets deploy independently:
   checks. Requires Azure CLI with Bicep, Helm, kubeconform and PyYAML.
 - `scripts/preflight.py`: fail-closed operator input checks, not a live quota or
   entitlement check.
+- `container-apps/demo-*.bicep`: isolated retail demo stages. The foundation is
+  initial-only; access uses verified literal principal IDs without redeclaring
+  its environment, network or containers. See the [retail demo runbook](../docs/azure-retail-demo.md).
+- `modules/secret-access.bicep`: shared named-secret reader grants, retaining
+  identity-resource-based assignment names for both hosting targets and the demo.
 
 Copy a `main.parameters.example.json` to a git-ignored
 `main.parameters.local.json`, replace every placeholder and complete the live

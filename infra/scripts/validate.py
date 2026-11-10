@@ -51,6 +51,7 @@ def check_rbac(template: dict) -> None:
                 ("4633458b-17de-408a-b874-0445c86b69e6", "Microsoft.KeyVault/vaults/secrets"),
                 ("7f951dda-4ed3-4680-a7ca-43fe172d538d", "Microsoft.ContainerRegistry/registries"),
                 ("3913510d-42f4-4e42-8a64-420c390055eb", "Microsoft.Insights/components"),
+                ("5e0bd9bd-7b93-4f28-af87-19fc36ad61bd", "Microsoft.CognitiveServices/accounts"),
                 (
                     "4d97b98b-1d4f-4787-a291-c67834d212e7",
                     "Microsoft.Network/virtualNetworks/subnets",
@@ -129,8 +130,8 @@ def check_arm(template: dict) -> None:
     assert "microsoft.network/routetables" in types
 
 
-def check_demo(foundation: dict, setup: dict, apps: dict) -> None:
-    for template in (foundation, setup, apps):
+def check_demo(foundation: dict, access: dict, setup: dict, apps: dict) -> None:
+    for template in (foundation, access, setup, apps):
         check_rbac(template)
     foundation_resources = list(resources(foundation))
     kinds = {item["type"].lower() for item in foundation_resources}
@@ -165,9 +166,36 @@ def check_demo(foundation: dict, setup: dict, apps: dict) -> None:
         < rules["https-through-existing-firewall"]["priority"]
     )
     assert all(rule.get("destinationAddressPrefix") != "VirtualNetwork" for rule in rules.values())
-    assert foundation["parameters"]["enableModel"]["defaultValue"] is False
-    assert foundation["parameters"]["enableApiAccess"]["defaultValue"] is False
-    assert foundation["parameters"]["secretsReady"]["defaultValue"] is False
+    for parameter in ("enableModel", "enableApiAccess", "secretsReady"):
+        assert parameter not in foundation["parameters"]
+    assert "microsoft.cognitiveservices/accounts/deployments" not in kinds
+    assert access["parameters"]["enableModel"]["defaultValue"] is False
+    assert access["parameters"]["secretsReady"]["defaultValue"] is False
+    assert "reference(" not in json.dumps(access).lower()
+    assert {
+        item["type"].lower() for item in resources(access) if not item.get("existing", False)
+    } <= {
+        "microsoft.resources/deployments",
+        "microsoft.authorization/roleassignments",
+        "microsoft.cognitiveservices/accounts/deployments",
+    }
+    assert access["parameters"]["principalIds"]["$ref"] == "#/definitions/DemoPrincipals"
+    principals = access["definitions"]["DemoPrincipals"]
+    assert principals["additionalProperties"] is False
+    assert set(principals["properties"]) == {
+        "shoppingApi",
+        "merchantApi",
+        "shoppingGateway",
+        "merchantGateway",
+    }
+    secret_readers = [
+        item
+        for item in resources(access)
+        if item["type"].lower() == "microsoft.authorization/roleassignments"
+        and "4633458b-17de-408a-b874-0445c86b69e6" in json.dumps(item["properties"])
+    ]
+    assert len(secret_readers) == 1
+    assert "parameters('identityResourceId')" in secret_readers[0]["name"]
     assert setup["parameters"]["oidcClientSecret"]["type"].lower() == "securestring"
     assert setup["parameters"]["temporarySetupPermissionsApproved"]["allowedValues"] == [True]
     job = next(item for item in resources(setup) if item["type"].lower() == "microsoft.app/jobs")
@@ -483,7 +511,7 @@ def main() -> None:
     check_private_build(*private_templates)
     print("PASS private-build: isolated VM, network and exact RBAC shape")
     demo_templates = []
-    for stage in ("foundation", "setup", "apps"):
+    for stage in ("foundation", "access", "setup", "apps"):
         output = OUT / f"demo-{stage}.json"
         run(
             args.az,
