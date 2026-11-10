@@ -177,6 +177,11 @@ vault secrets or obtain database account keys.
 
 ## Publish and verify
 
+The gateway package declares `aiohttp` for its async Azure identity and Cosmos
+clients. Its Docker build constructs and closes both clients without making
+network requests; importing the gateway package alone does not verify this
+transport dependency.
+
 Deploy apps with `enablePublicIngress=false`. Configure exact redirect URLs on
 the isolated registration after obtaining the assigned environment domains.
 Keep the private merchant gateway in the internal environment and preserve
@@ -198,3 +203,7 @@ verification; an environment domain is not a deployed app.
 The six apps use 3 vCPU and 6 GiB in steady state. Workers poll durable queues,
 so do not estimate the whole demo as idle. Compute, database utilization, model
 tokens, logs and network remain billable; no parameter here is a monetary cap.
+
+Check each application's actual replica container state and HTTP readiness.
+Successful ARM provisioning or a populated `latestReadyRevisionName` does not
+establish that the application container is healthy.
