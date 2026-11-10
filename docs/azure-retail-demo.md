@@ -94,7 +94,7 @@ verify effective application ownership rather than assume it.
 ## Validation and release
 
 Complete `azure-prepare`, `azure-validate` and `azure-deploy` for the approved
-stage. Compile all three templates and run their offline policy checks through
+stage. Compile all four templates and run their offline policy checks through
 `infra/scripts/validate.py`. Complete scoped Azure validation, policy and ARM
 what-if before applying a stage. Stop on deletion, replacement of shared
 resources, unexpected scopes, unsupported model SKU or missing identity access.
