@@ -8,6 +8,7 @@ from demo_identity import (
     all_values,
     assigned_roles,
     assignment_requests,
+    complete_owned_setup,
     expected_roles,
     inspect,
     owned_patch,
@@ -59,6 +60,49 @@ def manifest():
             "entertainment-merchant-web",
         )
     }
+
+
+class OwnedIdentityGraph:
+    def __init__(self):
+        self.app = {
+            "id": "app-object",
+            "appId": config()["oidcClientId"],
+            "signInAudience": "AzureADMyOrg",
+        }
+        self.operator = config()["operatorObjectId"]
+        self.app_owned = True
+        self.principal_owned = True
+        self.tenant = config()["tenantId"]
+        self.propagated = True
+        self.assignments = []
+        self.writes = []
+
+    def request(self, path, body=None, *, method=None):
+        if method == "POST":
+            self.writes.append((method, path, copy.deepcopy(body)))
+            self.assignments.append(copy.deepcopy(body))
+            return copy.deepcopy(body)
+        if body is not None:
+            self.writes.append(("PATCH", path, copy.deepcopy(body)))
+            self.app.update(copy.deepcopy(body))
+            return None
+        if path.startswith("/applications?"):
+            return {"value": [copy.deepcopy(self.app)]}
+        if path == "/applications/app-object":
+            return copy.deepcopy(self.app)
+        if path.startswith("/applications/app-object/owners"):
+            return {"value": [{"id": self.operator}] if self.app_owned else []}
+        if path == "/me?$select=id":
+            return {"id": self.operator}
+        if path.startswith("/servicePrincipals?"):
+            return {"value": [{"id": "resource", "appOwnerOrganizationId": self.tenant}]}
+        if path.startswith("/servicePrincipals/resource/owners"):
+            return {"value": [{"id": self.operator}] if self.principal_owned else []}
+        if path.startswith("/servicePrincipals/resource/appRoleAssignedTo"):
+            return {"value": copy.deepcopy(self.assignments)}
+        if path == "/servicePrincipals/resource?$select=appRoles":
+            return {"appRoles": self.app.get("appRoles", []) if self.propagated else []}
+        raise AssertionError(f"Unexpected Graph read: {path}")
 
 
 class DemoTests(unittest.TestCase):
@@ -198,6 +242,92 @@ class DemoTests(unittest.TestCase):
         self.assertTrue(result["configured"])
         self.assertEqual(result["assignedRoles"], [])
         self.assertFalse(result["ready"])
+
+    def test_existing_dual_ownership_can_complete_only_the_demo_user_roles(self):
+        graph = OwnedIdentityGraph()
+        result = complete_owned_setup(graph, config())
+        self.assertTrue(result["ready"])
+        self.assertEqual(len(graph.writes), 4)
+        self.assertEqual(graph.writes[0][0:2], ("PATCH", "/applications/app-object"))
+        self.assertNotIn("preAuthorizedApplications", graph.writes[0][2]["api"])
+        self.assertIn("preAuthorizedApplications", graph.writes[1][2]["api"])
+        for method, path, body in graph.writes[2:]:
+            self.assertEqual(
+                (method, path), ("POST", "/servicePrincipals/resource/appRoleAssignedTo")
+            )
+            self.assertEqual(body["principalId"], config()["operatorObjectId"])
+            self.assertEqual(body["resourceId"], "resource")
+            self.assertEqual(set(body), {"principalId", "resourceId", "appRoleId"})
+        self.assertTrue(complete_owned_setup(graph, config())["ready"])
+        self.assertEqual(len(graph.writes), 4)
+
+    def test_owned_setup_refuses_missing_ownership_wrong_operator_or_wrong_tenant(self):
+        for attribute, value in (
+            ("app_owned", False),
+            ("principal_owned", False),
+            ("operator", "someone-else"),
+            ("tenant", "another-tenant"),
+        ):
+            with self.subTest(attribute=attribute):
+                graph = OwnedIdentityGraph()
+                setattr(graph, attribute, value)
+                with self.assertRaises(IdentityError):
+                    complete_owned_setup(graph, config())
+                self.assertEqual(graph.writes, [])
+
+    def test_owned_setup_only_assigns_the_missing_role(self):
+        graph = OwnedIdentityGraph()
+        graph.app.update(owned_patch(graph.app))
+        graph.assignments = [
+            assignment_requests("resource", config()["operatorObjectId"])["requests"][0]["body"]
+        ]
+        self.assertTrue(complete_owned_setup(graph, config())["ready"])
+        self.assertEqual(len(graph.writes), 1)
+        self.assertEqual(graph.writes[0][2]["appRoleId"], expected_roles()[1]["id"])
+
+    def test_owned_setup_never_assigns_roles_before_definitions_propagate(self):
+        graph = OwnedIdentityGraph()
+        graph.propagated = False
+        with self.assertRaises(IdentityError):
+            complete_owned_setup(graph, config())
+        self.assertEqual([method for method, _, _ in graph.writes], ["PATCH", "PATCH"])
+
+    def test_denied_owned_assignment_never_escalates_or_retries(self):
+        class Denied(OwnedIdentityGraph):
+            def request(self, path, body=None, *, method=None):
+                if method == "POST":
+                    self.writes.append((method, path, body))
+                    raise IdentityError("Microsoft Graph request failed with HTTP 403")
+                return super().request(path, body, method=method)
+
+        graph = Denied()
+        with self.assertRaisesRegex(IdentityError, "403"):
+            complete_owned_setup(graph, config())
+        self.assertEqual([method for method, _, _ in graph.writes], ["PATCH", "PATCH", "POST"])
+
+    def test_unexpected_assignment_result_stops_before_the_next_role(self):
+        class Unexpected(OwnedIdentityGraph):
+            def request(self, path, body=None, *, method=None):
+                result = super().request(path, body, method=method)
+                return {"principalId": "someone-else"} if method == "POST" else result
+
+        graph = Unexpected()
+        with self.assertRaisesRegex(IdentityError, "Unexpected owned role-assignment"):
+            complete_owned_setup(graph, config())
+        self.assertEqual([method for method, _, _ in graph.writes], ["PATCH", "PATCH", "POST"])
+
+    def test_scope_is_verified_before_client_preauthorization(self):
+        class NoScopePersistence(OwnedIdentityGraph):
+            def request(self, path, body=None, *, method=None):
+                result = super().request(path, body, method=method)
+                if body is not None and method != "POST":
+                    self.app["api"]["oauth2PermissionScopes"] = []
+                return result
+
+        graph = NoScopePersistence()
+        with self.assertRaisesRegex(IdentityError, "API scope did not persist"):
+            complete_owned_setup(graph, config())
+        self.assertEqual([method for method, _, _ in graph.writes], ["PATCH"])
 
 
 if __name__ == "__main__":

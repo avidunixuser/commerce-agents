@@ -68,12 +68,27 @@ role definitions. It does not assign roles, create directory-admin grants,
 add Graph permissions or create client secrets. Incompatible existing roles,
 scopes or identifiers are rejected rather than overwritten.
 
+When explicitly authorized, an operator who owns both the registration and its
+enterprise application can run:
+
+```powershell
+python infra\scripts\demo_identity.py --config .azure\demo.runtime.json --complete-owned-setup
+```
+
+This configures only the owned API and assigns missing demo user roles only to
+the confirmed operator. It checks both ownerships before writes, rejects
+cross-tenant principals and requires propagated role definitions before role
+assignment. It never escalates directory privileges. If propagation is incomplete, inspect and rerun
+after it completes. Read-only verification precedes repeated assignments;
+uncertain failures are never blindly replayed. A permission denial requires the
+administrator path, not new Graph permissions or directory roles.
+
 The identity inspector exits nonzero until both real operator assignments and
 the API configuration are verified. It returns non-secret administrator batch
 requests for the missing assignment work. A successful batch HTTP envelope is
 not proof that its individual operations succeeded; inspect each result and
-rerun the read-only inspector. Do not call the assignment API from a Global
-Reader account.
+rerun the read-only inspector. Global Reader alone is not assignment authority;
+verify effective application ownership rather than assume it.
 
 ## Validation and release
 
