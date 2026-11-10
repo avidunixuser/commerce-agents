@@ -14,9 +14,11 @@ administrator role or Azure resource access.
 
 ## Administrator setup
 
-An application administrator performs the directory assignments from their own
-authenticated administrative environment. Do not change another operator's
-shared Azure CLI profile or send administrator credentials to the application.
+An operator who owns both the registration and enterprise application can use
+the explicit owned-setup path. Otherwise an application administrator performs
+the directory assignments from their own authenticated administrative
+environment. Do not change another operator's shared Azure CLI profile or send
+administrator credentials to the application.
 The configured deployment tenant and operator object ID are private deployment
 inputs. The local operator ID is retained in the ignored
 `.azure/demo-operator-object-id.json`, not in this document.
@@ -63,11 +65,22 @@ or return them in browser configuration.
 
 ## Assignment verification
 
-Registration policy allowing users to create applications does not grant
-permission to assign merchant roles. The Microsoft Graph
+Registration policy or Global Reader alone does not grant permission to assign
+merchant roles. Existing enterprise-application ownership also contributes to
+effective permissions: an owner can manage assignments on that application,
+subject to the calling client's Graph permissions and tenant restrictions. See
+[enterprise application ownership](https://learn.microsoft.com/en-us/entra/identity/enterprise-apps/overview-assign-app-owners).
+The Microsoft Graph
 [app-role assignment API](https://learn.microsoft.com/en-us/graph/api/serviceprincipal-post-approleassignedto?view=graph-rest-1.0)
 requires its delegated permissions and a supported directory role or custom
-permission. Global Reader is not sufficient.
+permission. Do not infer either sufficient access or an administrator blocker
+from the directory-role name alone.
+
+The explicitly authorized `--complete-owned-setup` option checks both ownerships,
+the exact operator and tenant, and the propagated user-role definitions before
+assigning only missing demo roles. It never grants directory privileges or
+Microsoft Graph permissions. A denied API operation remains a real administrator
+gate; do not broaden permissions or switch callers to bypass it.
 
 Before deploying, read the enterprise application's assignments and verify that
 the approved operator's principal ID has both role IDs from the manifest on

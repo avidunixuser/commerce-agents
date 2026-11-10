@@ -1,4 +1,4 @@
-"""Inspect demo identity or configure only an explicitly owned demo registration."""
+"""Inspect demo identity or complete explicitly owned application setup."""
 
 from __future__ import annotations
 
@@ -30,12 +30,14 @@ class Graph:
         self.credential = AzureCliCredential(tenant_id=tenant_id)
         self.transport = build_opener(NoRedirect())
 
-    def request(self, path: str, body: dict | None = None) -> dict | None:
+    def request(
+        self, path: str, body: dict | None = None, *, method: str | None = None
+    ) -> dict | None:
         token = self.credential.get_token("https://graph.microsoft.com/.default").token
         request = Request(
             "https://graph.microsoft.com/v1.0" + path,
             data=json.dumps(body).encode() if body is not None else None,
-            method="PATCH" if body is not None else "GET",
+            method=method or ("PATCH" if body is not None else "GET"),
             headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"},
         )
         try:
@@ -175,7 +177,27 @@ def inspect(graph, config: dict, *, configure_owned: bool = False) -> dict:
             raise IdentityError(
                 "Only the confirmed operator who owns this registration can configure it"
             )
-        graph.request("/applications/" + app["id"], patch)
+        path = "/applications/" + app["id"]
+        if not any(
+            scope.get("id") == SCOPE_ID and scope.get("isEnabled")
+            for scope in (app.get("api") or {}).get("oauth2PermissionScopes", [])
+        ):
+            # Graph validates preauthorization against already persisted scopes.
+            scope_patch = {
+                **patch,
+                "api": {
+                    key: value
+                    for key, value in patch["api"].items()
+                    if key != "preAuthorizedApplications"
+                },
+            }
+            graph.request(path, scope_patch)
+            staged = graph.request(path)
+            if (staged.get("api") or {}).get("oauth2PermissionScopes") != patch["api"][
+                "oauth2PermissionScopes"
+            ]:
+                raise IdentityError("API scope did not persist; no client preauthorization added")
+        graph.request(path, patch)
         app = graph.request("/applications/" + app["id"])
     api = app.get("api") or {}
     configured = (
@@ -208,15 +230,63 @@ def inspect(graph, config: dict, *, configure_owned: bool = False) -> dict:
     }
 
 
+def complete_owned_setup(graph, config: dict) -> dict:
+    result = inspect(graph, config)
+    me = graph.request("/me?$select=id")
+    if me["id"] != config["operatorObjectId"]:
+        raise IdentityError("Only the confirmed operator can complete owned setup")
+    principal_id = result["servicePrincipalId"]
+    owners = all_values(graph, f"/servicePrincipals/{principal_id}/owners?$select=id")
+    if me["id"] not in {row["id"] for row in owners}:
+        raise IdentityError("Enterprise application ownership is required; use an administrator")
+    app_owners = all_values(
+        graph, f"/applications/{result['applicationObjectId']}/owners?$select=id"
+    )
+    if me["id"] not in {row["id"] for row in app_owners}:
+        raise IdentityError("Application registration ownership is required")
+    if result["ready"]:
+        return result
+    if not result["configured"]:
+        result = inspect(graph, config, configure_owned=True)
+    if not result["configured"]:
+        raise IdentityError("Owned API configuration did not verify; no roles assigned")
+    principal = graph.request(f"/servicePrincipals/{principal_id}?$select=appRoles")
+    actual_roles = {
+        role["id"]: role
+        for role in principal.get("appRoles", [])
+        if role.get("isEnabled") and role.get("allowedMemberTypes") == ["User"]
+    }
+    if any(
+        actual_roles.get(role["id"], {}).get("value") != role["value"] for role in expected_roles()
+    ):
+        raise IdentityError("Enterprise role definitions have not propagated; no roles assigned")
+    for request in result["administratorAssignmentRequests"]["requests"]:
+        if request["id"] in result["assignedRoles"]:
+            continue
+        body = request["body"]
+        assigned = graph.request(request["url"], body, method="POST")
+        if not isinstance(assigned, dict) or any(
+            assigned.get(key) != value for key, value in body.items()
+        ):
+            raise IdentityError("Unexpected owned role-assignment response; verify before retry")
+    return inspect(graph, config)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("--configure-owned-app", action="store_true")
+    mutations = parser.add_mutually_exclusive_group()
+    mutations.add_argument("--configure-owned-app", action="store_true")
+    mutations.add_argument("--complete-owned-setup", action="store_true")
     args = parser.parse_args()
     config = json.loads(args.config.read_text(encoding="utf-8-sig"))
     graph = Graph(config["tenantId"])
     try:
-        result = inspect(graph, config, configure_owned=args.configure_owned_app)
+        result = (
+            complete_owned_setup(graph, config)
+            if args.complete_owned_setup
+            else inspect(graph, config, configure_owned=args.configure_owned_app)
+        )
         print(json.dumps(result, indent=2))
         if not result["ready"]:
             raise SystemExit(2)

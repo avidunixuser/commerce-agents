@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Ready for Validation - identity and release gates pending.**
+**Status: Ready for Validation - owned identity completed; workload release pending.**
 
 ## Current deployment request
 
@@ -75,9 +75,13 @@ Read-only checks confirm that tenant policy allows user application registration
 The operator has the Global Reader directory role, not an application
 administrator role. The supplied application name resolves to one application
 in the confirmed tenant, and the operator owns its registration. Its API scope,
-v2 token setting and role definitions are not configured. No merchant/approver
-assignments are present. Actual role assignments require an Entra administrator.
-Application ownership alone does not grant that assignment permission.
+v2 token setting and role definitions are configured. Both merchant/approver
+assignments are verified on the exact operator and enterprise application.
+The operator also owns the enterprise application. Its existing ownership can
+authorize application-specific user assignments, subject to Graph client
+permissions and tenant restrictions. The user explicitly approved use of that
+existing ownership for only the two demo roles, without directory escalation
+or new Graph permissions. A denied API operation remains an administrator gate.
 Establish the required identity configuration before
 starting billable application/model rollout; stop for administrator action
 instead of weakening role checks or declaring the merchant app usable.
@@ -144,7 +148,7 @@ does not guarantee physical capacity or model deployment success.
 | Azure OpenAI Standard model capacity | 100 units | Regional gpt-4.1-mini Standard usage 0 of 5,000; version/SKU offered by the account |
 | Cosmos containers | 2 | One database and two containers currently; total five database/container resources against account limit 500, four shared-throughput containers against limit 25 |
 | Workload/setup managed identities | 5 | Four runtime identities and one temporary setup identity; no directory app-role escalation |
-| OIDC application and service principal | Reuse the supplied registration and enterprise application | Operator owns this application; API configuration and administrator assignments remain incomplete |
+| OIDC application and service principal | Reuse the supplied registration and enterprise application | Operator owns both objects; API settings and both actual user-role assignments are verified |
 | Cosmos data-plane role assignments | 5, including one temporary setup assignment | Existing account has 6 against limit 2,000 |
 | Azure RBAC grants | 11, including temporary setup grant | Two model, two telemetry, six per-secret runtime readers and one temporary vault writer; visible subscription assignments 48 against limit 4,000 |
 | Demo Key Vault secrets | 5 | Existing vault reused; apply secret-size and request-rate limits, not a fictional resource quota |
@@ -203,7 +207,7 @@ Do not leave the build VM or setup permissions running after their bounded work.
 - [x] Inspect shared hosts, images, networks, model offerings and quota evidence.
 - [x] User approves this concrete plan.
 - [x] Fix explicit gateway workload-identity selection and its entrypoint tests.
-- [ ] Resolve the merchant directory-role assignment gate before billable rollout.
+- [x] Resolve identity configuration and actual operator assignments using explicitly approved existing ownership.
 - [x] Implement demo artifacts, secret initializer, identity inspection and sample-data labeling.
 - [ ] Publish source through reviewed CI and merge.
 - [ ] Complete one protected image build and verify cleanup.
@@ -262,28 +266,44 @@ verification remains a post-application gate.
 
 Owned-registration configuration is a separate, non-billable directory stage.
 Its exact API/role-definition patch and administrator assignment request bodies
-are generated privately without secrets. Its scope excludes creating credentials,
-assigning roles, adding Graph permissions, deploying resources and public ingress.
-The read-only inspector confirms that the registration is not yet ready. No
-directory change has run and this stage is not marked Validated.
+are generated privately without secrets. The user authorized the existing owner
+to configure this application and assign only its two demo user roles to the
+confirmed operator. Its scope excludes credentials, directory roles, new Graph
+permissions, Azure resources and public ingress.
 
-### Current identity blocker
+The owned-identity stage validation passes: read-only Microsoft Graph confirms
+the exact operator owns both the single-tenant registration and its enterprise
+application; the proposed patch has only API settings, role definitions and the
+application ID URI. The owned-setup tests pass, including wrong-tenant,
+wrong-operator, missing-ownership, propagation and idempotency cases. All 66
+infrastructure tests pass with one existing skip; Ruff passes. Scope persistence
+is verified before client preauthorization, as required by the live Graph API.
+Actual command
+timestamps and target IDs are retained in ignored local evidence. This Graph
+stage uses explicit request preview, not a fictional ARM what-if for directory
+objects. The owned-identity stage executed successfully and read-back verifies
+the API settings and both exact user assignments. No directory privileges or
+Graph permissions were added. Workload validation and publication of the new
+private image release remain incomplete.
+
+### Owned-identity readiness
 
 The Microsoft Graph
 [app-role assignment API](https://learn.microsoft.com/en-us/graph/api/serviceprincipal-post-approleassignedto?view=graph-rest-1.0)
 requires a supported directory role or custom permission in addition to Graph
-permissions. Global Reader is not sufficient. Application-registration policy
-does not grant that assignment permission.
+permissions. Global Reader alone is not sufficient. Existing object ownership
+also contributes effective permissions and is verified for both application
+objects; a denied assignment API still requires administrator assistance.
 
-The user selected continuation of the full demo with help from an Entra
-application administrator. Keep both roles in scope; do not silently switch to a
-shopper-only release. The
+The user approved using existing dual ownership to complete this identity
+stage, with administrator assistance only if the API denies that operation.
+Keep both roles in scope; do not silently switch to a shopper-only release. The
 [administrator handoff](../docs/azure-demo-identity.md) and
 [user-role manifest](../infra/container-apps/demo-app-roles.json) define the
 required isolated registration. The supplied application has been resolved;
 its client ID, object IDs, ownership proof and exact administrator assignment
-requests are retained privately. Configure and verify the owned registration,
-then obtain verified merchant/approver assignments before billable rollout.
+requests are retained privately. Owned API configuration and both exact
+merchant/approver assignments now verify; this identity gate is resolved.
 
 Do not grant the operator a privileged directory role automatically, weaken the
 host's merchant checks, or deploy an unusable merchant portal and report it as
