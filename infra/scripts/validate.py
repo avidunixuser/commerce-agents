@@ -129,6 +129,86 @@ def check_arm(template: dict) -> None:
     assert "microsoft.network/routetables" in types
 
 
+def check_demo(foundation: dict, setup: dict, apps: dict) -> None:
+    for template in (foundation, setup, apps):
+        check_rbac(template)
+    foundation_resources = list(resources(foundation))
+    kinds = {item["type"].lower() for item in foundation_resources}
+    assert "microsoft.network/virtualnetworks" not in kinds
+    assert "microsoft.network/virtualnetworks/subnets" in kinds
+    assert "microsoft.containerservice/managedclusters" not in kinds
+    environment = next(
+        item
+        for item in foundation_resources
+        if item["type"].lower() == "microsoft.app/managedenvironments"
+    )
+    assert environment["properties"]["vnetConfiguration"]["internal"] is False
+    assert environment["properties"]["workloadProfiles"] == [
+        {"name": "Consumption", "workloadProfileType": "Consumption"}
+    ]
+    nsg = next(
+        item
+        for item in foundation_resources
+        if item["type"].lower() == "microsoft.network/networksecuritygroups"
+    )
+    rules = {rule["name"]: rule["properties"] for rule in nsg["properties"]["securityRules"]}
+    private_denial = rules["deny-other-private"]
+    assert private_denial["access"] == "Deny"
+    assert set(private_denial["destinationAddressPrefixes"]) == {
+        "10.0.0.0/8",
+        "172.16.0.0/12",
+        "192.168.0.0/16",
+    }
+    assert (
+        rules["private-dependencies"]["priority"]
+        < private_denial["priority"]
+        < rules["https-through-existing-firewall"]["priority"]
+    )
+    assert all(rule.get("destinationAddressPrefix") != "VirtualNetwork" for rule in rules.values())
+    assert foundation["parameters"]["enableModel"]["defaultValue"] is False
+    assert foundation["parameters"]["enableApiAccess"]["defaultValue"] is False
+    assert foundation["parameters"]["secretsReady"]["defaultValue"] is False
+    assert setup["parameters"]["oidcClientSecret"]["type"].lower() == "securestring"
+    assert setup["parameters"]["temporarySetupPermissionsApproved"]["allowedValues"] == [True]
+    job = next(item for item in resources(setup) if item["type"].lower() == "microsoft.app/jobs")
+    configuration = job["properties"]["configuration"]
+    assert configuration["triggerType"] == "Manual"
+    assert configuration["replicaRetryLimit"] == 0
+    assert configuration["replicaTimeout"] == 300
+    assert configuration["manualTriggerConfig"] == {"parallelism": 1, "replicaCompletionCount": 1}
+    assert len(job["properties"]["template"]["containers"]) == 1
+    assert apps["parameters"]["enablePublicIngress"]["defaultValue"] is False
+    auth = next(
+        item
+        for item in resources(apps)
+        if item["type"].lower() == "microsoft.app/containerapps/authconfigs"
+    )["properties"]
+    assert auth["platform"]["enabled"] is True
+    assert auth["httpSettings"]["requireHttps"] is True
+    assert auth["globalValidation"]["excludedPaths"] == [
+        "/health/live",
+        "/health/ready",
+        "/.well-known/jwks.json",
+    ]
+    aad = auth["identityProviders"]["azureActiveDirectory"]
+    assert aad["validation"]["defaultAuthorizationPolicy"]["allowedPrincipals"]["identities"] == [
+        "[parameters('operatorObjectId')]"
+    ]
+    modules = [
+        item
+        for item in apps["resources"]
+        if item["type"].lower() == "microsoft.resources/deployments"
+    ]
+    assert len(modules) == 3
+    for module in modules:
+        params = module["properties"]["parameters"]
+        assert params["minReplicas"]["value"] == params["maxReplicas"]["value"] == 1
+        if "gateway" not in module["name"]:
+            assert "exposedToVnet" not in params
+        if "-api" in module["name"]:
+            assert params["command"]["value"] == ["python", "-m", "commerce_host", "worker"]
+
+
 def check_private_build(bootstrap: dict, node: dict) -> None:
     permanent = list(resources(bootstrap))
     kinds = {r["type"].lower() for r in permanent}
@@ -402,6 +482,21 @@ def main() -> None:
         private_templates.append(json.loads(output.read_text(encoding="utf-8-sig")))
     check_private_build(*private_templates)
     print("PASS private-build: isolated VM, network and exact RBAC shape")
+    demo_templates = []
+    for stage in ("foundation", "setup", "apps"):
+        output = OUT / f"demo-{stage}.json"
+        run(
+            args.az,
+            "bicep",
+            "build",
+            "--file",
+            str(ROOT / "infra" / "container-apps" / f"demo-{stage}.bicep"),
+            "--outfile",
+            str(output),
+        )
+        demo_templates.append(json.loads(output.read_text(encoding="utf-8-sig")))
+    check_demo(*demo_templates)
+    print("PASS retail demo: opt-in boundary, operator authentication and bounded setup")
     for target in ("container-apps", "aks"):
         output = OUT / f"{target}.json"
         run(

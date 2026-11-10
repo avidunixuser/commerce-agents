@@ -47,12 +47,18 @@ tenant, expiry, subject binding, nonce and authorized party are checked.
 The provider must return JWT access tokens for this API, not opaque tokens.
 Merchant tokens must carry the `merchant` app role; approval requires the
 separate `approver` role enforced by the API.
+The [retail demo identity setup](azure-demo-identity.md) defines the isolated
+demo registration and administrator assignment requirements.
 
 Use Cosmos **data-plane RBAC** for the gateway's managed identity: read/create/
 replace/delete auth items only, not account keys or control-plane Contributor.
 The gateway never provisions containers. Its `AuthStorage` protocol permits
 testing without cloud access. Production startup exclusively constructs
 `CosmosAuthStorage` with `ManagedIdentityCredential`; there is no in-memory fallback.
+Set `AZURE_CLIENT_ID` to the gateway workload identity's client ID when more than
+one user-assigned identity is attached. The separate image-pull identity is not
+the gateway's Cosmos identity. Without this setting, the credential retains the
+SDK's default managed-identity selection.
 Auth payloads, including OIDC access tokens, PKCE verifier, state and nonce, are
 encrypted before Cosmos writes. Expiry is enforced on reads, not only eventual
 TTL deletion. OIDC flows are consumed with ETag-conditional deletion, preventing

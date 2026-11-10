@@ -1,0 +1,18 @@
+[
+  {
+    "allowedMemberTypes": ["User"],
+    "description": "Use the private ACME retail merchant demo.",
+    "displayName": "Merchant",
+    "id": "4aea4803-2c49-579a-8300-1cffb959ab79",
+    "isEnabled": true,
+    "value": "merchant"
+  },
+  {
+    "allowedMemberTypes": ["User"],
+    "description": "Approve staged changes in the private ACME retail merchant demo.",
+    "displayName": "Approver",
+    "id": "c27d95d2-cea2-5489-9f0b-20186b4ba487",
+    "isEnabled": true,
+    "value": "approver"
+  }
+]

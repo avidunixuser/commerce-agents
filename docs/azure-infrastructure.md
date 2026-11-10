@@ -331,6 +331,12 @@ Workers process Cosmos-backed jobs; they are not Container Apps Jobs or queue
 consumers. API and worker deployment inputs must agree on role, vertical,
 provider ID, backend factory, auth settings, Cosmos endpoint/database/container.
 
+The separate [retail demo](azure-retail-demo.md) uses opt-in entrypoints and
+singleton fixture API/worker processes. It reuses private backing services,
+keeps merchant apps in the internal environment and gates its separate public
+shopper environment on operator-only Entra authentication. It does not change
+the production defaults or provide durable fixture commerce state.
+
 Bicep injects enforced `COMMERCE_ROLE`, `COMMERCE_VERTICAL`,
 `COMMERCE_MODE=production`, `COMMERCE_APP_ROOT=/app`, `COMMERCE_COSMOS_*`, gateway upstreams and private
 boundary settings. Supply non-secret purpose/provider/auth/backend configuration

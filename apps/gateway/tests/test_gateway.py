@@ -124,6 +124,25 @@ def test_private_boundary_required(settings):
     assert replace(settings, role="merchant", private_boundary=True).role == "merchant"
 
 
+@pytest.mark.parametrize("mode", ["production", "fixture"])
+async def test_runtime_demo_label_comes_from_validated_server_configuration(settings, mode):
+    browser, _, requests = setup(replace(settings, mode=mode))
+    async with browser:
+        response = await browser.get("/api/auth/session")
+    assert response.status_code == 200
+    assert response.json() == {
+        "authenticated": False,
+        "role": "shopping",
+        "deployment_mode": mode,
+    }
+    assert not requests
+
+
+def test_gateway_rejects_unknown_deployment_mode(settings):
+    with pytest.raises(ValueError, match="COMMERCE_MODE"):
+        replace(settings, mode="demo")
+
+
 @pytest.mark.parametrize(
     "changes",
     [

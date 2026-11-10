@@ -14,9 +14,11 @@ def configure() -> None:
         raise ValueError("COMMERCE_TELEMETRY must be console or azure")
     if not os.environ.get("APPLICATIONINSIGHTS_CONNECTION_STRING"):
         raise ValueError("Azure telemetry requires APPLICATIONINSIGHTS_CONNECTION_STRING")
+    from azure.identity import ManagedIdentityCredential
     from azure.monitor.opentelemetry import configure_azure_monitor
 
     configure_azure_monitor(
+        credential=ManagedIdentityCredential(client_id=os.environ.get("AZURE_CLIENT_ID")),
         logger_name="commerce_host",
         enable_live_metrics=False,
         instrumentation_options={

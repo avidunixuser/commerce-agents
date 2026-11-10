@@ -12,8 +12,11 @@ python -m commerce_host api
 python -m commerce_host worker
 ```
 
-Both processes expose port 8080 with `/health/live` and `/health/ready`.
-Run them separately; a worker is not an API sidecar or a conversation-specific pod.
+Both commands expose port 8080 with `/health/live` and `/health/ready`.
+The worker command also serves the role API. Production deploys separate API and
+worker apps and disables worker ingress. The explicit singleton fixture demo
+uses the worker command for both functions so its process-local backend is
+shared by the HTTP routes and worker. A worker is not a conversation-specific pod.
 
 ## Configuration
 
@@ -101,6 +104,16 @@ lab implementation. It reuses vertical classes and presentation extensions, but
 its inventory/carts/change ledgers are not shared across replicas. Use upstream
 `scripts/run_demo.py` for the original complete local vertical demos. Never label
 these fixtures live commerce integrations.
+
+`demo_setup.py` initializes five demo-namespaced gateway secrets inside the
+private network. It requires explicit fixture mode, a selected managed
+identity, named-vault write permission and scoped Cosmos access for its
+conditional initialization fence. Key material is generated in-process and
+sent only to Key Vault, not Cosmos or logs. A completed or interrupted setup
+cannot be replayed automatically: inspect the execution and namespaced fence
+before an explicitly approved retry. The
+[retail demo runbook](../../docs/azure-retail-demo.md) describes the deployment
+and removal of temporary setup permissions.
 
 ## API and streaming
 

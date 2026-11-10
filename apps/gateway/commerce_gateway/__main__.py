@@ -1,3 +1,4 @@
+import os
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -11,7 +12,7 @@ from .storage import CosmosAuthStorage
 
 def main():
     settings = Settings.from_env()
-    credential = ManagedIdentityCredential()
+    credential = ManagedIdentityCredential(client_id=os.environ.get("AZURE_CLIENT_ID"))
     cosmos = CosmosClient(settings.cosmos_endpoint, credential=credential)
     container = cosmos.get_database_client(settings.cosmos_database).get_container_client(
         settings.cosmos_container

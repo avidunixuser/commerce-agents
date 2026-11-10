@@ -315,7 +315,11 @@ def create_app(settings, storage, client=None, oidc=None):
     async def session(request: Request):
         record, token = await identity(request, required=False)
         if not record:
-            return {"authenticated": False, "role": settings.role}
+            return {
+                "authenticated": False,
+                "role": settings.role,
+                "deployment_mode": settings.mode,
+            }
         await internal(auth_prefix + "/auth/session", token, method="GET")
         guest = await storage.get(record_key("guest", request.cookies.get(GUEST_COOKIE, "")))
         migration = await storage.get(
@@ -325,6 +329,7 @@ def create_app(settings, storage, client=None, oidc=None):
             "authenticated": True,
             "kind": record["kind"],
             "role": settings.role,
+            "deployment_mode": settings.mode,
             "csrf_token": record["csrf"],
             "memory_consent": record.get("memory_consent", False),
             "migration_available": record["kind"] == "customer"
