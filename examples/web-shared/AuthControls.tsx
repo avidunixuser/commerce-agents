@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 
 interface AuthState {
   authenticated: boolean;
+  deployment_mode?: "production" | "fixture";
   role?: string;
   kind?: string;
   csrf_token?: string;
@@ -90,6 +91,9 @@ export function AuthControls() {
 
   if (!production && !error && !notice) return null;
   return <section aria-label="Identity and privacy" className="shrink-0 border-b border-(--line) bg-(--card) p-3 text-sm text-(--ink)">
+    {state?.deployment_mode === "fixture" && <p role="status">
+      Sample-data demo. No real orders, payments, or fulfillment. Catalog and commerce state can reset on restart and differ between roles.
+    </p>}
     {error && <p role="alert">{error}</p>}
     {notice && <p role="status">{notice}</p>}
     {production && <>

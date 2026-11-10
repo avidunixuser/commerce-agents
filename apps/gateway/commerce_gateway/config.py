@@ -26,10 +26,13 @@ class Settings:
     session_seconds: int = 3600
     guest_seconds: int = 2592000
     max_body_bytes: int = 1048576
+    mode: str = "production"
 
     def __post_init__(self):
         if self.role not in {"shopping", "merchant"}:
             raise ValueError("COMMERCE_ROLE must be shopping or merchant")
+        if self.mode not in {"production", "fixture"}:
+            raise ValueError("COMMERCE_MODE must be production or fixture")
         if self.role == "merchant" and not self.private_boundary:
             raise ValueError("Merchant gateway requires a private network boundary")
         for name in ("origin", "issuer", "gateway_issuer", "cosmos_endpoint"):
@@ -102,4 +105,5 @@ class Settings:
             scope=os.getenv("COMMERCE_OIDC_SCOPE", "openid profile"),
             session_seconds=int(os.getenv("COMMERCE_AUTH_SESSION_SECONDS", "3600")),
             guest_seconds=int(os.getenv("COMMERCE_GUEST_SECONDS", "2592000")),
+            mode=os.getenv("COMMERCE_MODE", "production"),
         )

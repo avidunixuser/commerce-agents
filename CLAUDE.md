@@ -19,6 +19,8 @@ paths each, four vertical examples, and a Claude Code plugin.
 - `docs/`: `safety.md`, `backends.md`, `deployment.md`. `scripts/`: install, demo, smoke, screenshots, check, deploy, verify.
 - `tests/`: the suites that span packages (both roles on all three paths); each package keeps its own `tests/`.
 - `apps/host/`: authenticated role APIs, Cosmos aggregates, durable workers, and host contract tests.
+- `apps/host/commerce_host/demo_setup.py`: fenced, one-shot private initialization of isolated demo credentials.
+- `infra/container-apps/demo-*.bicep`: opt-in retail demo; `infra/scripts/container_apps_demo.py` validates its parameters and `demo_identity.py` checks its Entra configuration.
 
 `requirements.txt` installs the seven packages and their pinned dependencies (`requirements-dev.txt`
 adds pytest and ruff); `scripts/install.sh` runs it.
