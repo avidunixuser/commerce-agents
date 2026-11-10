@@ -11,7 +11,9 @@ FROM python:3.11-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 RUN groupadd --gid 10001 commerce && useradd --uid 10001 --gid commerce --create-home commerce
 COPY --from=build /wheels /wheels
-RUN pip install --no-cache-dir --no-index --find-links=/wheels commerce-gateway && rm -rf /wheels
+RUN pip install --no-cache-dir --no-index --find-links=/wheels commerce-gateway \
+    && python -c "import asyncio; from azure.identity.aio import ManagedIdentityCredential; from azure.cosmos.aio import CosmosClient; credential = ManagedIdentityCredential(); cosmos = CosmosClient('https://localhost', credential=credential); asyncio.run(cosmos.close()); asyncio.run(credential.close())" \
+    && rm -rf /wheels
 WORKDIR /app
 COPY LICENSE ./LICENSE
 USER 10001:10001

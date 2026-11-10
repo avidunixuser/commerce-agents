@@ -6,6 +6,22 @@ from commerce_gateway import __main__ as entrypoint
 from fastapi import FastAPI
 
 
+async def test_real_async_clients_construct_with_managed_identity(monkeypatch):
+    monkeypatch.setenv("IDENTITY_ENDPOINT", "http://127.0.0.1:9/identity")
+    monkeypatch.setenv("IDENTITY_HEADER", "offline-test-only")
+    credential = entrypoint.ManagedIdentityCredential(
+        client_id="11111111-1111-4111-8111-111111111111"
+    )
+    try:
+        cosmos = entrypoint.CosmosClient("https://cosmos.invalid", credential=credential)
+        try:
+            assert cosmos.get_database_client("commerce").get_container_client("identity")
+        finally:
+            await cosmos.close()
+    finally:
+        await credential.close()
+
+
 @pytest.mark.parametrize("client_id", ["11111111-1111-4111-8111-111111111111", None])
 async def test_gateway_selects_runtime_identity_and_closes_clients(monkeypatch, client_id):
     if client_id is None:

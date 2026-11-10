@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Ready for Validation - isolated access preview passes; corrected source CI pending.**
+**Status: Ready for Validation - gateway dependency repair and one approved protected gateway-only rebuild; public shopper ingress remains excluded.**
 
 ## Current deployment request
 
@@ -10,16 +10,37 @@ The subscription name and identifiers remain in ignored local configuration.
 AKS installation remains excluded. This is a small, cost-oriented demonstration,
 not production commerce integration.
 
-The existing Container Apps environment is internal and has no application
-workloads. Its domain is not a public application URL. The proposed public
-shopper entry therefore needs a separate external demo environment. Keep the
-merchant workloads in the existing internal environment, without replacing its
-network or changing the production deployment defaults.
+The original Container Apps environment is internal. The merchant workloads
+are deployed there, and the shopper workloads are deployed in a separate
+external demo environment. An environment domain is not a verified public
+application URL. Preserve both networks and the production deployment defaults.
 
 The user approved the concrete rollout below. The initial demo environment,
 subnet, NSG, containers, identities and scoped native Cosmos grants are deployed.
-No application, model or directory registration has been created for this request.
-The previous private-image-build acceptance does not validate this rollout.
+The model and four scoped API grants are also deployed and verified. The
+supplied directory registration is reused. The approved callbacks and ID-token
+setting are configured, and one 30-day OIDC credential was created. Both
+temporary setup grants and the stopped setup job have been removed after
+successful private readiness, once-only initialization and separate read-back.
+The five namespaced secrets and complete durable setup fence are verified.
+All six exact secret-scoped runtime reader grants are deployed and verified.
+All six application resources are deployed, with public shopper ingress closed.
+Both role APIs pass local readiness, reject missing/invalid authentication and
+complete real private Azure OpenAI inference using their separate managed
+identities. Both gateway application containers fail at startup because their
+image omits the async Azure SDK transport dependency `aiohttp`. ARM deployment
+success and `latestReadyRevisionName` did not establish container health.
+The portals and end-to-end flows are not accepted.
+
+The user approved one additional protected gateway-only build using the existing
+workflow's `smoke` mode and normal environment review. Add the missing declared
+dependency, an offline real-client regression check and a Docker build-time
+transport check. Publish the repair through normal CI and PR review, build the
+reviewed main revision once, verify the immutable digest and disposable runner
+cleanup, then validate and update only the two gateway images. Preserve all
+identity, secret, ingress, auth and API/frontend image settings. Do not repair
+running containers with ad-hoc package installation. Public ingress requires a
+separate validated stage after real application readiness is established.
 
 ## Proposed retail demo
 
@@ -212,8 +233,16 @@ Do not leave the build VM or setup permissions running after their bounded work.
 - [x] Implement demo artifacts, secret initializer, identity inspection and sample-data labeling.
 - [x] Publish source through reviewed CI and merge.
 - [x] Complete one protected image build and verify cleanup.
-- [ ] Complete `azure-validate` and record validation proof.
-- [ ] Complete staged `azure-deploy` and functional verification.
+- [x] Validate and deploy demo foundation, access, private setup and closed-ingress apps.
+- [x] Verify private setup cleanup, exact runtime readers and live auth configuration.
+- [x] Verify both role APIs, auth rejection and real managed-identity model inference.
+- [x] Obtain approval for one protected gateway-only repair build and two-gateway update.
+- [x] Repair gateway dependencies and verify focused regression coverage.
+- [ ] Publish the gateway repair through normal exact-head CI and merge.
+- [ ] Validate and complete the protected repair build, digest acceptance and cleanup.
+- [ ] Validate and update only the two gateways with public shopper ingress closed.
+- [ ] Complete application verification and separately validate public shopper ingress.
+- [ ] Complete interactive sign-in, conversation, streaming and persistence acceptance.
 
 ## 7. Validation Proof
 
@@ -384,10 +413,11 @@ No application image input differs from the accepted image source.
 
 Provider validation and the exact access preview completed at
 `2026-11-10T18:57:22Z`. The preview contains only the intended model and four
-API grants. The corrected source still requires passing CI and merge before
-application. No corrected access deployment has run.
+API grants. All fifteen expected checks pass on the corrected source, merged
+through PR #11. Fresh post-merge provider validation and preview pass at
+`2026-11-10T19:07:45Z` with the same five exact creates.
 
-- [ ] All isolated-access validation checks pass.
+- [x] All isolated-access validation checks pass.
   - [x] Bicep compilation: `az bicep build --file infra/container-apps/demo-access.bicep`; all four demo and both production entrypoints compile and pass resource-boundary checks.
   - [x] Template validation: `az deployment group validate --validation-level Provider` succeeds with the dedicated access template and generated literal-principal parameters.
   - [x] What-if preview: `az deployment group what-if --validation-level Provider --result-format FullResourcePayloads` reports exactly five intended creates, no modifications, deletions, unsupported entries or diagnostics.
@@ -395,14 +425,224 @@ application. No corrected access deployment has run.
   - [x] Azure Policy: the policy tool retrieves nine inherited assignments; provider validation reports no denial and no policy change is proposed.
   - [x] Static roles and preview bindings: two exact API principals receive only account-scoped OpenAI User and component-scoped Monitoring Metrics Publisher. Stable assignment GUID recipes and service-principal types are retained; gateways and setup receive no new grant.
   - [x] Image provenance: no Dockerfile, requirements, package, application, example, license, ignore or private-build-script input differs from the accepted image source. Reuse its ten immutable images without another private build.
-  - [ ] Corrected source CI and exact-head merge pass.
-  - [ ] Refresh model quota and identity bindings; verify recorded template and parameter fingerprints before application.
+  - [x] Corrected source CI and exact-head merge pass without bypass.
+  - [x] Refresh model quota and identity bindings; verify recorded template and parameter fingerprints before application.
 
 The ignored validation proof records the five resource IDs and template and
 parameter hashes. The sealed Bicep principal type compiles to an ARM schema
 definition; the only additional declared account is an `existing` reference,
 not a creatable account. The isolation check excludes that read-only declaration
 without permitting any foundation resource creation or update.
+The offered regional Standard SKU supports Responses and has 100 units required
+against observed usage zero and limit 5,000; its inference retirement is in the
+future. Fine-tuned and global SKUs are excluded. The deployed model remains
+subject to actual regional capacity. This validation authorizes no temporary
+secret setup grant, credential creation, application workload or public ingress.
+
+`azure-deploy` executed only `retail-demo-access-initial` in incremental mode;
+the deployment succeeded at `2026-11-10T19:08:55Z`. Live verification at
+`2026-11-10T19:11:23Z` confirms the exact model/version, Standard capacity 100
+and disabled automatic upgrades. `az role assignment list` at the model
+account and Application Insights component verifies all four expected
+assignment IDs, principals, roles and exact scopes. The model account still
+disables public access and local authentication and retains its approved
+private endpoint. This is management-plane deployment verification, not
+inference or application acceptance.
+
+Fresh owned-registration inspection verifies both user roles and API settings;
+the application has no redirect URLs or password credentials. The next bounded
+setup proposes adding only the three exact HTTPS callbacks and one 30-day OIDC
+credential, plus the two temporary setup grants. Its separate user approval
+must include revoking those exact grants and deleting only the stopped
+credential-bearing setup job. No credential, temporary setup grant, job or
+application has been created.
+
+The user explicitly approved this bounded private setup: the three callbacks,
+one 30-day credential, both temporary grants, once-only initialization, exact
+grant revocation and deletion of only the stopped setup job. Microsoft documents
+ID-token issuance as required for Container Apps EasyAuth's confidential-client
+hybrid sign-in. The user separately approved only that required setting.
+Implicit access-token issuance remains disabled and the gateway
+retains its authorization-code/PKCE flow. No directory permissions or roles are
+added by that setting.
+
+The private operator transport is prepared and passes focused linting. Its
+credential value stays in memory and secure TLS request bodies; only explicitly
+selected metadata is written. A persisted attempt marker prevents blind replay
+of password creation. The setup template compiles and its non-secret validation
+parameters select the accepted API image. Fresh ownership, actual environment
+domains and the exact existing registry-scoped image-pull grant are verified.
+The next step validates the prospective three-create setup stage before any
+credential or permission write.
+
+### Private credential/setup validation
+
+The following proof records the successful pre-deployment checks, not a
+successful setup deployment. The subsequent failure and cleanup gate below
+supersede the stage's earlier Validated status.
+
+The private setup stage passes at `2026-11-10T19:31:09Z`. No credential or
+temporary grant has been created during validation.
+
+- [x] All private setup validation checks pass.
+  - [x] Bicep compilation: `az bicep build --file infra/container-apps/demo-setup.bicep`; the reviewed source and accepted immutable API image are unchanged.
+  - [x] Template validation: the private operator transport submits the compiled template to ARM's resource-group deployment `validate` operation with Provider validation and a non-credential placeholder.
+  - [x] What-if preview: its ARM `whatIf` operation reports exactly three approved creates: the manual setup job, vault-scoped Secrets Officer and new-demo-container-scoped native Cosmos Data Contributor. No modifications, deletions, unsupported entries or diagnostics are accepted.
+  - [x] Authentication and identity: current Graph ownership/API-role readiness, exact assigned environment domains and the tenant/resource-bound setup identity pass. Only the exact existing-identity reference is accepted where ARM leaves a principal expression unresolved; its live principal is independently bound and must be checked after deployment.
+  - [x] Azure Policy and static roles: current provider validation reports no denial; definitions, target scopes, manual trigger, one replica, 300-second timeout, zero retries and exact image/command are verified.
+  - [x] Source, pull access and safeguards: all expected source CI passes; the dedicated pull identity's exact registry-scoped AcrPull grant exists. Focused lint and eight malformed-preview rejection cases pass. Config, template, manifest and non-secret parameter hashes are retained privately.
+  - [x] Consent: both temporary grants, one 30-day credential, exact callbacks, ID-token-only issuance change, once-only initialization, exact grant revocation and deletion of the stopped setup job are explicitly approved.
+
+The ARM REST asynchronous what-if result stores its change list under
+`properties.changes`; the transport validates that real envelope rather than
+mistaking the missing flattened CLI field for an unsupported resource. Only a
+placeholder-bearing preview can be retained in full. Real credential-bearing
+validation is repeated in memory before applying the same exact resource IDs.
+An attempt marker is persisted before password creation; uncertain creation is
+never replayed automatically. Actual initialization and both permission
+revocations remain unverified.
+
+### Private setup execution reconciliation
+
+The original incremental setup deployment completed successfully just after
+the transport's 900-second polling deadline. Earlier job GET responses showed
+a failed/default/empty representation while the parent deployment remained
+Running. Final reads at `2026-11-10T19:50:49Z` show Succeeded, Manual and the
+intended single container and native secret name. No credential was recreated,
+no execution was started and no network setting was changed.
+
+AppLens could not authenticate its configured connection. Resource Health
+does not support this resource type. Direct environment detectors had
+incomplete DNS/network telemetry and did not establish a network fault.
+The actual workload NSG has no explicit rules. No network repair is justified
+by these observations.
+
+- [x] All private readiness-execution validation checks pass.
+  - [x] Recompile `demo-setup.bicep`; its SHA-256 matches the originally validated and deployed template exactly.
+  - [x] Retain the successful original provider validation and exact three-create preview; no infrastructure redeployment is proposed for this execution.
+  - [x] Refresh explicit subscription, tenant and enabled-account authentication.
+  - [x] Reconcile the original deployment and exact live job image, default command, environment, two identities, registry, native secret reference, dependency bindings, resource limits and Manual trigger.
+  - [x] Verify both exact temporary grants and the single approved credential's metadata, callbacks, roles and ID-token setting.
+  - [x] Verify there are no existing job executions.
+  - [x] Compile and lint the read-only readiness override and its guarded execution transport; retain its code hash in ignored proof.
+  - [x] Preserve the accepted application image inputs; no new build is dispatched.
+
+This validation authorizes only one read-only execution of the existing job,
+using the documented JobExecutionTemplate override. It checks dependency DNS
+against the approved private endpoint subnet, Cosmos and vault read access,
+the absent setup fence and the five unused secret names. It does not run
+initialization, create secrets or change infrastructure. Persist an attempt
+marker before submission and reconcile its recorded execution on uncertainty.
+Actual successful private readiness is required before validating the
+once-only initializer. Both temporary grants still require exact revocation
+and the stopped setup job requires deletion after initialization and verification.
+
+The private readiness execution succeeded. Live execution metadata confirms
+the exact validated Python override and accepted image, not the default
+initializer. Its successful exit proves exclusive private-subnet DNS results
+for vault/Cosmos, authorized reads, an absent fence and five absent secret names.
+The stopped job's live log-stream command did not return promptly; only that
+local diagnostic command was stopped. No cloud execution was stopped or retried.
+
+- [x] All once-only initialization validation checks pass at `2026-11-10T19:58:50Z`.
+  - [x] `demo_setup_run.py validate-initialize` rechecks the exact deployed job, both grants, registration metadata and default initializer.
+  - [x] The only existing execution is the successful read-only probe; its actual complete command equals the validated code and hash.
+  - [x] No initializer attempt marker exists. The execution transport records one before submission and refuses replay.
+  - [x] Focused lint passes. The reviewed initializer's durable fence and zero-retry policy remain unchanged.
+
+This stage authorizes one default-command initializer execution only.
+Application rollout and public ingress remain excluded. Verify completion and
+the five stored names without exposing values before revoking both temporary
+grants and deleting the stopped job under the existing cleanup approval.
+
+### Completed private setup and cleanup
+
+The default initializer succeeded once. A separate read-only override then
+verified the complete durable fence, exact five secret names, ownership tags,
+valid key formats, the approved OIDC value match and private dependency DNS.
+Only metadata was printed. No fence was cleared and no credential was rotated.
+
+The approved cleanup completed at `2026-11-10T20:06:10Z`. Both exact temporary
+assignments return 404 and the stopped setup job is absent; the identically
+named managed identity remains intact. Independent Azure CLI queries also
+return empty results for the setup principal's vault and native Cosmos grants
+and for the exact job name. The OIDC credential's durable copy is now only in
+the private vault, not the deleted job or any local file.
+
+The next access-stage preview initially included an unwanted model update.
+Nothing from it was applied. Disable model redeclaration for this later
+incremental stage; retaining the existing deployment needs no model PUT.
+Keep the four existing API grants unchanged and create only the six
+named-secret reader assignments. Re-run provider validation and strict preview
+before setting this stage Validated.
+
+### Named-secret reader validation
+
+- [x] All named-secret reader validation checks pass.
+  - [x] Compile the unchanged dedicated access entrypoint.
+  - [x] `az deployment group validate --validation-level Provider` succeeds with model redeclaration disabled and secretsReady enabled.
+  - [x] `az deployment group what-if --validation-level Provider --result-format FullResourcePayloads` has exactly six creates, four unchanged API grants, and no modifications, deletions, unsupported entries or diagnostics.
+  - [x] Fresh identity GETs bind all four literal principals to their exact tenant and resource IDs.
+  - [x] `demo_reader_proof.py` verifies all six assignment IDs with the documented ARM GUID algorithm, exact vault/secret scopes, gateway principals and Secrets User role.
+  - [x] Static review of `secret-access.bicep` confirms no vault-wide runtime reader or writer grant.
+  - [x] Record template/parameter hashes and exact approved IDs in ignored validation proof; preserve the successful setup and independent cleanup evidence.
+
+Only these six scoped assignments may be applied. Retain the existing model
+without redeclaring it. No workload, network, credential or public-ingress
+change belongs to this stage.
+
+The reader-only deployment succeeded at `2026-11-10T20:12:48Z`. Fresh GETs
+verify all six assignment IDs, ServicePrincipal types, principals, roles and
+exact secret scopes. No model update or vault-wide runtime reader was applied.
+
+### Closed-ingress six-app validation
+
+- [x] All closed-ingress application validation checks pass.
+  - [x] Compile `demo-apps.bicep`; generate parameters from the actual demo configuration and accepted immutable manifest with enablePublicIngress false.
+  - [x] `az deployment group validate --validation-level Provider` succeeds.
+  - [x] `az deployment group what-if --validation-level Provider --result-format FullResourcePayloads` has exactly seven creates: six apps and the shopper authentication configuration. No modifications, deletions, unsupported entries or diagnostics.
+  - [x] `demo_apps_proof.py` verifies each image, command, port, identity, registry, environment boundary, replica/resource/draining limit, probe set, role/provider/state setting and gateway routing.
+  - [x] Fresh existing-resource GETs bind only the explicitly whitelisted reference/format expressions. Unknown unresolved expressions are rejected, not evaluated or defaulted.
+  - [x] The compiled secret-name definitions, exact three vault targets per gateway and identity bindings match the approved design. ARM redacts thirteen secret-name/reference fields in its preview; actual names must be verified after deployment before public ingress.
+  - [x] The proposed shopper auth configuration enables HTTPS, tenant/client checks and the exact operator allowlist, with only the three approved health/JWKS exceptions.
+  - [x] Each environment independently reports zero Consumption cores used against limit 500; the planned three apps require 1.5 cores per environment.
+  - [x] Source differences from the accepted image commit affect only reviewed infrastructure, documentation and the deployment plan, not image inputs. The worktree has only the deployment plan tracked as modified.
+  - [x] Record exact create IDs and template/parameter hashes in ignored proof.
+
+Apply only this incremental seven-resource stage. All shopper ingress remains
+environment-internal. The merchant gateway is environment-exposed only inside
+the existing internal environment and retains its exact VNet allowlist.
+Read actual resolved secret names, references and shopper auth configuration;
+verify application readiness and access boundaries before separately
+validating any public-ingress change.
+
+The closed-ingress deployment succeeded and actual secret references and Entra
+auth metadata passed strict read-back. Subsequent replica-level checks found
+both gateway application containers in `CrashLoopBackOff`. The merchant gateway
+console traceback identifies `ImportError: aiohttp package is not installed`
+while constructing the async managed-identity credential. The shopper platform
+auth sidecar is healthy, but its gateway application container is not.
+
+Bounded, exact-replica execution verified local readiness and missing/invalid
+bearer rejection on the merchant API. Both role APIs independently completed a
+real Azure OpenAI Responses request using their respective managed identities;
+each returned the exact synthetic readiness response with 23 input and 2 output
+tokens. No customer data or tokens were printed. These checks do not establish
+gateway readiness, browser sign-in, SSE or persisted conversation acceptance.
+The full exec payload exceeded a platform WebSocket request limit; short probes
+worked. SDK HTTP 400 observations alone were not an established Cosmos failure.
+
+### Gateway repair validation
+
+- [ ] All gateway repair validation checks pass.
+  - [x] Declare the async HTTP transport in gateway package dependencies, retaining the existing release constraint.
+  - [x] `pytest apps/gateway/tests -q`: 58 pass, including real offline Azure async client construction and managed-identity selection; focused ruff check and format checks pass.
+  - [x] Add a Docker build-time gate that constructs and closes both async clients without requesting tokens or connecting to a service. Docker is unavailable locally; exact-head container CI must execute this gate before the private build.
+  - [ ] Publish the surgical repair and pass exact-head required CI before merging.
+  - [ ] Validate the existing protected `smoke` build plan and normal review; execute only one approved build.
+  - [ ] Verify gateway digest, reviewed source, non-root/transport checks and exact disposable compute cleanup.
+  - [ ] Record a two-gateway image-only preview; reject unrelated changes or public exposure.
+  - [ ] Verify actual gateway replicas and HTTP readiness after update, not only ARM provisioning metadata.
 
 ### Owned-identity readiness
 
@@ -426,7 +666,7 @@ merchant/approver assignments now verify; this identity gate is resolved.
 Do not grant the operator a privileged directory role automatically, weaken the
 host's merchant checks, or deploy an unusable merchant portal and report it as
 accepted. Demo source artifacts are published and merged and the new image
-release is accepted; Azure application deployment remains incomplete.
+release is accepted; application acceptance remains incomplete.
 
 ## Completed private-build scope
 
@@ -486,8 +726,9 @@ the completed build milestone. Before implementing or deploying that release:
    `azure-validate` and `azure-deploy` for that plan, then verify private service
    access, authentication, durable state, inference and real backend behavior.
 
-Build success does not validate these production gates. No application, model,
-WAF or AKS workload deployment is claimed by this milestone.
+Build success does not validate these production gates. The isolated fixture
+demo above is a separate application/model rollout, not production acceptance.
+WAF and AKS workloads are not deployed.
 
 ## Private configuration and evidence
 
