@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Ready for Validation - owned identity completed; workload release pending.**
+**Status: Ready for Validation - isolated access preview passes; corrected source CI pending.**
 
 ## Current deployment request
 
@@ -16,8 +16,9 @@ shopper entry therefore needs a separate external demo environment. Keep the
 merchant workloads in the existing internal environment, without replacing its
 network or changing the production deployment defaults.
 
-The user approved the concrete rollout below. No new application, model, directory
-registration, subnet or environment has been provisioned for this request.
+The user approved the concrete rollout below. The initial demo environment,
+subnet, NSG, containers, identities and scoped native Cosmos grants are deployed.
+No application, model or directory registration has been created for this request.
 The previous private-image-build acceptance does not validate this rollout.
 
 ## Proposed retail demo
@@ -209,30 +210,33 @@ Do not leave the build VM or setup permissions running after their bounded work.
 - [x] Fix explicit gateway workload-identity selection and its entrypoint tests.
 - [x] Resolve identity configuration and actual operator assignments using explicitly approved existing ownership.
 - [x] Implement demo artifacts, secret initializer, identity inspection and sample-data labeling.
-- [ ] Publish source through reviewed CI and merge.
-- [ ] Complete one protected image build and verify cleanup.
+- [x] Publish source through reviewed CI and merge.
+- [x] Complete one protected image build and verify cleanup.
 - [ ] Complete `azure-validate` and record validation proof.
 - [ ] Complete staged `azure-deploy` and functional verification.
 
 ## 7. Validation Proof
 
-Application deployment validation has not run. Read-only discovery and the
-previous image-build acceptance are not substitute validation proof.
+Initial foundation deployment and isolated access preflight are recorded below.
+Application workload validation and acceptance have not run. Read-only discovery
+and image-build acceptance are not substitute application validation proof.
 
 Source checks passed for the gateway, private setup and managed-identity telemetry (75 tests),
-infrastructure tooling (59 tests, one existing skip), both retail production
+infrastructure tooling (66 tests, one existing skip), both retail production
 frontend builds, Ruff, repository consistency, all three demo Bicep entrypoints
 and their compiled resource-boundary checks. Shared browser contracts pass
 17 tests. The full local Python run passes 1,302 tests with one skip but fails
 one unchanged POSIX file-permission assertion on Windows; Linux CI must pass
-before source merge. All eight frontend builds pass. These are
+before source merge. Both Linux Python suites, all eight frontend builds,
+all ten container builds and offline infrastructure checks passed in source CI.
+The reviewed source is merged through PRs #9 and #10. These are
 source checks, not live deployment acceptance.
 
 Initial foundation provider validation passed. Its first preview exposed four
 unresolvable role-assignment IDs referencing not-yet-created API identities.
-The foundation now gates model/telemetry grants behind `enableApiAccess=false`
-by default. Validate the initial identity/environment stage separately, then
-resolve the actual principal IDs and validate the explicit API-access update.
+The executed foundation version gated model/telemetry grants behind
+`enableApiAccess=false`. The corrected entrypoint is initial-only; later access
+uses the separate literal-principal entrypoint described below.
 The rerun passes provider validation and an exact first-stage preview: fourteen
 owned creates, no modifications, deletions or unsupported entries. Explicit
 subscription/tenant authentication and an unused namespace are verified.
@@ -243,7 +247,7 @@ application stages.
 The standalone Bicep validation checklist applies separately to each approved
 deployment stage:
 
-- [x] Compile the demo foundation, setup and application templates.
+- [x] Compile the demo foundation, access, setup and application templates.
 - [ ] Validate each stage with `az deployment group validate` and actual approved parameters.
 - [ ] Inspect each stage with `az deployment group what-if`; reject unrelated changes.
 - [ ] Refresh explicit subscription/tenant authentication before execution.
@@ -283,8 +287,122 @@ timestamps and target IDs are retained in ignored local evidence. This Graph
 stage uses explicit request preview, not a fictional ARM what-if for directory
 objects. The owned-identity stage executed successfully and read-back verifies
 the API settings and both exact user assignments. No directory privileges or
-Graph permissions were added. Workload validation and publication of the new
-private image release remain incomplete.
+Graph permissions were added. The new private image release is accepted;
+application workload validation remains incomplete.
+
+### Protected private-build stage validation
+
+The current execution scope is only the one approved protected all-image build
+from the reviewed main commit. It does not authorize application deployment,
+temporary secret-writer grants, public ingress or a build retry.
+
+- [x] All private-build stage validation checks pass.
+  - [x] Bicep compilation: `az bicep build --file infra/private-build/vm.bicep`.
+  - [x] Template validation: `az deployment group validate` for the concrete run's VM and NIC.
+  - [x] What-if preview: `az deployment group what-if` contains exactly the two owned creates, with no modifications, deletions, unsupported entries or diagnostics.
+  - [x] Authentication: explicit subscription, tenant and enabled-account checks pass.
+  - [x] Azure Policy: inherited assignments were retrieved; provider validation reports no denial.
+  - [x] Capacity: regional and Ddsv5-family usage remain zero against 100-vCPU limits; the build needs four vCPUs.
+  - [x] Static identity/network verification: the VM has only the commissioned builder identity, a private NIC and the existing scoped build NSG; no role assignments or public IP are created.
+  - [x] Source and protection: all sixteen source checks pass; protected configuration matches the commissioned runtime, main-only review remains enabled and administrator bypass remains disabled.
+
+The exact preview used the pending run's name and source revision; the workflow
+revalidates its own generated bootstrap key and ownership generation before
+creation. The controller's `preview_vm` enforced the resource-ID allowlist.
+Per-run parameters, quota results, policy reads and validation evidence remain
+in ignored local files. The concrete
+[protected build](https://github.com/avidunixuser/commerce-agents/actions/runs/42872613861)
+received the user's explicit approval for that exact run. Normal environment
+review was submitted as the authorized repository owner, without changing or
+bypassing protection rules. `azure-deploy` was invoked for this bounded stage.
+Live reads verified its exact private VM and NIC, the reviewed source tags and a
+running VM; no public IP was created. The build succeeded and its protected
+artifact contains the exact ten-image digest manifest from the reviewed main
+commit. All required build, recovery-cleanup and artifact steps succeeded.
+Independent final ARM reads confirm zero remaining VMs, NICs, managed disks or
+public IPs in the build group. Image acceptance does not validate application
+deployment. Do not approve another run or retry automatically.
+
+### Initial demo foundation validation
+
+Validation completed at `2026-11-10T18:32:20Z` for only the initial closed-default
+foundation. Fresh read-only identity inspection remains ready and the new
+protected image release has been accepted.
+
+- [x] All initial-foundation validation checks pass.
+  - [x] Bicep compilation: `az bicep build --file infra/container-apps/demo-foundation.bicep`; pinned compiler `0.46.1` and its build stamp verified.
+  - [x] Template validation: `az deployment group validate` succeeds with the approved private parameter file.
+  - [x] What-if preview: `az deployment group what-if` contains exactly fourteen approved resource IDs, all creates, with no modifications, deletions, unsupported entries or diagnostics.
+  - [x] Authentication: explicit subscription, tenant and enabled-account checks pass.
+  - [x] Azure Policy: inherited assignments were retrieved; fresh provider validation reports no denial.
+  - [x] Static roles: four native Cosmos assignments target only the new demo containers; model, telemetry, secret-reader and temporary setup grants remain disabled.
+  - [x] Release and capacity: all source checks pass, ten immutable images are accepted, the existing regional environment limit allows the second environment and the namespace remains unused.
+
+The approved additions are one external environment, its subnet and NSG, two
+shared-throughput Cosmos containers, five managed identities and four scoped
+native Cosmos assignments. `enableModel`, `enableApiAccess` and `secretsReady`
+are all false. No application, OIDC credential, temporary writer permission or
+public application ingress is part of this stage. Record its live outputs and
+the new environment's actual core quota before validating later stages.
+
+The initial deployment succeeded. Live reads verify the new external environment,
+its assigned domain and all five new identities. Four native Cosmos grants
+have the exact intended container scopes; the setup identity has no native
+data grant. `az containerapp env list-usages` independently reports zero of
+500 consumption cores for each environment, exceeding the required four-core
+headroom. The second environment's limit is observed, not copied from the first.
+The next stage must independently validate the model and API/telemetry grants.
+
+### Remaining-stage preparation correction
+
+The model/API-access provider validation succeeds, but its full-foundation
+what-if does not pass. It contains four unsupported assignment names because
+ARM cannot resolve managed-identity references inside their GUID expressions,
+even after the identities exist. It also proposes eight updates to the existing
+environment, containers, native assignments and subnet. Nothing from this
+failed preview has been applied.
+
+The user approved a dedicated access entrypoint using freshly read, validated principal
+IDs as literal parameters. It creates only the already approved model and four
+API inference/telemetry grants. A later invocation adds only the six approved
+named-secret readers. Keep their role IDs, scopes and stable assignment names;
+do not redeclare the environment, network, containers or native data grants.
+Make the foundation initial-only, update parameter generation, offline checks,
+tests and the runbook, then publish the correction through passing source CI.
+Application image inputs remain unchanged, so reuse the accepted immutable
+images rather than launch another private build. Verify that separation before
+deployment. Re-run exact provider validation and what-if for each corrected
+stage; unsupported entries and unrelated changes remain blockers.
+
+The correction is implemented. Four demo templates and both production targets
+compile and pass isolation checks. Seventy infrastructure tests pass with one
+existing skip; Ruff and repository consistency checks pass. The shared
+named-secret reader module retains the original assignment GUID inputs.
+No application image input differs from the accepted image source.
+
+### Isolated model and API access validation
+
+Provider validation and the exact access preview completed at
+`2026-11-10T18:57:22Z`. The preview contains only the intended model and four
+API grants. The corrected source still requires passing CI and merge before
+application. No corrected access deployment has run.
+
+- [ ] All isolated-access validation checks pass.
+  - [x] Bicep compilation: `az bicep build --file infra/container-apps/demo-access.bicep`; all four demo and both production entrypoints compile and pass resource-boundary checks.
+  - [x] Template validation: `az deployment group validate --validation-level Provider` succeeds with the dedicated access template and generated literal-principal parameters.
+  - [x] What-if preview: `az deployment group what-if --validation-level Provider --result-format FullResourcePayloads` reports exactly five intended creates, no modifications, deletions, unsupported entries or diagnostics.
+  - [x] Authentication: explicit subscription, tenant and enabled account match; freshly read identity resource IDs, tenants and principals match the generated parameters.
+  - [x] Azure Policy: the policy tool retrieves nine inherited assignments; provider validation reports no denial and no policy change is proposed.
+  - [x] Static roles and preview bindings: two exact API principals receive only account-scoped OpenAI User and component-scoped Monitoring Metrics Publisher. Stable assignment GUID recipes and service-principal types are retained; gateways and setup receive no new grant.
+  - [x] Image provenance: no Dockerfile, requirements, package, application, example, license, ignore or private-build-script input differs from the accepted image source. Reuse its ten immutable images without another private build.
+  - [ ] Corrected source CI and exact-head merge pass.
+  - [ ] Refresh model quota and identity bindings; verify recorded template and parameter fingerprints before application.
+
+The ignored validation proof records the five resource IDs and template and
+parameter hashes. The sealed Bicep principal type compiles to an ARM schema
+definition; the only additional declared account is an `existing` reference,
+not a creatable account. The isolation check excludes that read-only declaration
+without permitting any foundation resource creation or update.
 
 ### Owned-identity readiness
 
@@ -307,8 +425,8 @@ merchant/approver assignments now verify; this identity gate is resolved.
 
 Do not grant the operator a privileged directory role automatically, weaken the
 host's merchant checks, or deploy an unusable merchant portal and report it as
-accepted. Demo source artifacts are implemented locally; source publication,
-the new image release and Azure deployment remain incomplete.
+accepted. Demo source artifacts are published and merged and the new image
+release is accepted; Azure application deployment remains incomplete.
 
 ## Completed private-build scope
 

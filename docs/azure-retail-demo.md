@@ -23,7 +23,8 @@ enabled.
 
 | File | Purpose |
 |------|---------|
-| `infra/container-apps/demo-foundation.bicep` | Add only the demo subnet, environment, containers, identities and optional model deployment |
+| `infra/container-apps/demo-foundation.bicep` | Initial-only demo subnet, environment, containers, identities and native Cosmos grants |
+| `infra/container-apps/demo-access.bicep` | Model and scoped API/secret access using verified literal principal IDs |
 | `infra/container-apps/demo-setup.bicep` | Manual private initialization job and explicitly approved temporary permissions |
 | `infra/container-apps/demo-apps.bicep` | Role apps and Entra platform authentication; public ingress defaults off |
 | `infra/container-apps/demo.config.example.json` | Non-secret operator configuration |
@@ -104,19 +105,34 @@ what-if evidence privately. If the registration still needs an owned API update,
 validate that registration-only stage independently; passing that stage does
 not authorize or validate the billable app rollout.
 
-The foundation starts with `enableModel=false`, `enableApiAccess=false` and
-`secretsReady=false`. Before
-billable rollout, verify directory configuration and assignments. Read actual
+The foundation creates no model or Azure model/telemetry/secret role assignments.
+Before billable rollout, verify directory configuration and assignments. Read actual
 new-environment consumption quota after creation, allowing revision-transition
 headroom. Verify model availability and regional quota before explicitly
 enabling the selected model. Keep existing Cosmos shared-throughput maximum
 unchanged.
 
-After the new identities exist, validate and preview a separate foundation
-update with `enableApiAccess=true`. This grants only the two API identities
-model inference and Application Insights ingestion. Their real principal IDs
-must resolve before accepting that preview. Do not waive `Unsupported` what-if
-entries caused by references to identities that have not been created.
+After the initial foundation succeeds, read its real managed identities into an
+ignored inventory and generate access parameters:
+
+```powershell
+az identity list --subscription $SubscriptionId --resource-group $ResourceGroup --output json > .azure\demo-identities.json
+python infra\scripts\container_apps_demo.py --config .azure\demo.runtime.json --identities .azure\demo-identities.json access > .azure\demo-access.parameters.json
+```
+
+The generator binds each of the four separate principal IDs to the exact
+subscription, resource group, name and tenant. Do not hand-edit or reuse a stale
+inventory; reread it and compare immediately before validation and deployment.
+The dedicated access template creates the approved model plus only the two API
+identities' inference and Application Insights grants. Initial access parameters
+keep secret readers disabled. Its role names use literal principal inputs,
+not unresolved resource references inside GUID expressions.
+
+Do not reapply the initial foundation to change access. A full-foundation
+preview can contain unresolved role names and unrelated normalization updates,
+even when the identities already exist. Validate the dedicated access stage,
+require the exact model and four grant creates, and reject `Unsupported`
+entries or changes outside that stage.
 
 ## Private secret setup
 
@@ -154,8 +170,8 @@ Its presence as an idle job is not continued compute execution, but its stored
 OIDC credential should not remain as an unnecessary second copy. Do not claim
 setup cleanup if any permission or credential-bearing job remains.
 
-Reapply the reviewed foundation with `enableApiAccess=true` and
-`secretsReady=true` to retain API access and create the
+Reapply the reviewed access stage with `enableModel=true` and
+`secretsReady=true` to retain model/API access and create the
 per-secret gateway reader assignments. Normal runtime identities cannot write
 vault secrets or obtain database account keys.
 

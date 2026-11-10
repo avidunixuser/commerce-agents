@@ -1,7 +1,8 @@
 import copy
 import unittest
+import uuid
 
-from container_apps_demo import images_from_manifest, parameters, validate
+from container_apps_demo import identity_principals, images_from_manifest, parameters, validate
 from demo_identity import (
     SCOPE_ID,
     IdentityError,
@@ -62,6 +63,25 @@ def manifest():
     }
 
 
+def identity_inventory():
+    current = config()
+    return [
+        {
+            "name": f"{current['name']}-{suffix}",
+            "id": (
+                f"/subscriptions/{current['subscriptionId']}/resourceGroups/{current['resourceGroup']}"
+                f"/providers/Microsoft.ManagedIdentity/userAssignedIdentities/{current['name']}-{suffix}"
+            ),
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "tenantId": current["tenantId"],
+            "principalId": str(uuid.UUID(int=index + 1)),
+        }
+        for index, suffix in enumerate(
+            ("shopping-api", "merchant-api", "shopping-gateway", "merchant-gateway")
+        )
+    ]
+
+
 class OwnedIdentityGraph:
     def __init__(self):
         self.app = {
@@ -108,13 +128,69 @@ class OwnedIdentityGraph:
 class DemoTests(unittest.TestCase):
     def test_initial_parameters_never_publish_the_gateway_or_enable_a_model(self):
         foundation = parameters(config(), "foundation")["parameters"]
-        self.assertIs(foundation["enableModel"]["value"], False)
-        self.assertIs(foundation["enableApiAccess"]["value"], False)
-        self.assertIs(foundation["secretsReady"]["value"], False)
+        for key in ("enableModel", "enableApiAccess", "secretsReady", "principalIds"):
+            self.assertNotIn(key, foundation)
         apps = parameters(config(), "apps", manifest())["parameters"]
         self.assertIs(apps["enablePublicIngress"]["value"], False)
         self.assertTrue(apps["providerId"]["value"].startswith("providers-v1:"))
         self.assertEqual(len(apps["images"]["value"]), 4)
+
+    def test_access_uses_literal_principals_without_redeploying_the_foundation(self):
+        inventory = identity_inventory()
+        access = parameters(config(), "access", identities=inventory)["parameters"]
+        self.assertEqual(
+            access["principalIds"]["value"],
+            {
+                key: item["principalId"]
+                for key, item in zip(
+                    ("shoppingApi", "merchantApi", "shoppingGateway", "merchantGateway"),
+                    inventory,
+                    strict=True,
+                )
+            },
+        )
+        self.assertIs(access["enableModel"]["value"], True)
+        self.assertIs(access["secretsReady"]["value"], False)
+        self.assertEqual(access["modelCapacity"]["value"], 100)
+        self.assertFalse(
+            {"vnetName", "subnetPrefix", "cosmosName", "workspaceName"} & access.keys()
+        )
+
+    def test_access_requires_a_complete_unique_inventory(self):
+        for inventory in (None, {}, [], ["invalid"], identity_inventory()[:-1]):
+            with self.subTest(inventory=inventory), self.assertRaises(ValueError):
+                parameters(config(), "access", identities=inventory)
+        duplicate = identity_inventory()
+        duplicate.append(copy.deepcopy(duplicate[0]))
+        with self.assertRaises(ValueError):
+            parameters(config(), "access", identities=duplicate)
+
+    def test_access_rejects_cross_tenant_resource_or_invalid_principals(self):
+        for key, value in (
+            ("tenantId", config()["operatorObjectId"]),
+            ("id", "/subscriptions/another-subscription/resourceGroups/validation"),
+            ("id", None),
+            ("type", "Microsoft.Graph/servicePrincipals"),
+            ("type", None),
+            ("principalId", "a-display-name"),
+            ("principalId", None),
+            ("principalId", str(uuid.UUID(int=0))),
+        ):
+            inventory = identity_inventory()
+            inventory[0][key] = value
+            with self.subTest(key=key, value=value), self.assertRaises(ValueError):
+                parameters(config(), "access", identities=inventory)
+        inventory = identity_inventory()
+        inventory[1]["principalId"] = inventory[0]["principalId"]
+        with self.assertRaises(ValueError):
+            identity_principals(config(), inventory)
+
+    def test_access_does_not_depend_on_inventory_order_or_resource_id_casing(self):
+        inventory = identity_inventory()
+        expected = identity_principals(config(), inventory)
+        for item in inventory:
+            item["id"] = item["id"].upper()
+        self.assertEqual(identity_principals(config(), list(reversed(inventory))), expected)
 
     def test_demo_cannot_override_auth_or_escape_the_private_boundary(self):
         for key, value in (

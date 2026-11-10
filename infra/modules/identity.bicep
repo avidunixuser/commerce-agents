@@ -21,7 +21,6 @@ resource federation 'Microsoft.ManagedIdentity/userAssignedIdentities/federatedI
 }
 resource registry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = { name: registryName }
 resource cosmos 'Microsoft.DocumentDB/databaseAccounts@2024-11-15' existing = { name: cosmosName }
-resource vault 'Microsoft.KeyVault/vaults@2023-07-01' existing = { name: vaultName }
 resource pull 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (imagePull) {
   scope: registry
   name: guid(registry.id, identity.id, 'pull')
@@ -40,19 +39,15 @@ resource dataRole 'Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments@2024
     scope: '${cosmos.id}/dbs/${databaseName}/colls/${container}'
   }
 }]
-resource vaultSecrets 'Microsoft.KeyVault/vaults/secrets@2023-07-01' existing = [for secretName in secretNames: {
-  parent: vault
-  name: secretName
-}]
-resource secretRole 'Microsoft.Authorization/roleAssignments@2022-04-01' = [for (secretName, i) in secretNames: {
-  scope: vaultSecrets[i]
-  name: guid(vault.id, secretName, identity.id, 'secrets')
-  properties: {
+module secretAccess './secret-access.bicep' = if (!empty(secretNames)) {
+  name: '${name}-secret-access'
+  params: {
+    vaultName: vaultName
     principalId: identity.properties.principalId
-    principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '4633458b-17de-408a-b874-0445c86b69e6')
+    identityResourceId: identity.id
+    secretNames: secretNames
   }
-}]
+}
 output id string = identity.id
 output clientId string = identity.properties.clientId
 output principalId string = identity.properties.principalId

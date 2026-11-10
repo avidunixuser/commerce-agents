@@ -10,30 +10,17 @@ param endpointSubnetPrefix string
 param dnsProxyAddress string
 param routeTableName string
 param workspaceName string
-param insightsName string
 param registryName string
 param cosmosName string
 param vaultName string
-param openAIName string
 param databaseName string = 'commerce'
-param enableModel bool = false
-@description('Enable in a separately validated stage after the new API identities exist, so assignment IDs are resolvable in what-if.')
-param enableApiAccess bool = false
-param secretsReady bool = false
-param modelName string
-param modelVersion string
-@allowed(['Standard'])
-param modelSku string = 'Standard'
-@minValue(1)
-@maxValue(100)
-param modelCapacity int = 100
 
 var containerNames = ['${name}-runtime', '${name}-identity']
 var workloads = [
-  { key: 'shopping-api', containers: [containerNames[0]], secrets: [] }
-  { key: 'merchant-api', containers: [containerNames[0]], secrets: [] }
-  { key: 'shopping-gateway', containers: [containerNames[1]], secrets: ['oidc-client-secret', 'shopping-signing-key', 'shopping-encryption-keys'] }
-  { key: 'merchant-gateway', containers: [containerNames[1]], secrets: ['oidc-client-secret', 'merchant-signing-key', 'merchant-encryption-keys'] }
+  { key: 'shopping-api', containers: [containerNames[0]] }
+  { key: 'merchant-api', containers: [containerNames[0]] }
+  { key: 'shopping-gateway', containers: [containerNames[1]] }
+  { key: 'merchant-gateway', containers: [containerNames[1]] }
 ]
 
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' existing = { name: vnetName }
@@ -114,7 +101,6 @@ module identities '../modules/identity.bicep' = [for workload in workloads: {
     vaultName: vaultName
     databaseName: databaseName
     cosmosContainers: workload.containers
-    secretNames: secretsReady ? map(workload.secrets, secret => '${name}-${secret}') : []
   }
   dependsOn: [containers]
 }]
@@ -122,34 +108,8 @@ resource setupIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01
   name: '${name}-setup'
   location: location
 }
-resource openai 'Microsoft.CognitiveServices/accounts@2025-06-01' existing = { name: openAIName }
-resource deployment 'Microsoft.CognitiveServices/accounts/deployments@2025-06-01' = if (enableModel) {
-  parent: openai
-  name: '${name}-mini'
-  sku: { name: modelSku, capacity: modelCapacity }
-  properties: {
-    model: { format: 'OpenAI', name: modelName, version: modelVersion }
-    versionUpgradeOption: 'NoAutoUpgrade'
-  }
-}
-module modelAccess '../modules/model-access.bicep' = if (enableApiAccess) {
-  name: '${name}-model-access'
-  params: {
-    accountName: openAIName
-    principalIds: [identities[0].outputs.principalId, identities[1].outputs.principalId]
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')
-  }
-}
-module telemetryAccess '../modules/telemetry-access.bicep' = if (enableApiAccess) {
-  name: '${name}-telemetry-access'
-  params: {
-    insightsName: insightsName
-    principalIds: [identities[0].outputs.principalId, identities[1].outputs.principalId]
-  }
-}
 output shopperEnvironmentName string = shopperEnvironment.name
 output shopperDomain string = shopperEnvironment.properties.defaultDomain
-output modelDeploymentName string = '${name}-mini'
 output runtimeContainer string = containerNames[0]
 output identityContainer string = containerNames[1]
 output setupIdentityId string = setupIdentity.id
