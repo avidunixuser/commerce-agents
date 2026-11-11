@@ -71,7 +71,8 @@ Do not run these deployment/setup commands merely to try the example.
    investigate partial setup rather than weakening a protection rule.
 5. Review/merge the workflow through the repository's normal process, then
    dispatch it on main and manually approve the environment gate. `smoke`
-   builds/import-checks/pushes the existing gateway; `all` serially builds the
+   builds/import-checks/pushes the existing gateway; `retail-storefront` builds
+   only the retail shopper frontend; `all` serially builds the
    API, gateway and all eight vertical frontends from the exact triggering
    commit. Source ref, subnet, identity, registry and arbitrary shell commands
    are not workflow inputs. Record private DNS/TLS checks and immutable digests.

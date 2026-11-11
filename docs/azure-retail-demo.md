@@ -199,6 +199,12 @@ cross-origin requests send no referrer. Keep both platform CSRF protection and
 the gateway's exact-origin and session-token checks enabled. A signed-in page
 alone is not acceptance: verify that its normal session-creation POST succeeds.
 
+The shared storefront catalog hook waits for the committed browser session
+before reading the authenticated catalog. Cache entries are session-bound;
+failed reads are not retained as a successful empty catalog. The telecom
+page's catalog hook receives its session explicitly because it sits outside
+the shared storefront frame. Showcase pages retain unbound local-demo reads.
+
 Verify private image pull, vault references, Cosmos reads and worker health,
 real model inference, unauthenticated/unauthorized rejection, sign-in, a sample
 conversation, streaming and persisted session state. Verify merchant isolation

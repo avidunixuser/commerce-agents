@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       images:
-        description: Build the gateway smoke image or all ten application images
+        description: Build the gateway smoke image, retail storefront, or all ten images
         type: choice
         required: true
         default: smoke
-        options: [smoke, all]
+        options: [smoke, retail-storefront, all]
 
 permissions:
   contents: read

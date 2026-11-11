@@ -336,7 +336,7 @@ def settle_deployment(
 
 
 def remote_build(config: Config, state: dict, mode: str, folder: pathlib.Path) -> str:
-    identifier(mode, r"smoke|all", "build mode")
+    identifier(mode, r"smoke|retail-storefront|all", "build mode")
     values = {
         "repository": config.repository,
         "sha": state["sha"],
@@ -413,10 +413,12 @@ def remote_build(config: Config, state: dict, mode: str, folder: pathlib.Path) -
             ]
             require(len(lines) == 1, "private build did not return its digest manifest")
             manifest = json.loads(lines[0].partition("=")[2])
-            expected = (
-                {"gateway"}
-                if mode == "smoke"
-                else {
+            if mode == "smoke":
+                expected = {"gateway"}
+            elif mode == "retail-storefront":
+                expected = {"retail-storefront-web"}
+            else:
+                expected = {
                     "gateway",
                     "api",
                     *(
@@ -425,7 +427,6 @@ def remote_build(config: Config, state: dict, mode: str, folder: pathlib.Path) -
                         for app in ("storefront-web", "merchant-web")
                     ),
                 }
-            )
             require(set(manifest) == expected, "private build image manifest mismatch")
             for image, digest in manifest.items():
                 identifier(
@@ -590,7 +591,7 @@ def main() -> None:
     run = sub.add_parser("run")
     run.add_argument("--source-sha", required=True)
     run.add_argument("--run-id", required=True)
-    run.add_argument("--images", choices=("smoke", "all"), default="smoke")
+    run.add_argument("--images", choices=("smoke", "retail-storefront", "all"), default="smoke")
     run.add_argument("--state-file", type=pathlib.Path, required=True)
     run.add_argument("--operator", action="store_true")
     run.add_argument("--approve-disposable-cleanup", action="store_true")

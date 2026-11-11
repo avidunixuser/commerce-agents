@@ -264,6 +264,65 @@ class PrivateBuildTests(unittest.TestCase):
                 output,
             )
 
+    def test_retail_storefront_requires_only_its_exact_digest(self):
+        for manifest in (
+            {"retail-storefront-web": "sha256:" + "a" * 64},
+            {"gateway": "sha256:" + "a" * 64},
+            {"retail-storefront-web": "sha256:" + "a" * 64, "api": "sha256:" + "b" * 64},
+        ):
+            output = "COMMERCE_BUILD_RESULT=" + json.dumps(manifest)
+            view = {"executionState": "Succeeded", "exitCode": 0, "output": output}
+            with (
+                self.subTest(manifest=manifest),
+                tempfile.TemporaryDirectory() as directory,
+                patch.object(
+                    build, "az", side_effect=[None, {"properties": {"instanceView": view}}]
+                ),
+            ):
+                if set(manifest) == {"retail-storefront-web"}:
+                    self.assertEqual(
+                        build.remote_build(
+                            self.config, self.state, "retail-storefront", pathlib.Path(directory)
+                        ),
+                        output,
+                    )
+                else:
+                    with self.assertRaisesRegex(ValueError, "manifest mismatch"):
+                        build.remote_build(
+                            self.config, self.state, "retail-storefront", pathlib.Path(directory)
+                        )
+
+    @unittest.skipIf(os.name == "nt", "Build selection executes under the Linux runner's Bash")
+    def test_build_selection_does_not_build_unrequested_images(self):
+        source = (build.ROOT / "infra" / "scripts" / "private_build.sh").read_text()
+        selection = source[
+            source.index('if [ "$MODE" = retail-storefront ]') : source.index(
+                'docker logout "$REGISTRY"'
+            )
+        ]
+        all_images = [
+            "gateway",
+            "api",
+            *(
+                f"{vertical}-{app}"
+                for vertical in ("retail", "travel", "telecom", "entertainment")
+                for app in ("storefront-web", "merchant-web")
+            ),
+        ]
+        for mode, expected in (
+            ("smoke", ["gateway"]),
+            ("retail-storefront", ["retail-storefront-web"]),
+            ("all", all_images),
+        ):
+            result = subprocess.run(
+                ["bash", "-eu", "-c", 'build_image() { echo "$1"; }\n' + selection],
+                env={**os.environ, "MODE": mode},
+                text=True,
+                capture_output=True,
+                check=True,
+            )
+            self.assertEqual(result.stdout.splitlines(), expected)
+
     def test_remote_entrypoint_preserves_bash_and_explicit_query_arguments(self):
         manifest = "COMMERCE_BUILD_RESULT=" + json.dumps({"gateway": "sha256:" + "a" * 64})
 
