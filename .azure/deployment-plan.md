@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Ready for Validation - Zava source implemented; reviewed build and rollout remain pending.**
+**Status: Deployed and verified - Zava branding is live; all six existing retail apps have healthy new replicas.**
 
 ## Requested branding update
 
@@ -77,10 +77,10 @@ restart workloads before plan approval and stage-specific validation.
 - [x] Preserve the existing OAuth scope UUID and add identity/branding regressions.
 - [x] Add an exact four-image protected retail-release mode.
 - [x] Complete local source validation and all eight production web builds.
-- [ ] Publish and merge the source after normal exact-head CI.
-- [ ] Validate and complete one normally reviewed protected build and independent cleanup.
-- [ ] Validate and deploy six image-only updates with healthy new replicas.
-- [ ] Verify live Zava branding/catalog/chat/persistence and publish final evidence.
+- [x] Publish and merge the source after normal exact-head CI.
+- [x] Validate and complete one normally reviewed protected build and independent cleanup.
+- [x] Validate and deploy six image-only updates with healthy new replicas.
+- [x] Verify live Zava branding/catalog/chat/persistence and publish sanitized evidence with this update.
 
 ## Current deployment request
 
@@ -1063,6 +1063,129 @@ Linux CI matrices must pass before merging. Tracked case-insensitive old-brand
 search returns no matches. Licensing and upstream attribution are unchanged.
 No live environment variable contains the old brand, so this rollout requires
 no application configuration, authentication, secret or network change.
+
+### Zava protected-build validation
+
+The source PR merged normally as
+`b08d29dfacff5ed766c51421f8b05351468a44de`. All 16 checks passed on its exact
+source head, including Python 3.11/3.12 on Linux, all eight frontend Docker
+builds, both Python Docker images, shared web and offline infrastructure checks.
+The prior Windows-only POSIX file-mode failure does not occur in Linux CI.
+
+At `2026-11-11T05:58:23Z`,
+`.venv\Scripts\python.exe .azure\demo_zava_build.py validate-build --source-sha b08d29dfacff5ed766c51421f8b05351468a44de`
+compiled the unchanged private-builder Bicep, passed live Provider validation
+and accepted only the owned fresh VM/NIC in the strict preview. It verified the
+exact merged main SHA, unchanged protected configuration, main-only build
+branch policy, ordinary required owner review and disabled administrator bypass.
+The existing VM/bootstrap role definitions have no changes from the previously
+accepted release. This authorizes one `retail-release` dispatch, not a retry.
+
+At `2026-11-11T05:57:43Z`, live read-only role checks confirmed the builder's
+exact-registry `AcrPush` and application pull identity's exact-registry `AcrPull`.
+No role assignments were created or changed. The subscription and tenant match
+the approved existing Sweden Central environment. Azure MCP retrieved the
+nine applicable subscription/inherited policy assignments; no policy changes or
+exemptions are requested, and fresh Provider validation reports no denial for
+the bounded unchanged builder.
+
+At `2026-11-11T05:56:46Z`, the six-resource literal application calibration
+passed `az deployment group validate` and `what-if` at Provider level. Its
+strict proof requires six `NoChange` targets and unchanged operator auth and
+all writable app fields. It is not approval to apply replacement image
+digests: that stage still requires the accepted four-image build manifest,
+independent cleanup, an exact image-only preview and a fresh concurrent-state
+guard.
+
+The owned-identity inspection found six display-only consent/role text fields
+to rename. Its explicit snapshot preserves the existing client/scope/role IDs,
+role values, single-tenant registration, current assignment requirement,
+redirects, preauthorization and operator assignments. Any label patch must
+match that fresh snapshot, modify no credentials/grants and read back with
+every other selected field unchanged. That inspection made no identity write.
+
+### Zava exact-image validation
+
+The owner explicitly approved the normal `commerce-build` review for
+[run 42969287211](https://github.com/avidunixuser/commerce-agents/actions/runs/42969287211).
+Its first and only attempt succeeded from merged source
+`b08d29dfacff5ed766c51421f8b05351468a44de`; every build, evidence and cleanup
+step succeeded. The exact four-image manifest was accepted, and independent
+ARM checks at `2026-11-11T06:12:19Z` returned 404 for the owned VM, NIC and OS
+disk and found no remaining run/generation-tagged resources.
+
+| Image | Accepted immutable digest |
+|---|---|
+| Gateway | `sha256:25b0c10b6dde118ead0b337f1a7a7f8d5a58cdd579c9355247f17c45480d45a7` |
+| API | `sha256:419c672d93d557f5ff3ec9dbbe2afad8dce1cf1d2ac99c6d8989447c27dabc49` |
+| Retail storefront | `sha256:6edb532d0af63210e028a267b3e2858633274350e10bec73990efcbab25f1164` |
+| Retail merchant | `sha256:32251d4c02407e3b6d51fc6b5884d889d440841b86fc21ad0ef813e30b84816a` |
+
+At `2026-11-11T06:14:17Z`, the existing standalone Bicep/Azure CLI recipe's
+`az deployment group validate` and `what-if` commands both passed at Provider
+level against `.azure/demo-zava-release.apps.template.json`. The strict
+`.venv\Scripts\python.exe .azure\demo_zava_release.py preview-proof` acceptance
+matches its six existing target resources to the literal no-op calibration,
+accepts exactly one image modification per app and rejects unrelated,
+unresolved, create/delete or other effective changes. All six writable app
+configurations and operator auth still match the fresh baseline. The validated
+template SHA-256 is
+`fc93d3ff21b2b0c4495c4928228a17269a3bdead5f7930f25200b71065162c43`.
+
+All application-stage checks pass: the actual production images were built
+and verified, security-bearing infrastructure has no source changes, effective
+registry grants exist, the selected subscription/tenant/region are unchanged,
+and Provider validation reports no policy denial. The final preapply guard
+must recheck the exact template, each app's attached pull identity and live
+registry-scoped `AcrPull`, all six configurations and operator auth immediately
+before the single incremental deployment. The only other approved write is
+the six snapshotted identity description/consent labels, with exact unchanged
+identity fields and assignments required on readback. No AKS, environment,
+credential, grant, secret or network change is authorized.
+
+### Zava deployed acceptance
+
+The single incremental `retail-zava-release` deployment succeeded. Live
+verification at `2026-11-11T06:18:15Z` confirms all six existing apps use the
+accepted release images and have a different, healthy latest revision with
+actual ready/started/running application and authentication containers. These
+new replicas perform the requested restart; no redundant restart was issued.
+Every non-image writable app field and the operator-only EasyAuth settings
+match the baseline. Both environments, identities, secrets, scaling, private
+services and merchant network boundary are unchanged. No AKS was deployed.
+
+Both replica-pinned private gateway probes pass: live/ready endpoints,
+dependencies, frontend, public-key shape, anonymous rejection, wrong-role
+route rejection and browser bearer-header rejection. Both retail frontends
+return Zava titles and the supplied wordmark/icon bytes with exact SHA-256
+matches. Public shopper live/ready endpoints return 200; an anonymous commerce
+session request returns 401.
+
+The owned registration's two role descriptions and four consent text fields
+now say Zava. Readback verifies every other selected application field and
+operator assignment unchanged, comparing role definitions by their immutable
+IDs because Graph reordered the array. Enterprise-app inherited labels and
+scope/role IDs, values and flags also match. No credential, grant, redirect,
+scope ID, role ID/value or registration name changed.
+
+The signed-in browser renders the supplied logo at 132 CSS pixels without
+horizontal overflow, serves the app icon with 200 and displays a populated
+Zava catalog whose initial request returns 200, with no old-brand text or 403
+banner. A read-only tent comparison and follow-up both stream successfully:
+39 and 27 text deltas, one completed-turn event each, with presentation/tool
+events preserved. The lighter recommendation is the Zava Basecamp 2-Person
+Backpacking Tent at 2.1 kg; the cart remains empty. A fresh document load again
+returns the populated catalog with 200 and reads the prior completed turn and
+durable SSE replay with 200, including the follow-up's 27 text deltas and
+completed-turn event. Temporary fetch observation and in-page replay metadata
+were removed. No order, payment or merchant change was performed.
+
+Source coverage remains all four verticals and eight portals; the live rollout
+is only the approved six existing retail apps. Merchant HTML/assets and
+authorization are verified privately, not by exposing the merchant portal or
+claiming a new interactive merchant approval test. Stored customer
+conversations, immutable Git history and private historical recovery/provenance
+records remain intact. Licensing and upstream attribution are preserved.
 
 ### Owned-identity readiness
 
