@@ -52,7 +52,7 @@ function asProduct(item: CartItem, catalog: Record<string, Product>): Product {
   );
 }
 
-/** "the ACME Sleep Hybrid Mattress (queen)": what a message to the assistant calls a line. */
+/** "the Zava Sleep Hybrid Mattress (queen)": what a message to the assistant calls a line. */
 function lineName(item: CartItem): string {
   const chosen = optionValuesLabel(item);
   return chosen ? `${item.title} (${chosen})` : item.title;
@@ -74,7 +74,7 @@ export default function CartPanel({ cart, checkoutStaged = false }: { cart: Cart
         <>
           Nothing in the cart yet.
           <br />
-          Ask ACME Assistant for anything in the store.
+          Ask Zava Assistant for anything in the store.
         </>
       }
       footer={

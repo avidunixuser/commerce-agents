@@ -15,7 +15,7 @@ from merchant_agent import MerchantAgentConfig, MerchantSessionState
 from merchant_agent.gates import check_apply_change, check_listing_provenance
 
 DECALS = "AR-2102"  # the retail fixture's wall decals, priced at 24.00
-APPROVAL_ON = MerchantAgentConfig(brand_name="ACME")
+APPROVAL_ON = MerchantAgentConfig(brand_name="Zava")
 
 
 def server(config: MerchantAgentConfig | None = None):

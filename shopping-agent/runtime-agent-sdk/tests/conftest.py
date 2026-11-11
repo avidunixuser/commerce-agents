@@ -20,7 +20,7 @@ from shopping_agent_sdk import (
 
 @pytest.fixture
 def toolset() -> ShoppingToolset:
-    """A toolset bound to a fresh mock ACME retailer and an empty session."""
+    """A toolset bound to a fresh mock Zava retailer and an empty session."""
     return ShoppingToolset(backend=load_mock_backend(), config=default_config())
 
 

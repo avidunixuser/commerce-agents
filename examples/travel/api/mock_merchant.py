@@ -99,7 +99,7 @@ class MockTravelMerchant(MerchantBackend):
         # The calendar moves with the storefront's clock (load_occupancy in mock_travel),
         # so both sides read the same weeks.
         occupancy = load_occupancy(data_dir, storefront.today)
-        self.supplier_name: str = occupancy.get("supplier", "ACME Travel supplier")
+        self.supplier_name: str = occupancy.get("supplier", "Zava Travel supplier")
         self._occupancy_window: dict[str, str] = occupancy.get("window", {})
         self._occupancy: dict[str, dict[str, Any]] = {
             row["listing_id"]: dict(row) for row in occupancy["listings"]

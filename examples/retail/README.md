@@ -1,4 +1,4 @@
-# ACME (retail)
+# Zava (retail)
 
 The retail example runs both agents over one catalog with the built-in components only:
 the storefront searches, compares, plans, fills the cart, stages checkout, and keeps

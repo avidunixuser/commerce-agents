@@ -25,11 +25,11 @@ function Brief({ account }: { account: AccountContext }) {
         <span className="font-semibold text-(--warn)">
           You average {usage.avg} GB on a {usage.cap} GB plan{topUps ? `; top-ups came to ${formatPrice(topUps)} over three months` : ""}.
         </span>{" "}
-        Ask which plan fits, and ACME Assistant compares them against your usage with the terms as written.
+        Ask which plan fits, and Zava Assistant compares them against your usage with the terms as written.
       </>
     );
   }
-  return <>Your line is on track this cycle. Ask about plans, phones, or home fiber, and ACME Assistant quotes the terms as written.</>;
+  return <>Your line is on track this cycle. Ask about plans, phones, or home fiber, and Zava Assistant quotes the terms as written.</>;
 }
 
 export default function HomeView({ shopperName, account }: { shopperName: string; account: { account: AccountContext | null } | null }) {

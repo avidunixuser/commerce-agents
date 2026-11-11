@@ -38,7 +38,7 @@ def test_add_on_quantity_is_kept(add):
 @pytest.mark.parametrize("product_id", ["AM-PLAN-103", "AM-NET-302"])
 def test_contract_categories_are_refused_before_anything_is_queued(add, product_id):
     response, record = add(product_id, product_id)
-    assert response.status_code == 400 and "through the ACME Assistant" in response.json()["detail"]
+    assert response.status_code == 400 and "through the Zava Assistant" in response.json()["detail"]
     assert record.pending_app_events == []
 
 

@@ -11,7 +11,7 @@ import type { AccountContext } from "@/lib/types";
 export const ASK_PLAN_FIT = "Which plan fits how I use data?";
 
 /** What a profile with no line sees wherever the account would show. */
-export const NO_LINE = "No ACME Mobile line on this account yet. Ask ACME Assistant to compare plans, phones, or home fiber.";
+export const NO_LINE = "No Zava Mobile line on this account yet. Ask Zava Assistant to compare plans, phones, or home fiber.";
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
   return (

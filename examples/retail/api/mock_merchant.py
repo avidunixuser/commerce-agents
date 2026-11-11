@@ -74,7 +74,7 @@ class MockRetailMerchant(MerchantBackend):
         storefront: MockRetail,
         config: MerchantAgentConfig | None = None,
         data_dir: Path = DATA_DIR,
-        merchant_id: str = "acme-retail",
+        merchant_id: str = "zava-retail",
     ) -> None:
         self.storefront = storefront
         self.config = config or MerchantAgentConfig(brand_name=storefront.store_name)

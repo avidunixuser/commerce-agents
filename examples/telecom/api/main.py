@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""ACME Mobile example API: the mock carrier behind the shared storefront routes, the
+"""Zava Mobile example API: the mock carrier behind the shared storefront routes, the
 commercial-ops router under /api/merchant, and the telecom-only routes below.
 
     uvicorn telecom.api.main:app --app-dir examples --reload --port 8002
@@ -40,7 +40,7 @@ agent = ShoppingAgent(
     extra_presentation_tools=[build_plan_matrix_extension()],
 )
 host = build_storefront_host(
-    title="ACME Mobile demo API",
+    title="Zava Mobile demo API",
     example_root=DATA_DIR.parent,
     backend=backend,
     agent=agent,
@@ -62,7 +62,7 @@ async def cart_add(request: CartAddRequest, record: host.CurrentSession) -> dict
             status_code=400,
             detail=(
                 "Only devices and add-ons can be added directly. Plan and home-internet "
-                "changes go through the ACME Assistant so the terms can be reviewed first."
+                "changes go through the Zava Assistant so the terms can be reviewed first."
             ),
         )
     return await host.direct_add(

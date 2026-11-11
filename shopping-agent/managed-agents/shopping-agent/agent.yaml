@@ -1,12 +1,12 @@
-# ACME shopping agent: Managed Agent manifest source. scripts/deploy_managed_agent.sh resolves
+# Zava shopping agent: Managed Agent manifest source. scripts/deploy_managed_agent.sh resolves
 # it into a POST /v1/agents body: `system_file` is inlined, each `skills[].path` is uploaded through
 # the Skills API and replaced with its skill_id, and ${VAR} placeholders come from the
 # environment. Everything else maps onto Agents API fields as written.
 
-name: ACME Shopping Agent
+name: Zava Shopping Agent
 model: claude-sonnet-5
 description: >-
-  Shopping agent for the fictional ACME store: search and discovery, multi-item
+  Shopping agent for the fictional Zava store: search and discovery, multi-item
   planning, purchase research, cart and checkout, customer care, and personalization,
   with the UI rendered by the host application from presentation tool calls.
 

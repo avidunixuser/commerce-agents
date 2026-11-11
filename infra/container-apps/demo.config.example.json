@@ -3,7 +3,7 @@
   "tenantId": "<confirmed-tenant-id>",
   "resourceGroup": "<existing-foundation-resource-group>",
   "location": "<confirmed-region>",
-  "name": "acmedemo",
+  "name": "zavademo",
   "vnetName": "<existing-vnet>",
   "subnetPrefix": "<unused-aca-subnet-cidr>",
   "endpointSubnetPrefix": "<existing-private-endpoint-subnet-cidr>",

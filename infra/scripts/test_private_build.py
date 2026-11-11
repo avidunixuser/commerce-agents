@@ -292,6 +292,40 @@ class PrivateBuildTests(unittest.TestCase):
                             self.config, self.state, "retail-storefront", pathlib.Path(directory)
                         )
 
+    def test_retail_release_requires_exactly_four_retail_digests(self):
+        expected = {
+            "gateway": "sha256:" + "a" * 64,
+            "api": "sha256:" + "b" * 64,
+            "retail-storefront-web": "sha256:" + "c" * 64,
+            "retail-merchant-web": "sha256:" + "d" * 64,
+        }
+        for manifest in (
+            expected,
+            {key: value for key, value in expected.items() if key != "api"},
+            {**expected, "travel-storefront-web": "sha256:" + "e" * 64},
+        ):
+            output = "COMMERCE_BUILD_RESULT=" + json.dumps(manifest)
+            view = {"executionState": "Succeeded", "exitCode": 0, "output": output}
+            with (
+                self.subTest(manifest=manifest),
+                tempfile.TemporaryDirectory() as directory,
+                patch.object(
+                    build, "az", side_effect=[None, {"properties": {"instanceView": view}}]
+                ),
+            ):
+                if manifest == expected:
+                    self.assertEqual(
+                        build.remote_build(
+                            self.config, self.state, "retail-release", pathlib.Path(directory)
+                        ),
+                        output,
+                    )
+                else:
+                    with self.assertRaisesRegex(ValueError, "manifest mismatch"):
+                        build.remote_build(
+                            self.config, self.state, "retail-release", pathlib.Path(directory)
+                        )
+
     @unittest.skipIf(os.name == "nt", "Build selection executes under the Linux runner's Bash")
     def test_build_selection_does_not_build_unrequested_images(self):
         source = (build.ROOT / "infra" / "scripts" / "private_build.sh").read_text()
@@ -312,6 +346,7 @@ class PrivateBuildTests(unittest.TestCase):
         for mode, expected in (
             ("smoke", ["gateway"]),
             ("retail-storefront", ["retail-storefront-web"]),
+            ("retail-release", ["gateway", "api", "retail-storefront-web", "retail-merchant-web"]),
             ("all", all_images),
         ):
             result = subprocess.run(

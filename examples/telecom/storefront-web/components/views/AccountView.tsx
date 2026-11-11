@@ -43,7 +43,7 @@ function Cycles({ line }: { line: AccountContext }) {
 }
 
 /**
- * The account as ACME Mobile has it: plan and usage, device and contract, orders. `account` is
+ * The account as Zava Mobile has it: plan and usage, device and contract, orders. `account` is
  * null until the read lands; its inner `account` is null for a prospect.
  */
 export default function AccountView({
@@ -61,7 +61,7 @@ export default function AccountView({
   const line = account?.account ?? null;
   return (
     <StorePage>
-      <PageHeader title="Account" subtitle={line ? `${shopperName}'s line, as ACME Mobile has it. Ask which plan fits this usage, or what an upgrade would cost.` : undefined} />
+      <PageHeader title="Account" subtitle={line ? `${shopperName}'s line, as Zava Mobile has it. Ask which plan fits this usage, or what an upgrade would cost.` : undefined} />
       {!account ? (
         failed ? <Notice>Couldn&apos;t load the account.</Notice> : <Skeleton className="h-[320px]" />
       ) : line ? (

@@ -13,7 +13,7 @@ function asProduct(item: CartItem): Product {
   return { product_id: item.product_id, title: item.title, price: item.price, option_values: item.option_values };
 }
 
-/** "the ACME Phone 5 Pro (512 GB · graphite)": what a message to the assistant calls a line. */
+/** "the Zava Phone 5 Pro (512 GB · graphite)": what a message to the assistant calls a line. */
 function lineName(item: CartItem): string {
   const chosen = optionValuesLabel(item);
   return chosen ? `${item.title} (${chosen})` : item.title;
@@ -43,7 +43,7 @@ export default function OrderPanel({ cart, account }: { cart: CartPayload | null
         <>
           Nothing in the order yet.
           <br />
-          Ask ACME Assistant about plans, phones, or home fiber.
+          Ask Zava Assistant about plans, phones, or home fiber.
         </>
       }
       footer={

@@ -346,7 +346,7 @@ def test_ids_containing_slashes_reach_the_id_routes(client, main):
     """A platform's global id ("gid://shop/Product/7") reaches the handler, which answers
     404 for an unknown id; the id routes take ``:path`` parameters so it does not miss."""
     headers = start_operator(client)
-    weird = "gid://acme/Listing/7"
+    weird = "gid://zava/Listing/7"
     listing = client.get(f"/api/merchant/listings/{weird}", headers=headers)
     assert listing.status_code == 404 and listing.json()["detail"] == "Listing not found"
     product = client.get(f"/api/products/{weird}")

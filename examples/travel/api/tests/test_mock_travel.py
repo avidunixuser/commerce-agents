@@ -9,9 +9,9 @@ from travel.api.mock_travel import MockTravel
 
 def test_catalog_loads_and_validates(backend):
     assert len(backend.products) >= 50
-    assert backend.store_name == "ACME Travel"
+    assert backend.store_name == "Zava Travel"
     sample = backend.products["AL-STAY-101"]
-    assert sample.brand == "ACME Guesthouses"
+    assert sample.brand == "Zava Guesthouses"
     assert sample.long_description  # hero stays carry a long description
     assert sample.attributes["price_unit"] == "per_night"
     assert sample.attributes["refundable"] == "no"

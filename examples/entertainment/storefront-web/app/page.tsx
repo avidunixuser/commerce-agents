@@ -4,7 +4,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { type AgentEvent, type Profile, type Session, StoreShell, type StoreView, useAgentTurn, useSession } from "web-shared";
+import { type AgentEvent, type Profile, type Session, StoreShell, type StoreView, useAgentTurn, useSession, ZavaLogo } from "web-shared";
 import Chat from "@/components/Chat";
 import { PRESENTATION_COMPONENTS } from "@/components/generative/Bones";
 import { CountdownArc } from "@/components/generative/shared";
@@ -22,7 +22,7 @@ const PROFILES: Profile[] = [
   { id: "demo-user-2", name: "Casey" },
 ];
 
-const ASSISTANT = "ACME Assistant";
+const ASSISTANT = "Zava Assistant";
 
 type View = "assistant" | "tickets";
 
@@ -43,9 +43,9 @@ interface StoreProps {
 
 function Wordmark({ warm }: { warm: boolean }) {
   return (
-    <span className="flex items-baseline gap-2 pr-1 leading-none text-(--ink)">
+    <span className="flex items-center gap-2 pr-1 leading-none text-(--ink)">
       <span className={`at-live self-center ${warm ? "at-live--warm" : ""}`} aria-hidden />
-      <span className="at-display text-[21px] tracking-[0.04em]">ACME</span>
+      <ZavaLogo />
       <span className="at-display text-[21px] font-medium tracking-[0.09em] text-(--ink-soft)">TICKETS</span>
     </span>
   );

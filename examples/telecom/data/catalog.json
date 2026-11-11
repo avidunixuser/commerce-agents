@@ -1,10 +1,10 @@
 {
-  "store_name": "ACME Mobile",
+  "store_name": "Zava Mobile",
   "products": [
     {
       "product_id": "AM-PLAN-101",
       "title": "Essential 5GB",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 35.0,
       "currency": "USD",
       "rating": 4.1,
@@ -42,7 +42,7 @@
     {
       "product_id": "AM-PLAN-102",
       "title": "Plus 15GB",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 50.0,
       "currency": "USD",
       "rating": 4.4,
@@ -80,7 +80,7 @@
     {
       "product_id": "AM-PLAN-103",
       "title": "Unlimited",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 65.0,
       "currency": "USD",
       "rating": 4.6,
@@ -101,7 +101,7 @@
         "price_guarantee": "3-year price guarantee"
       },
       "in_stock": true,
-      "short_description": "Unlimited data with 25GB of hotspot and a 3-year price guarantee — the plan most ACME Mobile customers land on.",
+      "short_description": "Unlimited data with 25GB of hotspot and a 3-year price guarantee — the plan most Zava Mobile customers land on.",
       "long_description": "Unlimited is the stop-thinking-about-it plan: no allowance to watch, 25GB of high-speed hotspot, and Canada & Mexico roaming included. During congestion, usage past 35GB in a month may be temporarily deprioritized — most customers never notice. The monthly price is locked for three years from activation.",
       "specs": {
         "talk_and_text": "unlimited nationwide",
@@ -119,7 +119,7 @@
     {
       "product_id": "AM-PLAN-104",
       "title": "Unlimited Plus",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 85.0,
       "currency": "USD",
       "rating": 4.7,
@@ -136,18 +136,18 @@
         "contract_term": "none",
         "network_priority": "premium",
         "deprioritization_threshold_gb": "60",
-        "streaming_perk": "ACME Streaming included",
+        "streaming_perk": "Zava Streaming included",
         "price_guarantee": "3-year price guarantee"
       },
       "in_stock": true,
-      "short_description": "Everything turned up: premium network priority, 60GB hotspot, 4K streaming, 90+ country roaming, and ACME Streaming on us.",
-      "long_description": "Unlimited Plus is for people whose phone is their office and their cinema. Premium priority means you keep full speed even on a crowded network until 60GB; the hotspot allowance genuinely replaces hotel Wi-Fi; and international roaming works in 90+ countries without a day pass. The ACME Streaming subscription is included for as long as you keep the plan.",
+      "short_description": "Everything turned up: premium network priority, 60GB hotspot, 4K streaming, 90+ country roaming, and Zava Streaming on us.",
+      "long_description": "Unlimited Plus is for people whose phone is their office and their cinema. Premium priority means you keep full speed even on a crowded network until 60GB; the hotspot allowance genuinely replaces hotel Wi-Fi; and international roaming works in 90+ countries without a day pass. The Zava Streaming subscription is included for as long as you keep the plan.",
       "specs": {
         "talk_and_text": "unlimited nationwide",
         "premium_data": "60GB at premium priority",
         "hotspot": "60GB high-speed, then 600 Kbps",
         "roaming": "90+ countries included",
-        "streaming": "ACME Streaming subscription included",
+        "streaming": "Zava Streaming subscription included",
         "video": "up to 4K UHD"
       },
       "review_highlights": [
@@ -159,7 +159,7 @@
     {
       "product_id": "AM-PLAN-105",
       "title": "Prepaid 10GB",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 25.0,
       "currency": "USD",
       "rating": 4.2,
@@ -181,7 +181,7 @@
       },
       "in_stock": true,
       "short_description": "Pay-as-you-go: 10GB for $25, no credit check, no contract, cancel any month.",
-      "long_description": "Prepaid is the commitment-free way onto the ACME Mobile network. Pay for a month, get 10GB at full speed with 5GB of hotspot, and walk away whenever — your number stays yours. There's no credit check and no device financing on prepaid, which keeps it simple and keeps it $25.",
+      "long_description": "Prepaid is the commitment-free way onto the Zava Mobile network. Pay for a month, get 10GB at full speed with 5GB of hotspot, and walk away whenever — your number stays yours. There's no credit check and no device financing on prepaid, which keeps it simple and keeps it $25.",
       "specs": {
         "talk_and_text": "unlimited nationwide",
         "after_allowance": "256 Kbps, no overage charges",
@@ -196,8 +196,8 @@
     },
     {
       "product_id": "AM-DEV-201",
-      "title": "ACME Phone 4",
-      "brand": "ACME",
+      "title": "Zava Phone 4",
+      "brand": "Zava",
       "price": 699.0,
       "currency": "USD",
       "rating": 4.3,
@@ -217,7 +217,7 @@
       },
       "in_stock": true,
       "short_description": "The flip that made pocket phones cool again — last year's model, still quick, now at a friendlier price.",
-      "long_description": "The ACME Phone 4 folds a full 6.6-inch screen into half the pocket space, with a cover display big enough for replies and music without opening the phone. It's the previous generation, which mostly means you save money: day-to-day speed is still excellent, and the hinge is rated for five years of flipping.",
+      "long_description": "The Zava Phone 4 folds a full 6.6-inch screen into half the pocket space, with a cover display big enough for replies and music without opening the phone. It's the previous generation, which mostly means you save money: day-to-day speed is still excellent, and the hinge is rated for five years of flipping.",
       "specs": {
         "display": "6.6\" foldable OLED, 120Hz",
         "cover_display": "3.2\" OLED",
@@ -233,8 +233,8 @@
     },
     {
       "product_id": "AM-DEV-202",
-      "title": "ACME Phone 5",
-      "brand": "ACME",
+      "title": "Zava Phone 5",
+      "brand": "Zava",
       "price": 949.0,
       "currency": "USD",
       "rating": 4.7,
@@ -253,7 +253,7 @@
         "trade_in_tier": "A"
       },
       "in_stock": true,
-      "short_description": "The new Phone: bigger cover screen, two more hours of battery than anything ACME has made, same pocketability.",
+      "short_description": "The new Phone: bigger cover screen, two more hours of battery than anything Zava has made, same pocketability.",
       "long_description": "The Phone 5 fixes the two things Phone 4 owners asked about: battery and the cover display. The 4-inch cover screen now runs full apps — maps, messages, payments — so the phone stays folded most of the day, which is exactly why the battery now clears a heavy day with room to spare. If you're coming from a Phone 4, it feels like the same idea finished.",
       "specs": {
         "display": "6.7\" foldable OLED, 120Hz",
@@ -270,8 +270,8 @@
     },
     {
       "product_id": "AM-DEV-203",
-      "title": "ACME Phone 5 Pro",
-      "brand": "ACME",
+      "title": "Zava Phone 5 Pro",
+      "brand": "Zava",
       "price": 1099.0,
       "currency": "USD",
       "rating": 4.8,
@@ -289,7 +289,7 @@
         "trade_in_tier": "A"
       },
       "in_stock": true,
-      "short_description": "ACME's slab flagship: the best camera system in the lineup and a battery that ignores the day.",
+      "short_description": "Zava's slab flagship: the best camera system in the lineup and a battery that ignores the day.",
       "long_description": "The Phone 5 Pro is the conventional shape done unusually well — a bright 6.8-inch display, a 5x periscope telephoto that makes concert photos look intentional, and a 31-hour battery. It's the phone for people who want the best of everything and don't need it to fold. Sold in 256 GB and 512 GB, in graphite or glacier.",
       "specs": {
         "display": "6.8\" OLED, 120Hz, 2600 nits peak",
@@ -357,8 +357,8 @@
     },
     {
       "product_id": "AM-DEV-204",
-      "title": "ACME Phone 5 Lite",
-      "brand": "ACME",
+      "title": "Zava Phone 5 Lite",
+      "brand": "Zava",
       "price": 799.0,
       "currency": "USD",
       "rating": 4.5,
@@ -378,7 +378,7 @@
       },
       "in_stock": true,
       "short_description": "The sensible flagship: clean software, seven years of updates, and a camera that just gets it right.",
-      "long_description": "The ACME Phone 5 Lite doesn't chase spec sheets — it chases not annoying you. The software is uncluttered, updates are promised for seven years, and the camera's processing makes ordinary light look good without filters. The 6.4-inch size hits the increasingly rare middle ground between phablet and tiny.",
+      "long_description": "The Zava Phone 5 Lite doesn't chase spec sheets — it chases not annoying you. The software is uncluttered, updates are promised for seven years, and the camera's processing makes ordinary light look good without filters. The 6.4-inch size hits the increasingly rare middle ground between phablet and tiny.",
       "specs": {
         "display": "6.4\" OLED, 120Hz",
         "camera": "50MP main + ultrawide, night mode",
@@ -393,8 +393,8 @@
     },
     {
       "product_id": "AM-DEV-205",
-      "title": "ACME Phone 5 Max",
-      "brand": "ACME",
+      "title": "Zava Phone 5 Max",
+      "brand": "Zava",
       "price": 1199.0,
       "currency": "USD",
       "rating": 4.7,
@@ -413,8 +413,8 @@
         "trade_in_tier": "A"
       },
       "in_stock": true,
-      "short_description": "ACME's everything phone: 6.9-inch display, 512GB standard, and the same seven-year update promise.",
-      "long_description": "The Phone 5 Max is for people who watch, edit, and read on their phone more than on anything else they own. The 6.9-inch panel is the best ACME has shipped, storage starts at 512GB so the photo library question never comes up, and it keeps the clean-software, long-updates philosophy of the Phone 5 Lite.",
+      "short_description": "Zava's everything phone: 6.9-inch display, 512GB standard, and the same seven-year update promise.",
+      "long_description": "The Phone 5 Max is for people who watch, edit, and read on their phone more than on anything else they own. The 6.9-inch panel is the best Zava has shipped, storage starts at 512GB so the photo library question never comes up, and it keeps the clean-software, long-updates philosophy of the Phone 5 Lite.",
       "specs": {
         "display": "6.9\" OLED, 120Hz, anti-reflective",
         "camera": "200MP main + 5x telephoto + ultrawide",
@@ -430,8 +430,8 @@
     },
     {
       "product_id": "AM-DEV-206",
-      "title": "ACME Phone 3",
-      "brand": "ACME",
+      "title": "Zava Phone 3",
+      "brand": "Zava",
       "price": 249.0,
       "currency": "USD",
       "rating": 4.2,
@@ -451,7 +451,7 @@
       },
       "in_stock": true,
       "short_description": "The budget phone that quietly does 90% of what flagships do, with the longest battery in the store.",
-      "long_description": "The ACME Phone 3 is what happens when a manufacturer skips the glamour features and spends the budget on what people actually notice: a big bright screen, a 33-hour battery, and 5G. The camera is good in daylight and honest about its limits at night. For a first phone, a backup, or a no-drama daily driver, it's the easy answer.",
+      "long_description": "The Zava Phone 3 is what happens when a manufacturer skips the glamour features and spends the budget on what people actually notice: a big bright screen, a 33-hour battery, and 5G. The camera is good in daylight and honest about its limits at night. For a first phone, a backup, or a no-drama daily driver, it's the easy answer.",
       "specs": {
         "display": "6.5\" LCD, 90Hz",
         "camera": "48MP main",
@@ -466,8 +466,8 @@
     },
     {
       "product_id": "AM-DEV-207",
-      "title": "ACME Tablet 11",
-      "brand": "ACME",
+      "title": "Zava Tablet 11",
+      "brand": "Zava",
       "price": 549.0,
       "currency": "USD",
       "rating": 4.5,
@@ -487,7 +487,7 @@
       },
       "in_stock": true,
       "short_description": "An 11-inch 5G tablet that turns a parked car, a flight, or a couch into a second office or first cinema.",
-      "long_description": "The ACME Tablet 11 is the cellular tablet for people who got tired of hotspotting. With its own 5G connection (pair it with a data line), it's always online — notes in the field, shows on the train, video calls that don't depend on whatever Wi-Fi is nearby. The keyboard folio sold separately turns it into a credible laptop stand-in.",
+      "long_description": "The Zava Tablet 11 is the cellular tablet for people who got tired of hotspotting. With its own 5G connection (pair it with a data line), it's always online — notes in the field, shows on the train, video calls that don't depend on whatever Wi-Fi is nearby. The keyboard folio sold separately turns it into a credible laptop stand-in.",
       "specs": {
         "display": "11\" LCD, 120Hz",
         "battery": "8,000 mAh, 14h video",
@@ -502,8 +502,8 @@
     },
     {
       "product_id": "AM-DEV-208",
-      "title": "ACME Watch",
-      "brand": "ACME",
+      "title": "Zava Watch",
+      "brand": "Zava",
       "price": 329.0,
       "currency": "USD",
       "rating": 4.4,
@@ -523,7 +523,7 @@
       },
       "in_stock": true,
       "short_description": "A cellular smartwatch that lets the phone stay home — calls, texts, maps, and payments from the wrist.",
-      "long_description": "With its own LTE connection (add a smartwatch line), the ACME Watch covers runs, errands, and pool days phone-free. Two-day battery, real fitness tracking, and call quality that surprises people. It pairs with any recent ACME phone.",
+      "long_description": "With its own LTE connection (add a smartwatch line), the Zava Watch covers runs, errands, and pool days phone-free. Two-day battery, real fitness tracking, and call quality that surprises people. It pairs with any recent Zava phone.",
       "specs": {
         "display": "1.4\" AMOLED, always-on",
         "battery": "48h typical",
@@ -538,8 +538,8 @@
     },
     {
       "product_id": "AM-DEV-209",
-      "title": "ACME Hotspot Hub",
-      "brand": "ACME",
+      "title": "Zava Hotspot Hub",
+      "brand": "Zava",
       "price": 199.0,
       "currency": "USD",
       "rating": 4.3,
@@ -575,7 +575,7 @@
     {
       "product_id": "AM-NET-301",
       "title": "Home Fiber 300",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 50.0,
       "currency": "USD",
       "rating": 4.5,
@@ -614,7 +614,7 @@
     {
       "product_id": "AM-NET-302",
       "title": "Home Fiber 1 Gig",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 70.0,
       "currency": "USD",
       "rating": 4.7,
@@ -637,7 +637,7 @@
       },
       "in_stock": true,
       "short_description": "Gigabit fiber for households where everyone is online at once — work, cloud backups, game downloads, no queue.",
-      "long_description": "Home Fiber 1 Gig is the tier where the internet stops being a shared resource anyone notices. Two people on calls, a console pulling a 100GB download, cameras backing up — simultaneously, without negotiation. Symmetric upload makes it the work-from-home pick, and like all ACME fiber tiers there's no cap, no equipment fee, and no contract.",
+      "long_description": "Home Fiber 1 Gig is the tier where the internet stops being a shared resource anyone notices. Two people on calls, a console pulling a 100GB download, cameras backing up — simultaneously, without negotiation. Symmetric upload makes it the work-from-home pick, and like all Zava fiber tiers there's no cap, no equipment fee, and no contract.",
       "specs": {
         "speed": "1 Gbps down / 1 Gbps up",
         "router": "Wi-Fi 6E gateway included",
@@ -653,7 +653,7 @@
     {
       "product_id": "AM-NET-303",
       "title": "Home Fiber 2 Gig",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 95.0,
       "currency": "USD",
       "rating": 4.6,
@@ -692,7 +692,7 @@
     {
       "product_id": "AM-ADD-401",
       "title": "Data Top-Up 5GB",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 10.0,
       "currency": "USD",
       "rating": 3.9,
@@ -721,7 +721,7 @@
     {
       "product_id": "AM-ADD-402",
       "title": "Roaming Day Pass",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 9.0,
       "currency": "USD",
       "rating": 4.4,
@@ -751,7 +751,7 @@
     {
       "product_id": "AM-ADD-403",
       "title": "Hotspot Add-On 20GB",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 15.0,
       "currency": "USD",
       "rating": 4.1,
@@ -780,7 +780,7 @@
     {
       "product_id": "AM-ADD-404",
       "title": "Device Protection",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 14.0,
       "currency": "USD",
       "rating": 4.0,
@@ -808,8 +808,8 @@
     },
     {
       "product_id": "AM-ADD-405",
-      "title": "ACME Streaming Bundle",
-      "brand": "ACME Mobile",
+      "title": "Zava Streaming Bundle",
+      "brand": "Zava Mobile",
       "price": 10.0,
       "currency": "USD",
       "rating": 4.3,
@@ -822,12 +822,12 @@
         "note": "already included with Unlimited Plus"
       },
       "in_stock": true,
-      "short_description": "The ACME Streaming subscription at a line-level discount — movies, series, and live channels on any plan.",
-      "long_description": "ACME Streaming normally runs more on its own; as a line add-on it's $10/month with billing folded into your phone bill. One subscription covers four concurrent streams. If you're on Unlimited Plus, don't add this — it's already included with your plan.",
+      "short_description": "The Zava Streaming subscription at a line-level discount — movies, series, and live channels on any plan.",
+      "long_description": "Zava Streaming normally runs more on its own; as a line add-on it's $10/month with billing folded into your phone bill. One subscription covers four concurrent streams. If you're on Unlimited Plus, don't add this — it's already included with your plan.",
       "specs": {
         "streams": "4 concurrent",
         "quality": "up to 4K where the plan's video tier allows",
-        "billing": "on your ACME Mobile bill"
+        "billing": "on your Zava Mobile bill"
       },
       "review_highlights": [
         "One bill for phone and streaming is tidier than I expected to care about",
@@ -838,7 +838,7 @@
     {
       "product_id": "AM-ADD-406",
       "title": "Extra Line",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 30.0,
       "currency": "USD",
       "rating": 4.5,
@@ -867,7 +867,7 @@
     {
       "product_id": "AM-ADD-407",
       "title": "Smartwatch Line",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 12.0,
       "currency": "USD",
       "rating": 4.2,
@@ -885,7 +885,7 @@
       "specs": {
         "number": "shares your phone number",
         "data": "included for watch apps",
-        "compatibility": "ACME Watch and other cellular watches"
+        "compatibility": "Zava Watch and other cellular watches"
       },
       "review_highlights": [
         "Runs without the phone are why I bought the watch at all",
@@ -896,7 +896,7 @@
     {
       "product_id": "AM-ADD-408",
       "title": "Mesh Wi-Fi Extender",
-      "brand": "ACME Mobile",
+      "brand": "Zava Mobile",
       "price": 5.0,
       "currency": "USD",
       "rating": 4.4,

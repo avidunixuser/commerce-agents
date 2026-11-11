@@ -15,7 +15,7 @@ patterns = {
     "registry_name": r"[a-z0-9]{5,50}", "location": r"[a-z]+[0-9]*",
     "builder_client_id": r"[0-9a-f-]{36}", "subscription_id": r"[0-9a-f-]{36}",
     "tenant_id": r"[0-9a-f-]{36}", "private_endpoint_cidr": r"[0-9./]+",
-    "mode": r"smoke|retail-storefront|all",
+    "mode": r"smoke|retail-storefront|retail-release|all",
 }
 assert set(c) == set(patterns), "unexpected remote configuration"
 assert all(isinstance(c[k], str) and re.fullmatch(p, c[k]) for k,p in patterns.items())
@@ -96,6 +96,11 @@ if [ "$MODE" = retail-storefront ]; then
   build_image retail-storefront-web Dockerfile.web --build-arg VERTICAL=retail --build-arg WEB_APP=storefront-web
 else
   build_image gateway Dockerfile.gateway
+fi
+if [ "$MODE" = retail-release ]; then
+  build_image api Dockerfile.api
+  build_image retail-storefront-web Dockerfile.web --build-arg VERTICAL=retail --build-arg WEB_APP=storefront-web
+  build_image retail-merchant-web Dockerfile.web --build-arg VERTICAL=retail --build-arg WEB_APP=merchant-web
 fi
 if [ "$MODE" = all ]; then
   build_image api Dockerfile.api

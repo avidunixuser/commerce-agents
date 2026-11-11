@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME Tickets box-office router: the shared portal routes over
+"""The Zava Tickets box-office router: the shared portal routes over
 ``MockTicketingMerchant``, the ``present_event_pacing`` extension, and the portal's
 pacing read."""
 
@@ -18,7 +18,7 @@ from .event_pacing import build_event_pacing_extension
 from .mock_merchant import MockTicketingMerchant
 from .mock_ticketing import MockTicketing
 
-IDENTITY = MerchantIdentity(merchant_id="acme-tickets", operator="Jo")
+IDENTITY = MerchantIdentity(merchant_id="zava-tickets", operator="Jo")
 
 
 def create_merchant_router(storefront: MockTicketing, memory_store: MemoryStore) -> APIRouter:

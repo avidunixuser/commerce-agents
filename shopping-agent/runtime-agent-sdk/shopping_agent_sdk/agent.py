@@ -39,8 +39,8 @@ from .shopping_tools import (
 def default_config() -> ShoppingAgentConfig:
     """The demo storefront's identity; a deployment supplies its own config."""
     return ShoppingAgentConfig(
-        brand_name="ACME",
-        assistant_name="ACME Assistant",
+        brand_name="Zava",
+        assistant_name="Zava Assistant",
         brand_voice="warm, practical, and plain about trade-offs",
     )
 

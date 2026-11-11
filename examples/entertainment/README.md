@@ -1,4 +1,4 @@
-# ACME Tickets (entertainment)
+# Zava Tickets (entertainment)
 
 The entertainment example runs both agents over one ticketing engine: the storefront
 maps the room, itemizes the all-in price, holds tickets on a server timer, and stages

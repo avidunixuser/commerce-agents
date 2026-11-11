@@ -16,8 +16,8 @@ import type {
 
 const BLOCK_SET: Product = {
   product_id: "AR-1401",
-  title: "ACME Playroom Stacking Wooden Block Set (54 pc)",
-  brand: "ACME Playroom",
+  title: "Zava Playroom Stacking Wooden Block Set (54 pc)",
+  brand: "Zava Playroom",
   price: 34.0,
   rating: 4.8,
   review_count: 2940,
@@ -35,8 +35,8 @@ const BLOCK_SET: Product = {
 
 const PUZZLE: Product = {
   product_id: "AR-2104",
-  title: "ACME Makers 300-Piece Meadow Puzzle",
-  brand: "ACME Makers",
+  title: "Zava Makers 300-Piece Meadow Puzzle",
+  brand: "Zava Makers",
   price: 27.0,
   rating: 4.4,
   review_count: 1530,
@@ -53,8 +53,8 @@ const PUZZLE: Product = {
 
 const POSTER_SET: Product = {
   product_id: "AR-2108",
-  title: "ACME Playroom Solar System Poster Set (4 pc)",
-  brand: "ACME Playroom",
+  title: "Zava Playroom Solar System Poster Set (4 pc)",
+  brand: "Zava Playroom",
   price: 18.0,
   rating: 4.6,
   review_count: 980,
@@ -71,8 +71,8 @@ const POSTER_SET: Product = {
 
 const WALL_DECALS: Product = {
   product_id: "AR-2102",
-  title: "ACME Kids Peel-and-Stick Ocean Wall Decals (36 pc)",
-  brand: "ACME Kids",
+  title: "Zava Kids Peel-and-Stick Ocean Wall Decals (36 pc)",
+  brand: "Zava Kids",
   price: 24.0,
   rating: 4.6,
   review_count: 2440,
@@ -90,8 +90,8 @@ const WALL_DECALS: Product = {
 
 const STORYBOOK_BEAR: Product = {
   product_id: "AR-2105",
-  title: "ACME Playroom Storybook Bear (14 in)",
-  brand: "ACME Playroom",
+  title: "Zava Playroom Storybook Bear (14 in)",
+  brand: "Zava Playroom",
   price: 32.0,
   rating: 4.8,
   review_count: 2110,
@@ -103,8 +103,8 @@ const STORYBOOK_BEAR: Product = {
 
 const STORAGE_BINS: Product = {
   product_id: "AR-2106",
-  title: "ACME Kids Toy Storage Bins (Set of 3)",
-  brand: "ACME Kids",
+  title: "Zava Kids Toy Storage Bins (Set of 3)",
+  brand: "Zava Kids",
   price: 29.0,
   rating: 4.5,
   review_count: 720,
@@ -207,7 +207,7 @@ const guide: GuidePayload = {
 const order_status: OrderStatusPayload = {
   order_id: "AR-77903",
   summary:
-    "The ACME Paws Orthopedic Dog Bed was placed June 10 and is marked delayed — the delivery estimate was revised to June 27 after the original June 21 date was missed.",
+    "The Zava Paws Orthopedic Dog Bed was placed June 10 and is marked delayed — the delivery estimate was revised to June 27 after the original June 21 date was missed.",
   next_step: "Track the package for the latest carrier update, or ask me about your options.",
   order: {
     order_id: "AR-77903",
@@ -216,7 +216,7 @@ const order_status: OrderStatusPayload = {
     items: [
       {
         product_id: "AR-1501",
-        title: "ACME Paws Orthopedic Memory Foam Dog Bed, Large",
+        title: "Zava Paws Orthopedic Memory Foam Dog Bed, Large",
         quantity: 1,
         price: 79.0,
       },
@@ -237,7 +237,7 @@ const checkout: CheckoutPayload = {
     items: [
       {
         product_id: "AR-1401",
-        title: "ACME Playroom Stacking Wooden Block Set (54 pc)",
+        title: "Zava Playroom Stacking Wooden Block Set (54 pc)",
         price: 34.0,
         quantity: 1,
         image_url: "/products/AR-1401.webp",
@@ -245,7 +245,7 @@ const checkout: CheckoutPayload = {
       },
       {
         product_id: "AR-2104",
-        title: "ACME Makers 300-Piece Meadow Puzzle",
+        title: "Zava Makers 300-Piece Meadow Puzzle",
         price: 27.0,
         quantity: 1,
         image_url: "/products/AR-2104.webp",
@@ -265,7 +265,7 @@ export const SHOWCASE_CART: CartPayload = {
   items: [
     {
       product_id: "AR-1401",
-      title: "ACME Playroom Stacking Wooden Block Set (54 pc)",
+      title: "Zava Playroom Stacking Wooden Block Set (54 pc)",
       price: 34.0,
       quantity: 1,
       image_url: "/products/AR-1401.webp",
@@ -273,7 +273,7 @@ export const SHOWCASE_CART: CartPayload = {
     },
     {
       product_id: "AR-2003",
-      title: "ACME Pantry Weeknight Stir-Fry Dinner Kit",
+      title: "Zava Pantry Weeknight Stir-Fry Dinner Kit",
       price: 12.0,
       quantity: 1,
       line_total: 12.0,

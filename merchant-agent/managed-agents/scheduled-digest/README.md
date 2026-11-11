@@ -4,7 +4,7 @@
 (`merchant_agent_runtime`, the Messages API runtime) over the retail example's mock
 merchant, asking what needs attention today. It prints the reply and the `present_digest`
 payload; `--out FILE` also writes the whole result (prompt, text, digest, other
-components) as JSON. The environment variables `MERCHANT_ID` (default `acme-retail`),
+components) as JSON. The environment variables `MERCHANT_ID` (default `zava-retail`),
 `MERCHANT_OPERATOR` (default `scheduled-digest`), and `MERCHANT_TIMEZONE` (unset: the
 machine's local date is today) set the session it runs as; `build_demo_agent` is the function
 to replace with a `MerchantAgent` over your own `MerchantBackend`.

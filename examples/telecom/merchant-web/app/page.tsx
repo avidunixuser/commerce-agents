@@ -6,7 +6,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AssistantRail,
-  Icon,
   Inspector,
   type PortalNavItem,
   PortalShell,
@@ -14,6 +13,7 @@ import {
   useMerchantChat,
   useResource,
   useSession,
+  ZavaLogo,
 } from "web-shared";
 import AssistantPanel from "@/components/AssistantPanel";
 import BaseView from "@/components/views/BaseView";
@@ -23,14 +23,6 @@ import { api, fetchOverview, UNREACHABLE } from "@/lib/api";
 import type { StagedChange } from "@/lib/types";
 
 type PortalView = "home" | "plans" | "base";
-
-function StoreMark() {
-  return (
-    <span aria-hidden className="grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[10px] bg-(--ink) text-(--accent)">
-      <Icon name="signal" size={18} strokeWidth={2.2} />
-    </span>
-  );
-}
 
 export default function PortalPage() {
   const session = useSession(api);
@@ -78,7 +70,7 @@ export default function PortalPage() {
   return (
     <>
       <PortalShell
-        brand={{ mark: <StoreMark />, name: "ACME Mobile", detail: "Operator workspace" }}
+        brand={{ mark: <ZavaLogo compact />, logo: <ZavaLogo />, name: "Zava Mobile", detail: "Operator workspace" }}
         nav={nav}
         view={view}
         onViewChange={setView}
@@ -87,7 +79,7 @@ export default function PortalPage() {
         assistantBusy={chat.busy}
         onToggleAssistant={() => setAssistantOpen((open) => !open)}
         rail={
-          <AssistantRail open={assistantOpen} storageKey="acme-mobile-ops-panel-width" onClose={() => setAssistantOpen(false)}>
+          <AssistantRail open={assistantOpen} storageKey="zava-mobile-ops-panel-width" onClose={() => setAssistantOpen(false)}>
             {(rail) => (
               <AssistantPanel
                 chat={chat}

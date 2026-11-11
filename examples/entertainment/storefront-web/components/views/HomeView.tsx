@@ -15,7 +15,7 @@ const STARTERS: Starter[] = [
   { icon: "ticket", prompt: "Two seated tickets for The Headliner on Friday" },
   { icon: "clock", prompt: "The Synth-Pop Act says sold out. What are my options?" },
   { icon: "tag", prompt: "What's included in the Lower Bowl price?" },
-  { icon: "calendar", prompt: "What's on at ACME Amphitheater this summer?" },
+  { icon: "calendar", prompt: "What's on at Zava Amphitheater this summer?" },
 ];
 
 interface EventTile {

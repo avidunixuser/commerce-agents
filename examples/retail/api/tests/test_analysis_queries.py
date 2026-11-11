@@ -53,7 +53,7 @@ async def test_queries_are_tenant_scoped(merchant):
 
 async def test_row_cap_marks_truncation(backend, operator_session):
     merchant = MockRetailMerchant(
-        backend, MerchantAgentConfig(brand_name="ACME", max_analysis_rows=5)
+        backend, MerchantAgentConfig(brand_name="Zava", max_analysis_rows=5)
     )
     table = await merchant.execute_analysis_query(
         operator_session, "SELECT date, sales FROM daily_metrics ORDER BY date"

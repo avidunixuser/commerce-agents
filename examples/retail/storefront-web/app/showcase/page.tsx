@@ -24,7 +24,7 @@ export default function ShowcasePage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-12">
       <p className="text-[11px] font-semibold uppercase tracking-widest text-(--ink-soft)">
-        ACME component showcase (fixture data)
+        Zava component showcase (fixture data)
       </p>
       {SECTIONS.map((name) => (
         <Section key={name} name={name}>

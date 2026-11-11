@@ -1,6 +1,86 @@
 # Azure deployment plan
 
-**Status: Deployed - six Container Apps healthy; operator-only shopper catalog, chat and durable replay verified.**
+**Status: Ready for Validation - Zava source implemented; reviewed build and rollout remain pending.**
+
+## Requested branding update
+
+Replace the demo branding with the supplied Zava logo and name throughout the
+shared application, vertical fixtures, tests and directly related documentation.
+Preserve upstream licensing, attribution and provenance. Inspect all branding
+surfaces before finalizing implementation details. Publish through normal
+commit, push, pull-request CI and merge.
+
+The existing deployment uses immutable images. Inspect the affected components
+and prepare an approved protected image build and bounded update/restart of
+all six existing retail apps. Preserve the subscription, region, identities,
+secrets, authentication, private services and merchant network boundary.
+No AKS or additional environments are requested. Application restarts can
+reset fixture backend state and interrupt active streams.
+
+Inspection found branding in 174 tracked text files, plus the npm lockfile.
+It spans all four verticals, eight portals, fixture catalog/policy/order data,
+agent configuration and manifests, tests, workspace package names, Docker build
+selectors and documentation. No tracked filename contains the old brand.
+
+### Implementation
+
+1. Retain the supplied original PNG and derive tightly cropped wordmark/icon
+   assets from it without redrawing the logo. Share their rendering across all
+   four storefronts and merchant portals, including compact/mobile navigation
+   and document metadata. Keep accessible names and responsive dimensions.
+2. Replace the old demo brand consistently with Zava in tracked source, fixture
+   data, generated manifests, tests and documentation. Rename branded workspace
+   packages and regenerate the existing npm lockfile; update Docker selectors.
+   Preserve licensing, upstream attribution and immutable Git history.
+3. Keep existing application/scope/role IDs, role values, grants, credentials,
+   resource names and URLs unchanged. The existing OAuth scope ID is currently
+   derived from an old-brand namespace string; preserve that exact UUID as a
+   literal rather than accidentally creating a new identity contract.
+   Stored customer conversations and operational recovery records are not
+   rewritten. Display-only identity metadata, if changed, must retain all
+   security-relevant fields exactly.
+4. Add branding/asset coverage, regenerate derived agent prompts, run Python
+   and shared-web regressions, repository checks and all eight production web
+   builds. Commit with attribution, push, create a PR and merge only after
+   normal exact-head CI succeeds.
+
+### Existing Azure rollout
+
+Use the already selected standalone Bicep/Azure CLI recipe and existing
+Sweden Central subscription/foundation. Add one bounded `retail-release`
+protected build choice for exactly four immutable images: gateway, API, retail
+storefront and retail merchant. Preserve existing build modes and all normal
+environment review, OIDC, network and cleanup protections. The exact dispatched
+run still requires ordinary owner review.
+
+After source merge, validate the unchanged disposable VM/NIC plan, execute
+one approved protected build, accept only its exact-source four-image manifest,
+and independently verify build-compute cleanup. Capture fresh six-app and auth
+snapshots; provider-validate/calibrate/preview an update whose only changes are
+the six existing app images. Preserve all runtime configuration and boundaries.
+Deploy incrementally and verify every app receives a healthy new revision.
+Those new replicas satisfy the requested restart; do not perform a redundant
+second restart or provision other verticals.
+
+### Acceptance and limitations
+
+Verify actual replicas, public/private HTTP boundaries, logo asset responses,
+fresh signed-in Zava catalog/UI and a streamed conversation with durable replay.
+The merchant remains private; no VPN, AKS, new credentials or permission grants.
+Restarting the fixture APIs can reset demo carts/orders and briefly interrupt
+active streams; Cosmos conversation data is retained. Publish sanitized final
+evidence through normal PR/CI/merge. Do not dispatch a new private build or
+restart workloads before plan approval and stage-specific validation.
+
+- [x] User approved the rebrand and six-app rollout, including fixture restart effects.
+- [x] Implement the shared supplied logo, app icons and all tracked branding replacements.
+- [x] Preserve the existing OAuth scope UUID and add identity/branding regressions.
+- [x] Add an exact four-image protected retail-release mode.
+- [x] Complete local source validation and all eight production web builds.
+- [ ] Publish and merge the source after normal exact-head CI.
+- [ ] Validate and complete one normally reviewed protected build and independent cleanup.
+- [ ] Validate and deploy six image-only updates with healthy new replicas.
+- [ ] Verify live Zava branding/catalog/chat/persistence and publish final evidence.
 
 ## Current deployment request
 
@@ -964,6 +1044,25 @@ production-commerce acceptance.
   - [x] Verify gateway digest, reviewed source, non-root/transport checks and exact disposable compute cleanup.
   - [x] Record a two-gateway image-only preview; reject unrelated changes or public exposure.
   - [x] Verify actual gateway replicas and HTTP readiness after update, not only ARM provisioning metadata.
+
+### Zava source validation
+
+The shared web suite passes 32 tests, including accessible logo rendering,
+all eight portal/metadata/icon bindings, and existing session/cache regressions.
+All eight renamed npm workspaces complete production Next.js builds and
+TypeScript checks. The lockfile was regenerated offline without dependency
+version changes. The supplied original artwork is retained unchanged; padded
+wordmark/symbol crops are shared by all portals.
+
+The private-build suite passes 28 cases with two Linux-only skips; identity/demo
+tooling passes 20 cases, including the exact unchanged OAuth scope UUID.
+Ruff check/format and `scripts/check.py` pass, including the derived role prompt
+and manifest comparisons. The full local Python run passes 1,309 tests with one
+skip and only the unchanged POSIX file-mode assertion fails on Windows; both
+Linux CI matrices must pass before merging. Tracked case-insensitive old-brand
+search returns no matches. Licensing and upstream attribution are unchanged.
+No live environment variable contains the old brand, so this rollout requires
+no application configuration, authentication, secret or network change.
 
 ### Owned-identity readiness
 

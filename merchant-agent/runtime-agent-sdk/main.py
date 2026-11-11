@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""A console for the merchant agent on the Agent SDK, over the mock ACME merchant::
+"""A console for the merchant agent on the Agent SDK, over the mock Zava merchant::
 
     python merchant-agent/runtime-agent-sdk/main.py [--once "how did last week go"]
 
@@ -96,7 +96,7 @@ async def chat(host_approval: bool) -> None:
         config = config.model_copy(update={"require_host_approval": False})
     options, toolset = make_options(config=config)
     declined: set[str] = set()
-    print("ACME merchant agent (Agent SDK path). Type 'exit' to quit.\n")
+    print("Zava merchant agent (Agent SDK path). Type 'exit' to quit.\n")
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
@@ -123,7 +123,7 @@ async def once(prompt: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="ACME merchant agent on the Claude Agent SDK")
+    parser = argparse.ArgumentParser(description="Zava merchant agent on the Claude Agent SDK")
     parser.add_argument("--once", metavar="QUERY", help="run a single query and exit")
     parser.add_argument(
         "--no-host-approval",

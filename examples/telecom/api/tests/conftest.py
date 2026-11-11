@@ -24,7 +24,7 @@ def make_storefront():
 
 @pytest.fixture
 def merchant(backend) -> MockTelecomMerchant:
-    return MockTelecomMerchant(backend, build_merchant_config("ACME Mobile"))
+    return MockTelecomMerchant(backend, build_merchant_config("Zava Mobile"))
 
 
 @pytest.fixture

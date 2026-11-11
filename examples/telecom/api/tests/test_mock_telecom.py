@@ -9,7 +9,7 @@ from telecom.api.mock_telecom import _add_months
 
 def test_catalog_loads_and_validates(backend):
     assert len(backend.products) >= 20
-    assert backend.store_name == "ACME Mobile"
+    assert backend.store_name == "Zava Mobile"
     plan = backend.products["AM-PLAN-103"]
     assert plan.attributes["data_allowance_gb"] == "unlimited"
     assert plan.attributes["price_unit"] == "per_month"
@@ -85,7 +85,7 @@ async def test_account_context_eligible_with_trade_in_at_boot(backend, session):
     assert account["contract"]["ends"] in account["upgrade_eligibility"]["reason"]
     # 24 installments, 23 elapsed.
     assert account["device"]["installments_remaining"] == 1
-    # Essential 5GB $35.00 + ACME Phone 4 $699 / 24.
+    # Essential 5GB $35.00 + Zava Phone 4 $699 / 24.
     assert account["monthly_bill_usd"] == 64.13
     # Tier B is $200 in the trade-in policy table.
     trade_in = account["trade_in_estimate"]

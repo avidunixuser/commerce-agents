@@ -518,7 +518,7 @@ def test_today_snapshot_lists_the_next_shows(merchant):
     assert [s["event_id"] for s in shows] == ["AT-EVT-101", "AT-EVT-102", "AT-EVT-105"]
     first = shows[0]
     assert first["days_to_event"] == 36
-    assert first["venue"] == "ACME Amphitheater"
+    assert first["venue"] == "Zava Amphitheater"
     assert first["sold"] == 344 + 815 + 348
     assert first["capacity"] == 350 + 1200 + 900
     assert first["remaining"] == first["capacity"] - first["sold"]
@@ -527,7 +527,7 @@ def test_today_snapshot_lists_the_next_shows(merchant):
 
 async def test_merchant_context_names_the_promoter(merchant, operator_session):
     context = await merchant.get_merchant_context(operator_session)
-    assert context["promoter"] == "ACME Tickets — venue portfolio"
+    assert context["promoter"] == "Zava Tickets — venue portfolio"
     assert context["box_office"] == merchant.storefront.store_name
     assert "/" in context["current_period"]
     events = {e["event_id"]: e for e in context["events"]}

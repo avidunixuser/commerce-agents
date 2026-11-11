@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME Travel deployment's two agent configs."""
+"""The Zava Travel deployment's two agent configs."""
 
 from __future__ import annotations
 
@@ -26,8 +26,8 @@ _METRICS_TERMS = (
 
 def build_shopping_config() -> ShoppingAgentConfig:
     return ShoppingAgentConfig(
-        brand_name="ACME Travel",
-        assistant_name="ACME Assistant",
+        brand_name="Zava Travel",
+        assistant_name="Zava Assistant",
         brand_voice="well-traveled, candid, and allergic to tourist traps",
         domain_search_notes=(
             "Stays and experiences are date-bound: when the traveler has named dates, "

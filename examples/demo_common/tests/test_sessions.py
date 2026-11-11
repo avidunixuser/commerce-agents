@@ -75,7 +75,7 @@ def test_a_turn_that_rewrote_earlier_messages_replaces_the_transcript():
 
 def test_the_second_writer_of_one_version_is_refused_and_writes_nothing():
     store = SessionStore(MerchantSessionState)
-    started = store.start("acme")
+    started = store.start("zava")
     button, turn = store.require(started.session_id), store.require(started.session_id)
     button.pending_app_events.append("Operator approved change chg-1 from the preview card.")
     store.save(button)
@@ -89,7 +89,7 @@ def test_the_second_writer_of_one_version_is_refused_and_writes_nothing():
 
 def test_merchant_state_round_trips_with_its_sets_and_counters():
     store = SessionStore(MerchantSessionState)
-    record = store.start("acme")
+    record = store.start("zava")
     record.state.remember_listing_record(Listing(listing_id="L-1", title="Kettle", price=39.0))
     record.state.remember_analysis(AnalysisResult(question="why flat?", headline="Flat week."))
     store.save(record)

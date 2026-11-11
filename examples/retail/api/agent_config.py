@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME retail deployment's two agent configs; the only place this example reads
+"""The Zava retail deployment's two agent configs; the only place this example reads
 deployment knobs from the environment."""
 
 from __future__ import annotations
@@ -15,8 +15,8 @@ from shopping_agent import ShoppingAgentConfig
 
 def build_shopping_config() -> ShoppingAgentConfig:
     return ShoppingAgentConfig(
-        brand_name="ACME",
-        assistant_name="ACME Assistant",
+        brand_name="Zava",
+        assistant_name="Zava Assistant",
         brand_voice="professional, warm, and brief",
     )
 

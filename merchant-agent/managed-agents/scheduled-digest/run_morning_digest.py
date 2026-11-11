@@ -40,7 +40,7 @@ def build_demo_agent() -> Any:
     from retail.api.mock_merchant import MockRetailMerchant
     from retail.api.mock_retail import MockRetail
 
-    config = MerchantAgentConfig(brand_name="ACME")
+    config = MerchantAgentConfig(brand_name="Zava")
     return MerchantAgent(
         backend=MockRetailMerchant(MockRetail(), config=config),
         skills_dir=SKILLS_DIR,
@@ -57,7 +57,7 @@ async def run_digest(agent: Any | None = None) -> dict[str, Any]:
     timezone = os.environ.get("MERCHANT_TIMEZONE")
     session = MerchantSessionContext(
         session_id="scheduled-digest",
-        merchant_id=os.environ.get("MERCHANT_ID", "acme-retail"),
+        merchant_id=os.environ.get("MERCHANT_ID", "zava-retail"),
         operator=os.environ.get("MERCHANT_OPERATOR", "scheduled-digest"),
         # This machine's clock is "today" unless the deployment names a timezone.
         timezone=timezone,

@@ -7,8 +7,8 @@ import type { Product } from "./types";
 
 const GUESTHOUSE_ALFAMA: Product = {
   product_id: "AL-STAY-101",
-  title: "ACME Guesthouses Alfama",
-  brand: "ACME Guesthouses",
+  title: "Zava Guesthouses Alfama",
+  brand: "Zava Guesthouses",
   price: 214.0,
   currency: "USD",
   rating: 4.8,
@@ -34,8 +34,8 @@ const GUESTHOUSE_ALFAMA: Product = {
 
 const ROOFTOP_SUITES: Product = {
   product_id: "AL-STAY-104",
-  title: "ACME Suites Graca Rooftop",
-  brand: "ACME Suites",
+  title: "Zava Suites Graca Rooftop",
+  brand: "Zava Suites",
   price: 268.0,
   currency: "USD",
   rating: 4.7,
@@ -63,7 +63,7 @@ const ROOFTOP_SUITES: Product = {
 const FADO_WALK: Product = {
   product_id: "AL-EXP-301",
   title: "Alfama at Dusk: Fado & Petiscos Evening Walk",
-  brand: "ACME Tours",
+  brand: "Zava Tours",
   price: 86.0,
   currency: "USD",
   rating: 4.8,
@@ -86,7 +86,7 @@ const FADO_WALK: Product = {
 const TILE_WORKSHOP: Product = {
   product_id: "AL-EXP-302",
   title: "Hands-On Azulejo Tile-Painting Workshop",
-  brand: "ACME Tours",
+  brand: "Zava Tours",
   price: 54.0,
   currency: "USD",
   rating: 4.7,
@@ -108,7 +108,7 @@ const TILE_WORKSHOP: Product = {
 const SINTRA_TRIP: Product = {
   product_id: "AL-EXP-303",
   title: "Sintra Palaces & Wild Coast Day Trip",
-  brand: "ACME Tours",
+  brand: "Zava Tours",
   price: 118.0,
   currency: "USD",
   rating: 4.6,
@@ -131,7 +131,7 @@ const SINTRA_TRIP: Product = {
 const FLIGHT_ECONOMY: Product = {
   product_id: "AL-FLT-201",
   title: "New York to Lisbon Nonstop — Economy",
-  brand: "ACME Air Atlantic",
+  brand: "Zava Air Atlantic",
   price: 498.0,
   currency: "USD",
   rating: 4.3,
@@ -149,13 +149,13 @@ const FLIGHT_ECONOMY: Product = {
   },
   in_stock: true,
   short_description:
-    "ACME Air Atlantic's evening nonstop to Lisbon — leave after work, land with the whole morning ahead.",
+    "Zava Air Atlantic's evening nonstop to Lisbon — leave after work, land with the whole morning ahead.",
 };
 
 const FLIGHT_PREMIUM: Product = {
   product_id: "AL-FLT-202",
   title: "New York to Lisbon Nonstop — Premium Economy",
-  brand: "ACME Air Atlantic",
+  brand: "Zava Air Atlantic",
   price: 1120.0,
   currency: "USD",
   rating: 4.6,
@@ -280,7 +280,7 @@ export const SHOWCASE = {
   },
 
   checkout: {
-    note: "Three nights at ACME Guesthouses, a Sintra day, and a fado evening for two — confirmation lands by email within a minute of booking.",
+    note: "Three nights at Zava Guesthouses, a Sintra day, and a fado evening for two — confirmation lands by email within a minute of booking.",
     fulfillment_method: "delivery" as const,
     cart: {
       items: [
@@ -315,7 +315,7 @@ export const SHOWCASE = {
   order_status: {
     order_id: "AL-30418",
     summary:
-      "Your Kyoto trip is processing — the flight is ticketed and ACME Ryokan is confirming your three nights now. Everything lands in one email when it clears.",
+      "Your Kyoto trip is processing — the flight is ticketed and Zava Ryokan is confirming your three nights now. Everything lands in one email when it clears.",
     next_step: "No action needed; confirmation usually clears within a few hours.",
     order: {
       order_id: "AL-30418",
@@ -323,7 +323,7 @@ export const SHOWCASE = {
       placed_at: "2026-05-30T22:41:00Z",
       items: [
         { product_id: "AL-FLT-204", title: "San Francisco to Kyoto — Economy, One Stop", quantity: 1, price: 812.0 },
-        { product_id: "AL-STAY-108", title: "ACME Ryokan Higashiyama Annex", quantity: 3, price: 358.0 },
+        { product_id: "AL-STAY-108", title: "Zava Ryokan Higashiyama Annex", quantity: 3, price: 358.0 },
       ],
       total: 1886.0,
       currency: "USD",

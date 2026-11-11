@@ -1,12 +1,12 @@
-# ACME merchant agent: Managed Agent manifest source. scripts/deploy_managed_agent.sh resolves
+# Zava merchant agent: Managed Agent manifest source. scripts/deploy_managed_agent.sh resolves
 # it into a POST /v1/agents body: `system_file` is inlined, each `skills[].path` is uploaded through
 # the Skills API and replaced with its skill_id, and ${VAR} placeholders come from the
 # environment. Everything else maps onto Agents API fields as written.
 
-name: ACME Merchant Agent
+name: Zava Merchant Agent
 model: claude-opus-5
 description: >-
-  Merchant agent for the fictional ACME store's back office: performance insights,
+  Merchant agent for the fictional Zava store's back office: performance insights,
   catalog and inventory operations, pricing and promotions, and campaign drafting, with
   every write staged for the operator's approval and the UI rendered by the host portal
   from presentation tool calls.

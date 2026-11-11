@@ -20,7 +20,7 @@ from merchant_agent_sdk import (
 
 @pytest.fixture
 def toolset() -> MerchantToolset:
-    """A toolset bound to a fresh mock ACME merchant backend and an empty session."""
+    """A toolset bound to a fresh mock Zava merchant backend and an empty session."""
     # The host-approval mode has its own tests.
     config = default_config().model_copy(update={"require_host_approval": False})
     return MerchantToolset(backend=load_mock_backend(), config=config)

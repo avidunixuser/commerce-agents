@@ -1,6 +1,6 @@
 {
   "_comment": "Every event_date, on_sale_date, and week_start moves with catalog.json's dates_anchored_to at load time (api/mock_merchant.py). Author the book as if that day were today.",
-  "promoter": "ACME Tickets \u2014 venue portfolio",
+  "promoter": "Zava Tickets \u2014 venue portfolio",
   "baselines": {
     "amphitheater": [
       [

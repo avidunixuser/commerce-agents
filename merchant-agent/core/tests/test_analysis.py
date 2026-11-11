@@ -91,7 +91,7 @@ def test_report_progress_tool_schema():
 
 
 def test_analysis_prompt_carries_the_progress_and_submit_rule():
-    prompt = build_analysis_system_prompt(MerchantAgentConfig(brand_name="ACME"))
+    prompt = build_analysis_system_prompt(MerchantAgentConfig(brand_name="Zava"))
     assert REPORT_PROGRESS_TOOL in prompt
     assert SUBMIT_ANALYSIS_TOOL in prompt
 

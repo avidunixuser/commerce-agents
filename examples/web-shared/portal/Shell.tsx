@@ -21,6 +21,7 @@ export interface PortalNavItem<V extends string> {
 interface PortalBrand {
   /** The store's mark: a small tile the vertical draws itself. */
   mark: ReactNode;
+  logo?: ReactNode;
   name: string;
   detail: string;
 }
@@ -60,9 +61,9 @@ export function PortalShell<V extends string>({
       <div className="flex min-h-0 flex-1">
       <aside className="hidden w-16 shrink-0 flex-col border-r border-(--line) bg-(--chrome) px-2 py-3.5 lg:flex xl:w-[220px] xl:px-3">
         <div className="flex items-center gap-2.5 px-1 pb-4 xl:px-2">
-          {brand.mark}
+          <div className={brand.logo ? "xl:hidden" : ""}>{brand.mark}</div>
           <div className="hidden min-w-0 xl:block">
-            <div className="truncate text-[14px] font-semibold leading-tight">{brand.name}</div>
+            {brand.logo ?? <div className="truncate text-[14px] font-semibold leading-tight">{brand.name}</div>}
             <div className="truncate text-[12px] text-(--ink-soft)">{brand.detail}</div>
           </div>
         </div>

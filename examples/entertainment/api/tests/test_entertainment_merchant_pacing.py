@@ -22,7 +22,7 @@ async def test_enrichment_fills_the_panel_from_the_live_engine(merchant_executor
 
     headliner = payload["events"][0]
     assert headliner["event_name"] == "The Headliner — Summer Tour"
-    assert headliner["venue"] == "ACME Amphitheater"
+    assert headliner["venue"] == "Zava Amphitheater"
     assert headliner["city"] == "Springfield"
     assert headliner["event_date"] == "2026-08-14"
     assert headliner["on_sale_date"] == "2026-05-08"

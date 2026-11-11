@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME Mobile deployment's two agent configs."""
+"""The Zava Mobile deployment's two agent configs."""
 
 from __future__ import annotations
 
@@ -66,8 +66,8 @@ _PROTECTED_FIELDS = (
 
 def build_shopping_config() -> ShoppingAgentConfig:
     return ShoppingAgentConfig(
-        brand_name="ACME Mobile",
-        assistant_name="ACME Assistant",
+        brand_name="Zava Mobile",
+        assistant_name="Zava Assistant",
         brand_voice=(
             "plainspoken and precise — explains the bill like a good engineer, allergic to "
             "fine-print surprises"

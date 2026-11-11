@@ -6,8 +6,8 @@ import "web-shared/retail-fonts.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ACME Merchant",
-  description: "The ACME back office, an example for the merchant agent.",
+  title: "Zava Merchant",
+  description: "The Zava back office, an example for the merchant agent.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

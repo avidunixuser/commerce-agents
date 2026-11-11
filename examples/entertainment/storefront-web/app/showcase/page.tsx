@@ -53,7 +53,7 @@ export default function ShowcasePage() {
   return (
     <main className="relative z-[2] mx-auto max-w-2xl px-6 py-14">
       <p className="at-stub-caption">
-        <b>●</b> ACME Tickets component showcase (fixture data)
+        <b>●</b> Zava Tickets component showcase (fixture data)
       </p>
       {SECTIONS.map((name) => (
         <Section key={name} name={name}>

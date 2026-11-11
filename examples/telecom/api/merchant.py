@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME Mobile commercial-ops router: the shared portal routes over
+"""The Zava Mobile commercial-ops router: the shared portal routes over
 ``MockTelecomMerchant``, the ``present_plan_mix`` extension, and the portal's
 subscriber-base read."""
 
@@ -18,7 +18,7 @@ from .mock_merchant import MockTelecomMerchant
 from .mock_telecom import MockTelecom
 from .plan_mix import build_plan_mix_extension
 
-IDENTITY = MerchantIdentity(merchant_id="acme-mobile", operator="Sam")
+IDENTITY = MerchantIdentity(merchant_id="zava-mobile", operator="Sam")
 
 
 def create_merchant_router(storefront: MockTelecom, memory_store: MemoryStore) -> APIRouter:

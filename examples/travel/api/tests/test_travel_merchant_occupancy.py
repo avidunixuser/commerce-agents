@@ -23,7 +23,7 @@ async def test_enrichment_fills_the_calendar_from_backend_data(merchant_executor
     assert [row["listing_id"] for row in payload["listings"]] == ["AL-STAY-103", "AL-STAY-110"]
 
     baixa = payload["listings"][0]
-    assert baixa["title"] == "ACME Guesthouses Baixa"
+    assert baixa["title"] == "Zava Guesthouses Baixa"
     assert baixa["base_nightly_rate"] == 126.0
     assert baixa["note"] == "Midweek pacing is the gap here."
     assert baixa["weeks"]

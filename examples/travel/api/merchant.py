@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME Travel supplier router: the shared portal routes over ``MockTravelMerchant``,
+"""The Zava Travel supplier router: the shared portal routes over ``MockTravelMerchant``,
 the ``present_occupancy_calendar`` extension, and the portal's occupancy read."""
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ from .mock_merchant import MockTravelMerchant
 from .mock_travel import MockTravel
 from .occupancy import build_occupancy_extension
 
-IDENTITY = MerchantIdentity(merchant_id="acme-travel", operator="Marta")
+IDENTITY = MerchantIdentity(merchant_id="zava-travel", operator="Marta")
 
 
 def create_merchant_router(storefront: MockTravel, memory_store: MemoryStore) -> APIRouter:

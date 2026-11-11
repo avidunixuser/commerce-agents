@@ -7,7 +7,7 @@ import type { ChangePreviewPayload, OccupancyCalendarPayload } from "./types";
 
 const change_preview: ChangePreviewPayload = {
   change_id: "chg-9107",
-  headline: "Midweek rate ease — ACME Guesthouses Condesa",
+  headline: "Midweek rate ease — Zava Guesthouses Condesa",
   note: "Eases Mon–Thu nights from $204.00 to $183.60 a night for Oct 5–30; weekend rates hold.",
   change: {
     change_id: "chg-9107",
@@ -27,13 +27,13 @@ const change_preview: ChangePreviewPayload = {
 };
 
 const occupancy_calendar: OccupancyCalendarPayload = {
-  title: "ACME Guesthouses Condesa — late-summer occupancy",
+  title: "Zava Guesthouses Condesa — late-summer occupancy",
   period: "2026-07-27/2026-08-09",
   grain: "week",
   listings: [
     {
       listing_id: "AL-STAY-110",
-      title: "ACME Guesthouses Condesa",
+      title: "Zava Guesthouses Condesa",
       rooms: 10,
       base_nightly_rate: 204.0,
       note: "Weekends run full at 204/night; midweek dips are where a targeted ease earns bookings.",

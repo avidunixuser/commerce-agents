@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""The ACME retail merchant router: the shared portal routes over ``MockRetailMerchant``,
+"""The Zava retail merchant router: the shared portal routes over ``MockRetailMerchant``,
 plus the KPI trends and insight cards the retail portal's home page shows."""
 
 from __future__ import annotations
@@ -16,7 +16,7 @@ from .agent_config import build_merchant_config
 from .mock_merchant import MockRetailMerchant
 from .mock_retail import MockRetail
 
-IDENTITY = MerchantIdentity(merchant_id="acme-retail", operator="Avery")
+IDENTITY = MerchantIdentity(merchant_id="zava-retail", operator="Avery")
 
 
 def create_merchant_router(storefront: MockRetail, memory_store: MemoryStore) -> APIRouter:

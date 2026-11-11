@@ -397,7 +397,7 @@ async def test_real_host_migration_waits_for_worker_and_customer_facts_win(stack
             ],
         )
         headers = {**await stack.headers(), "X-Session-Id": guest_session["session_id"]}
-        for key, value in (("shoe_size", "9"), ("preferred_brand", "Acme")):
+        for key, value in (("shoe_size", "9"), ("preferred_brand", "Zava")):
             response = await stack.browser.patch(
                 "/api/memory", headers=headers, json={"key": key, "value": value}
             )
@@ -449,5 +449,5 @@ async def test_real_host_migration_waits_for_worker_and_customer_facts_win(stack
         assert response.status_code == 200, response.text
         facts = {fact["key"]: fact["value"] for fact in response.json()["facts"]}
         assert facts["shoe_size"] == "10"
-        assert facts["preferred_brand"] == "Acme"
+        assert facts["preferred_brand"] == "Zava"
     await stack.transport.aclose()

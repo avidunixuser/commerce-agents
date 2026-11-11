@@ -22,7 +22,7 @@ def config():
         "tenantId": "22222222-2222-4222-8222-222222222222",
         "resourceGroup": "validation",
         "location": "swedencentral",
-        "name": "acmedemo",
+        "name": "zavademo",
         "vnetName": "existing-vnet",
         "subnetPrefix": "10.80.8.0/23",
         "endpointSubnetPrefix": "10.80.5.0/24",
@@ -43,6 +43,11 @@ def config():
         "operatorObjectId": "44444444-4444-4444-8444-444444444444",
         "privateAccessCidrs": ["10.80.0.0/16"],
     }
+
+
+class IdentityBrandingTests(unittest.TestCase):
+    def test_branding_keeps_the_existing_oauth_scope_id(self):
+        self.assertEqual(SCOPE_ID, "e4cd0562-8efc-5d95-818c-81f3c1a9d935")
 
 
 def manifest():
@@ -200,7 +205,7 @@ class DemoTests(unittest.TestCase):
             ("subnetPrefix", "10.80.5.0/24"),
             ("subnetPrefix", "10.80.8.0/28"),
             ("dnsProxyAddress", "8.8.8.8"),
-            ("privateEnvironmentName", "acmedemo-shopper"),
+            ("privateEnvironmentName", "zavademo-shopper"),
             ("COMMERCE_MODE", "production"),
         ):
             with self.subTest(key=key):

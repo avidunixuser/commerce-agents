@@ -32,7 +32,7 @@ const ACCOUNT: AccountContext = {
   },
   device: {
     product_id: "AM-DEV-201",
-    name: "ACME Phone 4",
+    name: "Zava Phone 4",
     installments_remaining: 1,
     installment_usd: 29.13,
   },
@@ -43,7 +43,7 @@ const ACCOUNT: AccountContext = {
       "month 23 of 24; early upgrade available with a qualifying trade-in; outright upgrade on 2026-08-14",
   },
   trade_in_estimate: {
-    device: "ACME Phone 4",
+    device: "Zava Phone 4",
     tier: "B",
     estimated_credit_usd: 200,
     condition_assumption:
@@ -64,7 +64,7 @@ const ACCOUNT: AccountContext = {
 const PLAN_102: Product = {
   product_id: "AM-PLAN-102",
   title: "Plus 15GB",
-  brand: "ACME Mobile",
+  brand: "Zava Mobile",
   price: 50.0,
   currency: "USD",
   rating: 4.4,
@@ -89,7 +89,7 @@ const PLAN_102: Product = {
 const PLAN_103: Product = {
   product_id: "AM-PLAN-103",
   title: "Unlimited",
-  brand: "ACME Mobile",
+  brand: "Zava Mobile",
   price: 65.0,
   currency: "USD",
   rating: 4.6,
@@ -108,13 +108,13 @@ const PLAN_103: Product = {
   },
   in_stock: true,
   short_description:
-    "Unlimited data with 25GB of hotspot and a 3-year price guarantee — the plan most ACME Mobile customers land on.",
+    "Unlimited data with 25GB of hotspot and a 3-year price guarantee — the plan most Zava Mobile customers land on.",
 };
 
 const PLAN_104: Product = {
   product_id: "AM-PLAN-104",
   title: "Unlimited Plus",
-  brand: "ACME Mobile",
+  brand: "Zava Mobile",
   price: 85.0,
   currency: "USD",
   rating: 4.7,
@@ -133,13 +133,13 @@ const PLAN_104: Product = {
   },
   in_stock: true,
   short_description:
-    "Everything turned up: premium network priority, 60GB hotspot, 4K streaming, 90+ country roaming, and ACME Streaming on us.",
+    "Everything turned up: premium network priority, 60GB hotspot, 4K streaming, 90+ country roaming, and Zava Streaming on us.",
 };
 
 const DEV_202: Product = {
   product_id: "AM-DEV-202",
-  title: "ACME Phone 5",
-  brand: "ACME",
+  title: "Zava Phone 5",
+  brand: "Zava",
   price: 949.0,
   currency: "USD",
   rating: 4.7,
@@ -157,13 +157,13 @@ const DEV_202: Product = {
   },
   in_stock: true,
   short_description:
-    "The new Phone: bigger cover screen, two more hours of battery than anything ACME has made, same pocketability.",
+    "The new Phone: bigger cover screen, two more hours of battery than anything Zava has made, same pocketability.",
 };
 
 const DEV_203: Product = {
   product_id: "AM-DEV-203",
-  title: "ACME Phone 5 Pro",
-  brand: "ACME",
+  title: "Zava Phone 5 Pro",
+  brand: "Zava",
   price: 1099.0,
   currency: "USD",
   rating: 4.8,
@@ -180,14 +180,14 @@ const DEV_203: Product = {
   },
   in_stock: true,
   short_description:
-    "ACME's slab flagship: the best camera system in the lineup and a battery that ignores the day.",
+    "Zava's slab flagship: the best camera system in the lineup and a battery that ignores the day.",
   options: { storage: ["256 GB", "512 GB"], color: ["graphite", "glacier"] },
 };
 
 const DEV_204: Product = {
   product_id: "AM-DEV-204",
-  title: "ACME Phone 5 Lite",
-  brand: "ACME",
+  title: "Zava Phone 5 Lite",
+  brand: "Zava",
   price: 799.0,
   currency: "USD",
   rating: 4.5,
@@ -210,8 +210,8 @@ const DEV_204: Product = {
 
 const DEV_206: Product = {
   product_id: "AM-DEV-206",
-  title: "ACME Phone 3",
-  brand: "ACME",
+  title: "Zava Phone 3",
+  brand: "Zava",
   price: 249.0,
   currency: "USD",
   rating: 4.2,
@@ -282,7 +282,7 @@ const disclosure_plan: DisclosurePayload = {
     {
       label: "Additional monthly fees",
       value: "$1.45/line Network Compliance Surcharge",
-      note: "an ACME Mobile charge, not a government tax; taxes vary by location",
+      note: "an Zava Mobile charge, not a government tax; taxes vary by location",
     },
     { label: "One-time fees", value: "$35 activation, waived online" },
     { label: "Early termination fee", value: "$0" },
@@ -297,7 +297,7 @@ const disclosure_plan: DisclosurePayload = {
     {
       label: "Estimated all-in",
       value: "$36.45/mo",
-      note: "plan + ACME surcharge, before location taxes",
+      note: "plan + Zava surcharge, before location taxes",
     },
   ],
   sources: [
@@ -320,7 +320,7 @@ const disclosure: DisclosurePayload = {
     {
       label: "Additional monthly fees",
       value: "$1.45/line Network Compliance Surcharge",
-      note: "an ACME Mobile charge, not a government tax; taxes vary by location",
+      note: "an Zava Mobile charge, not a government tax; taxes vary by location",
     },
     { label: "One-time fees", value: "$35 activation, waived online" },
     { label: "Early termination fee", value: "$0" },
@@ -337,7 +337,7 @@ const disclosure: DisclosurePayload = {
     {
       label: "Estimated all-in",
       value: "$71.45/mo",
-      note: "plan + ACME surcharge, before location taxes",
+      note: "plan + Zava surcharge, before location taxes",
     },
   ],
   sources: [
@@ -364,7 +364,7 @@ const products: ProductsPayload = {
 };
 
 const comparison: ComparisonPayload = {
-  title: "Phone 5 vs Phone 5 Pro vs ACME Phone 5 Lite",
+  title: "Phone 5 vs Phone 5 Pro vs Zava Phone 5 Lite",
   entries: [
     {
       product_id: "AM-DEV-202",
@@ -396,7 +396,7 @@ const guide: GuidePayload = {
   sections: [
     {
       heading: "You're eligible now",
-      body: "You're in month 23 of 24 on the ACME Phone 4 agreement — early upgrade is open now with a qualifying trade-in. Outright upgrade (no trade-in needed) unlocks next month.",
+      body: "You're in month 23 of 24 on the Zava Phone 4 agreement — early upgrade is open now with a qualifying trade-in. Outright upgrade (no trade-in needed) unlocks next month.",
     },
     {
       heading: "What the trade-in gets you",
@@ -404,7 +404,7 @@ const guide: GuidePayload = {
     },
     {
       heading: "The fine print that matters",
-      body: "Trade-in must power on with an intact screen and activation lock removed. Leave ACME Mobile before the 24 credits finish and the remainder is forfeited.",
+      body: "Trade-in must power on with an intact screen and activation lock removed. Leave Zava Mobile before the 24 credits finish and the remainder is forfeited.",
     },
   ],
   related_products: [DEV_202],
@@ -417,7 +417,7 @@ const checkout: CheckoutPayload = {
   cart: {
     items: [
       { product_id: "AM-PLAN-103", title: "Unlimited", price: 65.0, quantity: 1, line_total: 65.0 },
-      { product_id: "AM-DEV-202", title: "ACME Phone 5", price: 949.0, quantity: 1, line_total: 949.0 },
+      { product_id: "AM-DEV-202", title: "Zava Phone 5", price: 949.0, quantity: 1, line_total: 949.0 },
       { product_id: "AM-ADD-401", title: "Data Top-Up 5GB", price: 10.0, quantity: 1, line_total: 10.0 },
     ],
     item_count: 3,

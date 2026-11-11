@@ -66,7 +66,7 @@ async def test_storefront_oos_products_are_not_active_in_the_portal(merchant, op
 
 def test_boot_rejects_a_catalog_vs_overlay_stock_contradiction(backend):
     with pytest.raises(ValueError, match="AR-1207"):
-        broken = MockRetailMerchant(backend, MerchantAgentConfig(brand_name="ACME"))
+        broken = MockRetailMerchant(backend, MerchantAgentConfig(brand_name="Zava"))
         broken._inventory["AR-1207"].pop("status")
         broken._assert_storefront_consistency()
 
@@ -130,7 +130,7 @@ async def test_listing_update_apply_fixes_content_quality(merchant, backend, ope
 
 async def test_merchant_context_reports_alert_counts(merchant, operator_session):
     context = await merchant.get_merchant_context(operator_session)
-    assert context["store"] == "ACME"
+    assert context["store"] == "Zava"
     assert context["alerts"]["low_stock"] >= 2
 
 

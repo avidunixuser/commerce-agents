@@ -98,7 +98,7 @@ export function TextBones() {
 
 export function ComponentBones({ component }: { component: string }) {
   return (
-    <div className="at-card overflow-hidden p-4 sm:p-5" aria-label="ACME Assistant is working">
+    <div className="at-card overflow-hidden p-4 sm:p-5" aria-label="Zava Assistant is working">
       <Bones component={component} />
     </div>
   );

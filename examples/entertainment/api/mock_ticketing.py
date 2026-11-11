@@ -556,7 +556,7 @@ class MockTicketing(StorefrontBackend):
         return [
             FulfillmentOption(
                 method="delivery",
-                eta="instant; mobile tickets land in your ACME Tickets wallet at purchase",
+                eta="instant; mobile tickets land in your Zava Tickets wallet at purchase",
                 fee=0.0,
             ),
             FulfillmentOption(

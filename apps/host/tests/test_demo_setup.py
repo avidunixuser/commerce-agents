@@ -37,21 +37,21 @@ class Secrets:
 
 def test_setup_writes_only_namespaced_secrets_and_persists_no_key_material():
     container, vault = Container(), Secrets()
-    names = initialize(container, vault, "acmedemo", "configured-oidc-secret")
+    names = initialize(container, vault, "zavademo", "configured-oidc-secret")
     assert len(names) == len(vault.writes) == 5
-    assert all(name.startswith("acmedemo-") for name in names)
+    assert all(name.startswith("zavademo-") for name in names)
     assert container.lock["state"] == "complete"
     assert "value" not in container.lock
     assert "configured-oidc-secret" not in str(container.lock)
-    assert all(item["tags"] == {"commerce-demo": "acmedemo"} for item in vault.values.values())
+    assert all(item["tags"] == {"commerce-demo": "zavademo"} for item in vault.values.values())
 
 
 def test_second_execution_cannot_rotate_or_overwrite_keys():
     container, vault = Container(), Secrets()
-    initialize(container, vault, "acmedemo", "configured-oidc-secret")
+    initialize(container, vault, "zavademo", "configured-oidc-secret")
     before = copy.deepcopy(vault.values)
     with pytest.raises(SetupError, match="already recorded"):
-        initialize(container, vault, "acmedemo", "different-secret")
+        initialize(container, vault, "zavademo", "different-secret")
     assert vault.values == before and len(vault.writes) == 5
 
 
@@ -59,27 +59,27 @@ def test_second_execution_cannot_rotate_or_overwrite_keys():
 def test_partial_failure_retains_the_fence_and_never_reports_complete(kind):
     container, vault = Container(), Secrets()
     suffix = "shopping-signing-key" if kind == "invalid-signing" else "oidc-client-secret"
-    vault.values["acmedemo-" + suffix] = {
-        "tags": {"commerce-demo": "not-ours" if kind == "unowned" else "acmedemo"},
+    vault.values["zavademo-" + suffix] = {
+        "tags": {"commerce-demo": "not-ours" if kind == "unowned" else "zavademo"},
         "value": "different-secret" if kind == "changed-oidc" else "invalid",
     }
     with pytest.raises((SetupError, ValueError)):
-        initialize(container, vault, "acmedemo", "configured-oidc-secret")
+        initialize(container, vault, "zavademo", "configured-oidc-secret")
     assert container.lock["state"] == "running"
     with pytest.raises(SetupError, match="already recorded"):
-        initialize(container, vault, "acmedemo", "configured-oidc-secret")
+        initialize(container, vault, "zavademo", "configured-oidc-secret")
 
 
 def test_existing_owned_signing_key_is_not_rotated_during_reconciled_setup():
     container, vault = Container(), Secrets()
     value = signing_key()
-    vault.values["acmedemo-shopping-signing-key"] = {
-        "tags": {"commerce-demo": "acmedemo"},
+    vault.values["zavademo-shopping-signing-key"] = {
+        "tags": {"commerce-demo": "zavademo"},
         "value": value,
     }
-    initialize(container, vault, "acmedemo", "configured-oidc-secret")
-    assert vault.values["acmedemo-shopping-signing-key"]["value"] == value
-    assert "acmedemo-shopping-signing-key" not in vault.writes
+    initialize(container, vault, "zavademo", "configured-oidc-secret")
+    assert vault.values["zavademo-shopping-signing-key"]["value"] == value
+    assert "zavademo-shopping-signing-key" not in vault.writes
 
 
 @pytest.mark.parametrize(
@@ -105,7 +105,7 @@ def test_bearer_credential_cannot_follow_http_redirect():
 
 
 @pytest.mark.parametrize(
-    "prefix,secret", [("../another", "configured"), ("acmedemo", ""), ("x" * 21, "configured")]
+    "prefix,secret", [("../another", "configured"), ("zavademo", ""), ("x" * 21, "configured")]
 )
 def test_invalid_input_never_reserves_a_setup_lock(prefix, secret):
     container = Container()

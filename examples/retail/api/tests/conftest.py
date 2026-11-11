@@ -23,7 +23,7 @@ def make_storefront():
 
 @pytest.fixture
 def merchant(backend) -> MockRetailMerchant:
-    return MockRetailMerchant(backend, build_merchant_config("ACME"))
+    return MockRetailMerchant(backend, build_merchant_config("Zava"))
 
 
 @pytest.fixture(scope="session")

@@ -177,7 +177,7 @@ export default function NightPanel() {
         <>
           No seats held yet.
           <br />
-          Ask ACME Assistant to hold seats for 8 minutes while you decide.
+          Ask Zava Assistant to hold seats for 8 minutes while you decide.
         </>
       }
       footer={
