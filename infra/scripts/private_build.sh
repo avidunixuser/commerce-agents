@@ -15,7 +15,7 @@ patterns = {
     "registry_name": r"[a-z0-9]{5,50}", "location": r"[a-z]+[0-9]*",
     "builder_client_id": r"[0-9a-f-]{36}", "subscription_id": r"[0-9a-f-]{36}",
     "tenant_id": r"[0-9a-f-]{36}", "private_endpoint_cidr": r"[0-9./]+",
-    "mode": r"smoke|all",
+    "mode": r"smoke|retail-storefront|all",
 }
 assert set(c) == set(patterns), "unexpected remote configuration"
 assert all(isinstance(c[k], str) and re.fullmatch(p, c[k]) for k,p in patterns.items())
@@ -92,7 +92,11 @@ build_image() {
     python3 -c 'import json,sys; p="/run/commerce-digests.json"; a=json.load(sys.stdin); prefix=sys.argv[2]+"@"; d=[x.split("@",1)[1] for x in a if x.startswith(prefix)]; assert len(d)==1; data=json.load(open(p)); data[sys.argv[1]]=d[0]; open(p,"w").write(json.dumps(data,separators=(",",":")))' \
       "$image" "${REGISTRY}/commerce/${image}"
 }
-build_image gateway Dockerfile.gateway
+if [ "$MODE" = retail-storefront ]; then
+  build_image retail-storefront-web Dockerfile.web --build-arg VERTICAL=retail --build-arg WEB_APP=storefront-web
+else
+  build_image gateway Dockerfile.gateway
+fi
 if [ "$MODE" = all ]; then
   build_image api Dockerfile.api
   for vertical in retail travel telecom entertainment; do

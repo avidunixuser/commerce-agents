@@ -100,8 +100,8 @@ export function StoreShell<V extends string>({
     [home, onPanelOpenChange, onViewChange, send],
   );
   const frame = useMemo(
-    () => ({ chat, assistantName, ask, closePanel }),
-    [chat, assistantName, ask, closePanel],
+    () => ({ chat, assistantName, ask, closePanel, catalogSession: api.session }),
+    [chat, assistantName, ask, closePanel, api.session],
   );
 
   // The drawer takes focus when it opens, gives it back when it closes, and closes on Escape.

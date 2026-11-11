@@ -52,7 +52,7 @@ function Storefront({ profile, onSwitchProfile }: { profile: Profile; onSwitchPr
   const [view, setView] = useState<View>("assistant");
   const [cart, setCart] = useState<CartPayload | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
-  const catalog = useCatalogIndex(fetchProducts);
+  const catalog = useCatalogIndex(fetchProducts, session.sessionId);
 
   const onEvent = useCallback((event: AgentEvent) => {
     if (event.type === "cart_update") setCart(event.data.cart as CartPayload);

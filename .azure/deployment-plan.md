@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Deployed - retail shopper live with two-turn browser acceptance; residual UI warning and private merchant interactive checks remain.**
+**Status: Approved - shared catalog startup repair and one retail-storefront-only protected build; deployed shopper remains operator-protected.**
 
 ## Current deployment request
 
@@ -839,6 +839,39 @@ output. Private merchant browser sign-in/approval has not been exercised, and
 the exact operator allowlist is configuration-verified rather than tested with
 a second account. No VPN or public merchant exposure was added. These remain
 explicit acceptance limitations, not reasons to weaken access control.
+
+### Session-bound catalog repair
+
+The user identified the failed request in their normal browser:
+`GET /api/products?limit=100`. A direct signed-in request without a conversation
+session reproduces 403 with `Access denied`. Catalog components mount before
+session initialization, and the shared hook caches the failed response as
+an empty catalog for the page lifetime. Do not remove the backend's
+principal/session binding to accommodate that race.
+
+The user approved a shared-hook fix and one `retail-storefront` protected build
+and shopper-web image-only redeployment. The shared frame supplies its committed
+session to catalog consumers, the telecom page supplies its session explicitly,
+cache entries are bound to that session, and failed reads are evicted. Local
+unbound showcases remain supported. Add the exact bounded image choice to
+the existing workflow/controller and remote selector; retain the normal
+review gate, fixed source, identities, private network and cleanup contract.
+Do not rebuild gateways, APIs or other frontends for this rollout.
+
+- [x] Pass catalog race/cache/session-change regressions and affected web builds.
+- [x] Pass targeted build selection and manifest-cardinality checks.
+- [ ] Publish source and merge only after exact-head CI.
+- [ ] Validate the unchanged disposable VM plan and protected configuration.
+- [ ] Run the single approved normally reviewed retail storefront build.
+- [ ] Verify its exact digest/source and independent compute cleanup.
+- [ ] Validate and deploy exactly the shopper-web image change.
+- [ ] Verify normal-browser catalog startup has no 403 and retains streamed chat.
+
+Local validation passed: the shared web test command covers 23 cases, including
+six catalog regressions. Retail and telecom production Next.js builds completed
+with TypeScript checking. The private-build unittest command passed 27 cases
+with two Linux-only checks deferred to CI. `scripts/check.py` and focused Ruff
+checks passed. This is source validation, not live release authorization proof.
 
 - [ ] All gateway repair validation checks pass.
   - [x] Declare the async HTTP transport in gateway package dependencies, retaining the existing release constraint.

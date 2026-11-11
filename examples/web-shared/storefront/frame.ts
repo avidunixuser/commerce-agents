@@ -14,6 +14,7 @@ import type { AgentTurn } from "../turn";
  */
 export interface StoreFrame {
   chat: AgentTurn | null;
+  catalogSession?: string | null;
   assistantName: string;
   ask: (message: string) => void;
   closePanel: () => void;
