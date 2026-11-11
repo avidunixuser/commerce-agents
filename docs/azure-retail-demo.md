@@ -193,6 +193,12 @@ JWKS exceptions before enabling public ingress. An existing public gateway
 whose policy differs must be closed before policy changes. Do not expose it
 first and repair access control afterward.
 
+The gateway sends `Referrer-Policy: same-origin`. Same-origin browser requests
+retain the referrer required by platform authentication's CSRF checks;
+cross-origin requests send no referrer. Keep both platform CSRF protection and
+the gateway's exact-origin and session-token checks enabled. A signed-in page
+alone is not acceptance: verify that its normal session-creation POST succeeds.
+
 Verify private image pull, vault references, Cosmos reads and worker health,
 real model inference, unauthenticated/unauthorized rejection, sign-in, a sample
 conversation, streaming and persisted session state. Verify merchant isolation

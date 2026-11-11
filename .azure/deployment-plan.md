@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Ready for Validation - gateway dependency repair and one approved protected gateway-only rebuild; public shopper ingress remains excluded.**
+**Status: Approved - same-origin referrer repair and one additional protected gateway-only build; end-to-end acceptance blocked.**
 
 ## Current deployment request
 
@@ -27,10 +27,14 @@ All six exact secret-scoped runtime reader grants are deployed and verified.
 All six application resources are deployed, with public shopper ingress closed.
 Both role APIs pass local readiness, reject missing/invalid authentication and
 complete real private Azure OpenAI inference using their separate managed
-identities. Both gateway application containers fail at startup because their
-image omits the async Azure SDK transport dependency `aiohttp`. ARM deployment
-success and `latestReadyRevisionName` did not establish container health.
-The portals and end-to-end flows are not accepted.
+identities. Both gateway application containers initially failed because their image
+omitted the async Azure SDK transport dependency `aiohttp`. The accepted repair
+image is now deployed to both gateways. Actual latest-revision application
+containers and the shopper authentication sidecar are ready, started and
+running. Private HTTP checks pass for Cosmos/OIDC/API readiness, public-key
+discovery, frontend availability, missing-identity rejection and wrong-role
+route rejection. Public exposure and interactive end-to-end flows are not yet
+accepted.
 
 The user approved one additional protected gateway-only build using the existing
 workflow's `smoke` mode and normal environment review. Add the missing declared
@@ -238,8 +242,8 @@ Do not leave the build VM or setup permissions running after their bounded work.
 - [x] Verify both role APIs, auth rejection and real managed-identity model inference.
 - [x] Obtain approval for one protected gateway-only repair build and two-gateway update.
 - [x] Repair gateway dependencies and verify focused regression coverage.
-- [ ] Publish the gateway repair through normal exact-head CI and merge.
-- [ ] Validate and complete the protected repair build, digest acceptance and cleanup.
+- [x] Publish the gateway repair through normal exact-head CI and merge.
+- [x] Validate and complete the single protected repair build, digest acceptance and independent cleanup.
 - [ ] Validate and update only the two gateways with public shopper ingress closed.
 - [ ] Complete application verification and separately validate public shopper ingress.
 - [ ] Complete interactive sign-in, conversation, streaming and persistence acceptance.
@@ -634,13 +638,135 @@ worked. SDK HTTP 400 observations alone were not an established Cosmos failure.
 
 ### Gateway repair validation
 
+- [x] All protected gateway-only build validation checks pass.
+  - [x] The repair is merged through PR #12 after all fourteen expected exact-head checks pass, including the actual gateway Docker build and offline async transport construction.
+  - [x] The merged main revision has the identical tested tree; source and Docker inputs are unchanged from the successful PR checks.
+  - [x] `az bicep build --file infra/private-build/vm.bicep` succeeds for the unchanged runner template.
+  - [x] `az deployment group validate --validation-level Provider` succeeds for the separate build resource group.
+  - [x] `az deployment group what-if --validation-level Provider --no-pretty-print` and the strict local guard allow only the two exact fresh private VM/NIC creates, with no public IP, permission change, diagnostics or other modification.
+  - [x] Protected nonsecret build configuration matches the previously accepted runtime binding. Required reviewer and main-only environment policies remain in force; no review bypass or automatic build retry is authorized.
+  - [x] Static runner template review confirms the existing scoped builder identity, private subnet/NSG, exact platform image, no new role assignments and exact owned-resource cleanup.
+
+This validation authorizes the single approved protected `smoke` build only.
+The workflow repeats provider validation and strict preview against its actual
+run-specific VM/NIC before provisioning. Normal environment review is still
+required. The two-gateway image rollout needs a separate digest-bound preview
+after the build and cleanup pass. Gateway health remains a known failed
+acceptance gate, not a passed precondition inferred from ARM.
+
+The one approved protected build succeeded after the user's exact-run normal
+environment review. Its manifest contains only the gateway image from the
+merged repair source. Fresh ARM reads independently verify the owned VM, NIC
+and OS disk absent, and no resource with the run's generation or owned name
+remains. No additional build or retry was used.
+
+### Two-gateway image-only repair validation
+
+- [ ] All image-only rollout validation checks pass.
+  - [x] Capture secret-free live gateway snapshots and the exact shopper auth configuration.
+  - [x] Calibrate the literal resource projection with provider validation and a no-op preview: exactly the two existing gateways are `NoChange`; no other resource is modified.
+  - [x] Accept the exact single gateway digest from the protected workflow only after source, successful steps, manifest cardinality and independent cleanup verify.
+  - [x] Generate the two-resource release with only each `app` container image changed; reject concurrent configuration changes.
+  - [x] Run provider validation and a strict full-payload preview; require exactly two image-only modifications and no create, delete, permission or ingress change.
+  - [x] Check the existing separate pull identity and registry scope; no new grant or propagation workaround.
+  - [x] Record template and image fingerprints before application.
+  - [x] After deployment, require actual latest-revision app containers and auth sidecars ready/started/running; compare complete writable configuration and unchanged shopper auth.
+  - [x] Run private HTTP readiness, identity rejection and gateway/frontend routing checks before any public-ingress stage.
+
+`demo_gateway_repair.py generate` captures exactly the two unchanged live
+gateway configurations and replaces only the image with the accepted protected
+build digest. `az deployment group validate --validation-level Provider` and
+`az deployment group what-if --validation-level Provider --no-pretty-print
+--result-format FullResourcePayloads` both succeed for this literal template.
+`demo_gateway_repair.py preview-proof` verifies exactly two modifications.
+Each provider before snapshot equals its accepted no-op calibration; its after
+snapshot differs only in the single application image. The sole effective
+delta is that image; all `NoEffect` entries match exact existing identity IDs,
+principal/client metadata, hostname or ephemeral-storage metadata. Fresh live
+configuration reads still match the original snapshots. Unrelated resources
+are ignored, and there are no permission, secret, ingress or auth changes.
+
+The local validation proof binds the template SHA-256, immutable gateway digest
+and exact resource inventory. The existing separate pull identity retains
+`AcrPull` scoped to the existing registry. Static inspection finds no role
+assignment resources in the repair template. Previously accepted secret-scoped
+and native Cosmos grants are unchanged. The actual gateway Docker build and
+offline async transport gate passed in both reviewed CI and the one protected
+repair build; no additional build is needed. Provider validation reports no
+policy denial. This validation authorizes only the two-gateway image update,
+not public shopper activation or application acceptance.
+
+On 2026-11-11 UTC, `retail-demo-gateway-repair` completed successfully.
+`demo_gateway_repair.py live-proof` confirms both repaired images, complete
+writable configuration preservation, unchanged shopper auth and actual healthy
+latest-revision containers. Replica-pinned `RETAIL_GATEWAY_PROBE` checks pass
+separately for shopping and merchant: live/ready endpoints, private Cosmos/OIDC/API
+readiness, public-only signing key, frontend availability, fixture metadata,
+missing-identity rejection, wrong-role rejection and browser bearer rejection.
+The merchant frontend correctly redirects unauthenticated browsers to sign-in;
+the same replica independently reaches its private frontend. No ingress was
+opened by this repair.
+
+### Operator-only public shopper activation
+
+The original approved rollout includes this stage. Change only the repaired
+shopper gateway ingress `external` setting to true after validating fresh
+platform authentication: exact tenant, client, audience, HTTPS requirement,
+operator object-ID allowlist and health/public-key exceptions. Preserve the
+entire auth resource and every other writable app setting. Capture all six
+application snapshots and reject concurrent or unrelated changes. The merchant
+environment and gateway remain private; the four API/frontend apps remain
+environment-internal. No role, credential, model, image or foundation changes.
+
+- [x] Generate a snapshot-bound single-resource activation template.
+- [x] Validate with Provider checks and a strict full-payload preview.
+- [x] Record template fingerprint, exact auth binding and unchanged isolation.
+- [x] Deploy only after this stage is Validated.
+- [x] Verify actual replica readiness, public health and anonymous sign-in enforcement.
+- [ ] Verify interactive operator sign-in and a persisted streamed conversation.
+
+On 2026-11-11 UTC, `demo_public_shopper.py generate` snapshots all six apps and
+verifies the exact existing operator-only HTTPS auth configuration.
+`az deployment group validate --validation-level Provider` and
+`az deployment group what-if --validation-level Provider --no-pretty-print
+--result-format FullResourcePayloads` succeed without policy denial or
+diagnostics. `demo_public_shopper.py preview-proof` confirms exactly one
+effective change: shopper gateway ingress `external: false` to `true`.
+Complete provider snapshots otherwise match. Provider-only metadata deltas
+must match existing exact identity, hostname and ephemeral-storage metadata.
+Fresh reads of all six app configurations and auth still match captured
+snapshots; the template and auth SHA-256 values are recorded in ignored proof.
+Static review confirms no role, image, model, credential or backing-service
+resource in this template. Prior accepted immutable builds and current private
+HTTP/replica checks remain applicable; no rebuild is required. This validation
+does not prove interactive sign-in, which remains a post-deployment check.
+
+The activation deployment and six-app live configuration/replica proof pass.
+Public health endpoints return 200; anonymous API requests return 401 and the
+browser opens the configured tenant's sign-in page. The operator completed
+platform sign-in and the gateway's separate OIDC flow; authenticated customer
+metadata returns 200. Normal frontend session creation then fails with 403.
+The authentication sidecar explicitly reports CSRF rejection with an empty
+referrer. The same signed-in browser request, with its normal CSRF token and
+an explicit same-origin referrer policy, returns 200 and creates a session.
+The gateway's `no-referrer` response policy is the demonstrated cause.
+
+The user approved changing the response policy to `same-origin`, adding
+regression coverage, and one additional normally reviewed protected
+gateway-only build and image-only rollout. Preserve platform and gateway CSRF
+checks, cross-site referrer privacy, operator-only auth, current public shopper
+ingress and private merchant isolation. No permission, credential or API/
+frontend image changes are authorized. Publish and validate the source,
+build once, independently verify digest/cleanup, then validate the exact
+two-image update before deploying. Interactive acceptance remains incomplete.
+
 - [ ] All gateway repair validation checks pass.
   - [x] Declare the async HTTP transport in gateway package dependencies, retaining the existing release constraint.
   - [x] `pytest apps/gateway/tests -q`: 58 pass, including real offline Azure async client construction and managed-identity selection; focused ruff check and format checks pass.
   - [x] Add a Docker build-time gate that constructs and closes both async clients without requesting tokens or connecting to a service. Docker is unavailable locally; exact-head container CI must execute this gate before the private build.
-  - [ ] Publish the surgical repair and pass exact-head required CI before merging.
-  - [ ] Validate the existing protected `smoke` build plan and normal review; execute only one approved build.
-  - [ ] Verify gateway digest, reviewed source, non-root/transport checks and exact disposable compute cleanup.
+  - [x] Publish the surgical repair and pass exact-head required CI before merging.
+  - [x] Validate the existing protected `smoke` build plan and normal review; execute only one approved build.
+  - [x] Verify gateway digest, reviewed source, non-root/transport checks and exact disposable compute cleanup.
   - [ ] Record a two-gateway image-only preview; reject unrelated changes or public exposure.
   - [ ] Verify actual gateway replicas and HTTP readiness after update, not only ARM provisioning metadata.
 
