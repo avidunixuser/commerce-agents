@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Approved - same-origin referrer repair and one additional protected gateway-only build; end-to-end acceptance blocked.**
+**Status: Deployed - retail shopper live with two-turn browser acceptance; residual UI warning and private merchant interactive checks remain.**
 
 ## Current deployment request
 
@@ -24,7 +24,8 @@ temporary setup grants and the stopped setup job have been removed after
 successful private readiness, once-only initialization and separate read-back.
 The five namespaced secrets and complete durable setup fence are verified.
 All six exact secret-scoped runtime reader grants are deployed and verified.
-All six application resources are deployed, with public shopper ingress closed.
+All six application resources are deployed. Operator-only public shopper
+ingress is now enabled after its separate validation and private readiness.
 Both role APIs pass local readiness, reject missing/invalid authentication and
 complete real private Azure OpenAI inference using their separate managed
 identities. Both gateway application containers initially failed because their image
@@ -33,18 +34,23 @@ image is now deployed to both gateways. Actual latest-revision application
 containers and the shopper authentication sidecar are ready, started and
 running. Private HTTP checks pass for Cosmos/OIDC/API readiness, public-key
 discovery, frontend availability, missing-identity rejection and wrong-role
-route rejection. Public exposure and interactive end-to-end flows are not yet
-accepted.
+route rejection. Public health and anonymous API rejection pass. The operator
+completed platform and gateway sign-in. After the referrer repair, ordinary
+browser session creation, streaming product comparison, a context-aware
+follow-up and persisted event replay after a fresh document load pass.
+A 403 warning remains visible despite successful current requests; its display
+cause is unresolved. Private merchant interactive sign-in/approval and an
+actual second-account allowlist rejection have not been verified.
 
-The user approved one additional protected gateway-only build using the existing
-workflow's `smoke` mode and normal environment review. Add the missing declared
-dependency, an offline real-client regression check and a Docker build-time
-transport check. Publish the repair through normal CI and PR review, build the
-reviewed main revision once, verify the immutable digest and disposable runner
-cleanup, then validate and update only the two gateway images. Preserve all
-identity, secret, ingress, auth and API/frontend image settings. Do not repair
-running containers with ad-hoc package installation. Public ingress requires a
-separate validated stage after real application readiness is established.
+The async transport repair passed normal source review and the single approved
+protected gateway build. Its digest and independent disposable-runner cleanup
+were accepted before the validated two-image update. The user subsequently
+approved the same-origin referrer policy repair and one additional protected
+gateway-only build. Its source is merged after exact-head CI, its protected
+build and independent cleanup passed, and the validated two-image update is
+deployed. All identity, secret, ingress, auth and API/frontend image settings
+are preserved.
+Do not repair running containers with ad-hoc package installation.
 
 ## Proposed retail demo
 
@@ -759,6 +765,80 @@ ingress and private merchant isolation. No permission, credential or API/
 frontend image changes are authorized. Publish and validate the source,
 build once, independently verify digest/cleanup, then validate the exact
 two-image update before deploying. Interactive acceptance remains incomplete.
+
+### Same-origin referrer build validation
+
+- [x] All protected referrer build validation checks pass.
+  - [x] Gateway regressions: 62 pass, including policy checks for both roles and existing CSRF rejection checks; focused Ruff and formatting pass.
+  - [x] PR #13 passes all fourteen expected exact-head checks, including the actual gateway Docker build; normal merge has the identical tested tree.
+  - [x] Pinned Bicep compilation and Provider validation pass for the unchanged disposable VM template.
+  - [x] Fresh what-if and the existing strict runner guard allow only the exact new private VM and NIC creates, with no public IP, permission changes or unrelated resources.
+  - [x] Protected build configuration equals the accepted runtime configuration; normal required-reviewer and main-only policies remain intact.
+  - [x] Static runner inspection confirms the existing builder identity and private subnet/NSG, exact platform image and no role assignments.
+
+On 2026-11-11 UTC, `demo_referrer_build.py validate-build` compiles the unchanged
+runner template and runs `az deployment group validate` and `what-if` at Provider
+level. Both succeed without diagnostics or policy denial. The existing
+`private_build.preview_vm` guard accepts only the exact two fresh VM/NIC
+creates. The protected workflow repeats these checks for its actual run
+generation. This validation permits the one approved `smoke` build only,
+after normal environment review; it does not permit another build retry or
+an application image rollout before digest and cleanup acceptance.
+
+The approved build succeeded with every build, cleanup and evidence step
+successful. Its manifest contains exactly one immutable gateway digest from
+the reviewed source. Independent ARM reads confirm the exact owned VM, NIC and
+OS disk absent and no run-owned/generation-tagged resources remaining. The
+original complete-image release and async-transport repair proofs are retained
+separately. No automatic retry or additional build was used.
+
+- [ ] All referrer image-only rollout validation checks pass.
+  - [x] Capture fresh six-app and unchanged operator-only auth snapshots.
+  - [x] Calibrate the literal gateway projection with Provider validation and exactly two `NoChange` targets.
+  - [x] Accept the exact single repair digest only after source, successful workflow and independent cleanup verification.
+  - [x] Generate, provider-validate and strictly preview exactly two image-only modifications.
+  - [x] Bind template/image fingerprints, unchanged auth and all four unchanged API/frontend configurations.
+  - [x] Deploy only after validation; require actual ready replicas and private/public HTTP behavior.
+  - [x] Verify ordinary signed-in browser POSTs, streaming and persisted conversation state.
+
+On 2026-11-11 UTC, `demo_gateway_repair.py generate --referrer` creates the
+two-resource digest-bound template. `az deployment group validate` at Provider
+level and full-payload `what-if` both succeed without diagnostics or policy
+denial. `demo_gateway_repair.py preview-proof --referrer` confirms exactly two
+image changes against the accepted no-op provider calibration. Every effective
+delta is the single gateway application image; `NoEffect` entries must match
+exact existing read-only metadata. Fresh reads reject concurrent changes to
+either gateway or any of the four API/frontend apps. Shopper auth and both
+ingress boundaries are unchanged. The proof records template and image
+fingerprints. Static inspection finds no new roles, secrets, access policies
+or backing services; existing scoped data grants and pull identity remain
+applicable. The accepted protected image and exact-head Docker CI provide
+actual build verification. This validation permits only this two-image update.
+
+The referrer image deployment succeeds. `live-proof --referrer` confirms exact
+images, complete writable settings, unchanged auth, unchanged API/frontend
+apps and actual ready latest-revision containers. Replica-pinned private
+probes pass for both roles, including the `same-origin` response header.
+Public liveness/readiness/JWKS return 200 and anonymous API requests return 401.
+
+The operator's normal browser page creates a session with 200 and reads memory,
+cart and orders with 200. Two ordinary chat requests return 200 and complete;
+the first emits tool calls/results, product comparison UI and text deltas.
+The follow-up correctly names the lighter product and its earlier weight.
+The observed stream contains two accepted/completed turns, six tool calls and
+results, one completed UI event and 132 text deltas. A fresh document load can
+read the completed prior turn and replay its persisted text/completion events
+with 200. No order or payment is created. No token, cookie or raw user content
+is retained in verification artifacts.
+
+The frontend still displays a 403 warning although all current observed API
+requests pass and the new authentication sidecar logs show no matching CSRF
+rejection. Its display cause has not been resolved; do not describe the UI as
+warning-free. The initial comparison also repeats its narrative in the rendered
+output. Private merchant browser sign-in/approval has not been exercised, and
+the exact operator allowlist is configuration-verified rather than tested with
+a second account. No VPN or public merchant exposure was added. These remain
+explicit acceptance limitations, not reasons to weaken access control.
 
 - [ ] All gateway repair validation checks pass.
   - [x] Declare the async HTTP transport in gateway package dependencies, retaining the existing release constraint.
