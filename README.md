@@ -45,6 +45,98 @@ SDK, and Managed Agents; four runnable verticals show both over the same librari
 > the cart for the host to complete, and every merchant write is staged until a person
 > approves it. Business rules, authorization, and compliance are the deployment's.
 
+## Deploy to Azure Container Apps
+
+Use the Container Apps target independently; these steps do not install AKS.
+Choose either the [isolated retail sample-data demo](docs/azure-retail-demo.md)
+or the production application below. The retail demo has six apps, uses fixture
+commerce data and does not provide real orders, payments or fulfillment.
+Production requires an authoritative [backend adapter](docs/azure-application.md#backend-and-authorization-boundaries).
+
+1. **Prepare the tools and target.** Install Python 3.11+, Node 22, Azure CLI,
+   Bicep and GitHub CLI. Clone this repository, create a Python virtual
+   environment and install `requirements-azure.txt`. Sign in to Azure and
+   confirm the subscription, resource group and region:
+
+   ```powershell
+   az login
+   $SubscriptionId = "<approved-subscription-guid>"
+   $ResourceGroup = "<deployment-resource-group>"
+   $Location = "<validated-public-azure-region>"
+   az account show --subscription $SubscriptionId --output table
+   ```
+
+2. **Configure and validate the foundation.** Follow the
+   [private infrastructure guide](docs/azure-infrastructure.md#container-apps-foundation-only-stage).
+   Copy `infra/container-apps/foundation.parameters.example.json` to an ignored
+   `.azure/foundation.parameters.json`; replace all placeholders and verify
+   address ranges, private connectivity, service availability, model entitlement
+   and quota before setting `modelAvailabilityVerified=true`. Keep
+   `enableWorkloads=false` and `enableIngress=false`. Never commit credentials
+   or actual deployment parameters. Create the approved resource group in
+   `$Location` if it does not exist before running resource-group validation.
+
+   ```powershell
+   python infra\scripts\preflight.py --target container-apps --phase foundation --parameters .azure\foundation.parameters.json
+   az bicep build --file infra\container-apps\main.bicep --outfile .azure\container-apps.json
+   az deployment group validate --subscription $SubscriptionId --resource-group $ResourceGroup --template-file .azure\container-apps.json --parameters "@.azure\foundation.parameters.json" --validation-level Provider
+   az deployment group what-if --subscription $SubscriptionId --resource-group $ResourceGroup --template-file .azure\container-apps.json --parameters "@.azure\foundation.parameters.json" --validation-level Provider
+   ```
+
+   Review applicable Azure policies, costs and the exact preview before
+   proceeding; offline checks alone do not validate a live deployment.
+
+3. **Deploy the approved foundation.** After validation and approval, use an
+   incremental deployment:
+
+   ```powershell
+   az deployment group create --subscription $SubscriptionId --resource-group $ResourceGroup --name commerce-foundation --mode Incremental --template-file .azure\container-apps.json --parameters "@.azure\foundation.parameters.json"
+   ```
+
+   This provisions private services and the hosting environment, not a working
+   application. Verify private DNS, routing, endpoint approval and scoped
+   managed-identity permissions before building or rolling out workloads.
+
+4. **Build immutable images privately.** Follow the
+   [protected build setup](docs/azure-private-runners.md#protected-private-image-builds).
+   Commission the private builder and normal `commerce-build` review gate,
+   merge the reviewed source, then dispatch `private-build.yml` on `main`.
+   Select `retail-release` for the gateway, API and both retail frontends, or
+   `all` for every vertical. Approve the exact run through the normal environment
+   review. Record its source SHA and image digests, complete the release
+   scanning/signing gates and independently verify disposable-compute cleanup.
+
+5. **Configure identity, secrets and the model.** Register exact HTTPS callback
+   URLs and merchant/approver roles using the
+   [gateway authentication guide](docs/gateway-auth.md). From approved private
+   connectivity, seed role-specific Key Vault secrets and the TLS certificate;
+   never pass secret values in CLI arguments or browser configuration. Configure
+   the real backend and [provider settings](docs/azure-application.md#model-configuration)
+   for Foundry Claude or Azure OpenAI, including authorized deployment names and
+   a matching `COMMERCE_PROVIDER_ID` on APIs and workers. Retain private
+   endpoints, Entra authentication and least-privilege runtime grants.
+
+6. **Validate and deploy the application.** Populate an ignored application
+   parameter file using `infra/container-apps/main.parameters.example.json`.
+   Supply the accepted image digests, runtime settings and vault references;
+   set `enableWorkloads=true` while keeping `enableIngress=false`. Run
+   `preflight.py --target container-apps --phase application --parameters <file>`
+   and repeat Provider validation, what-if and the approved incremental
+   deployment with that file. Reject unexpected deletions or unrelated changes.
+   Enable the edge only after private image pulls, dependencies, TLS and backend
+   readiness pass. Keep merchant access private. The six-app retail demo uses
+   its separate staged templates and operator-only authentication procedure,
+   not production parameters with fixtures enabled.
+
+7. **Verify and operate.** Check actual replica readiness, both role gateways,
+   sign-in and unauthorized rejection, a streamed conversation and durable
+   replay after reload. Test merchant isolation and approval authorization from
+   the private network. Do not equate ARM success with a healthy application.
+   To pause workloads, deactivate their active revisions with
+   `az containerapp revision deactivate`; retain the revision names and use
+   `az containerapp revision activate` to resume. Stopping apps does not stop
+   charges for the firewall, database, registry or other provisioned services.
+
 ## Quick start: run the demos
 
 Python 3.11+ and Node 22. Clone, install, add a key, run a vertical:
