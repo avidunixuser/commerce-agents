@@ -4,13 +4,13 @@
       "policy_id": "returns",
       "title": "Returns & refunds",
       "category": "returns",
-      "content": "Most items can be returned within 30 days of delivery in original condition for a full refund to the original payment method. Opened electronics can be returned within 15 days. Mattresses, bedding, and personal-care items must be unopened. Refunds post within 5 business days of the return arriving at our warehouse. ACME Subscription members get free return pickup; otherwise drop off at any ACME location or use the prepaid label in your order page."
+      "content": "Most items can be returned within 30 days of delivery in original condition for a full refund to the original payment method. Opened electronics can be returned within 15 days. Mattresses, bedding, and personal-care items must be unopened. Refunds post within 5 business days of the return arriving at our warehouse. Zava Subscription members get free return pickup; otherwise drop off at any Zava location or use the prepaid label in your order page."
     },
     {
       "policy_id": "shipping",
       "title": "Shipping options & timelines",
       "category": "shipping",
-      "content": "Standard shipping is $5.99, free over $49, and arrives in 3-5 business days. Express arrives in 2 business days and is free for ACME Subscription members on orders over $49, otherwise $9.99. Same-day delivery is available on eligible items in select areas when ordered before 2pm. Oversized items ship freight and include a scheduled delivery window."
+      "content": "Standard shipping is $5.99, free over $49, and arrives in 3-5 business days. Express arrives in 2 business days and is free for Zava Subscription members on orders over $49, otherwise $9.99. Same-day delivery is available on eligible items in select areas when ordered before 2pm. Oversized items ship freight and include a scheduled delivery window."
     },
     {
       "policy_id": "price-match",
@@ -22,13 +22,13 @@
       "policy_id": "warranty",
       "title": "Warranties & protection plans",
       "category": "warranty",
-      "content": "Manufacturer warranties apply to most products; the duration is listed on the product page under specs. ACME Protect plans extend coverage to 3 years and cover accidental damage on electronics. Claims are handled in-app and most replacements ship within 2 business days of approval."
+      "content": "Manufacturer warranties apply to most products; the duration is listed on the product page under specs. Zava Protect plans extend coverage to 3 years and cover accidental damage on electronics. Claims are handled in-app and most replacements ship within 2 business days of approval."
     },
     {
       "policy_id": "membership",
-      "title": "ACME Subscription membership",
+      "title": "Zava Subscription membership",
       "category": "membership",
-      "content": "ACME Subscription costs $79/year and includes free express shipping over $49, free return pickup, early access to seasonal sales, and 2% back in store credit. You can cancel anytime and we will prorate the unused portion. There is a 14-day free trial for new members."
+      "content": "Zava Subscription costs $79/year and includes free express shipping over $49, free return pickup, early access to seasonal sales, and 2% back in store credit. You can cancel anytime and we will prorate the unused portion. There is a 14-day free trial for new members."
     },
     {
       "policy_id": "gift-cards",

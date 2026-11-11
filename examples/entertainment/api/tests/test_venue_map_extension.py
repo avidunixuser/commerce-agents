@@ -26,7 +26,7 @@ async def test_sections_are_built_from_the_fixture_and_live_inventory(backend):
     payload = VenueMapPayload(product_id="AT-TIX-101-PIT", highlight_product_ids=["AT-TIX-101-PIT"])
     enriched = await _enrich(payload, _context(backend, ["AT-TIX-101-PIT"]))
 
-    assert enriched["venue"]["name"] == "ACME Amphitheater"
+    assert enriched["venue"]["name"] == "Zava Amphitheater"
     assert enriched["event"]["date"] == "2026-08-14"
     sections = {s["section_id"]: s for s in enriched["sections"]}
     assert sections["STAGE"]["kind"] == "stage" and "price_all_in" not in sections["STAGE"]

@@ -6,8 +6,8 @@ import "web-shared/telecom-fonts.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ACME Mobile",
-  description: "Compare plans and manage your line with the ACME Assistant.",
+  title: "Zava Mobile",
+  description: "Compare plans and manage your line with the Zava Assistant.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

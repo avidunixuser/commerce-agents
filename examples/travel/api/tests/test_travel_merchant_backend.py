@@ -102,7 +102,7 @@ async def test_stage_promotion_builds_date_window_rate_items(merchant, operator_
 
 
 def test_travel_config_adds_nightly_rate_to_both_guardrail_field_lists():
-    config = build_merchant_config("ACME Travel")
+    config = build_merchant_config("Zava Travel")
     assert {"price", "nightly_rate"} <= set(config.price_bearing_fields)
     assert {"price", "stock", "nightly_rate"} <= set(config.listing_update_blocked_fields)
 
@@ -176,7 +176,7 @@ async def test_apply_base_rate_change_updates_the_shared_catalog(
 
 async def test_merchant_context_names_the_supplier(merchant, operator_session):
     context = await merchant.get_merchant_context(operator_session)
-    assert context["supplier"] == "ACME Travel — city stays portfolio"
+    assert context["supplier"] == "Zava Travel — city stays portfolio"
     assert set(context["portfolio_listings"]) == SUPPLIER_PORTFOLIO
     assert context["alerts"]["soft_pacing"] >= 2
     assert context["alerts"]["guest_messages"] >= 5
@@ -253,7 +253,7 @@ def test_today_snapshot_resolves_property_names(merchant):
     assert today["arrivals"]["count"] == 4
     assert today["departures"]["count"] == 2
     assert today["new_bookings"]["count"] == 3
-    assert "ACME Hotels Lisbon Riverside" in today["arrivals"]["properties"]
+    assert "Zava Hotels Lisbon Riverside" in today["arrivals"]["properties"]
 
 
 async def test_occupancy_overview_covers_the_portfolio(merchant):

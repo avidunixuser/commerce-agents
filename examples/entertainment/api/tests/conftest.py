@@ -47,7 +47,7 @@ def backend(clock: FakeClock) -> MockTicketing:
 
 @pytest.fixture
 def merchant(backend) -> MockTicketingMerchant:
-    return MockTicketingMerchant(backend, build_merchant_config("ACME Tickets"))
+    return MockTicketingMerchant(backend, build_merchant_config("Zava Tickets"))
 
 
 @pytest.fixture

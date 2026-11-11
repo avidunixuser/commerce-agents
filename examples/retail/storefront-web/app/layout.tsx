@@ -6,8 +6,8 @@ import "web-shared/retail-fonts.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ACME",
-  description: "Shop the ACME catalog with the ACME Assistant.",
+  title: "Zava",
+  description: "Shop the Zava catalog with the Zava Assistant.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

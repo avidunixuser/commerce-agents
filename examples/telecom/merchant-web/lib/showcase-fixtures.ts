@@ -66,12 +66,12 @@ const digest: DigestPayload = {
     {
       kind: "low_stock",
       ref_id: "AM-DEV-202",
-      headline: "ACME Phone 5 is below its restock threshold",
+      headline: "Zava Phone 5 is below its restock threshold",
       why_it_matters:
         "18 units on hand against a 40-unit threshold, selling 176 in 30 days — about three days of cover.",
       listing: {
         listing_id: "AM-DEV-202",
-        title: "ACME Phone 5",
+        title: "Zava Phone 5",
         status: "active",
         price: 949.0,
         stock: 18,

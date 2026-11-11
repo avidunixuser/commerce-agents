@@ -4,7 +4,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type AgentEvent, formatMoney, OrdersView, plural, StoreShell, type StoreView, upcoming, useAgentTurn, useResource, useSession } from "web-shared";
+import { type AgentEvent, formatMoney, OrdersView, plural, StoreShell, type StoreView, upcoming, useAgentTurn, useResource, useSession, ZavaLogo } from "web-shared";
 import CartPanel from "@/components/CartPanel";
 import Chat from "@/components/Chat";
 import HomeView from "@/components/views/HomeView";
@@ -14,18 +14,7 @@ import type { CartPayload } from "@/lib/types";
 
 type View = "assistant" | "orders";
 
-const ASSISTANT = "ACME Assistant";
-
-function Wordmark() {
-  return (
-    <span className="flex items-center gap-2.5 pr-1">
-      <span aria-hidden className="grid h-[30px] w-[30px] place-items-center rounded-lg bg-(--ink) text-[15px] font-bold text-(--surface)">
-        A
-      </span>
-      <span className="text-[17px] font-bold tracking-[-0.02em] text-(--ink)">ACME</span>
-    </span>
-  );
-}
+const ASSISTANT = "Zava Assistant";
 
 export default function StorefrontPage() {
   const session = useSession(api);
@@ -66,7 +55,7 @@ export default function StorefrontPage() {
 
   return (
     <StoreShell
-      brand={<Wordmark />}
+      brand={<ZavaLogo />}
       views={views}
       view={view}
       onViewChange={setView}

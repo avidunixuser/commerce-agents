@@ -2,7 +2,7 @@
   "venues": [
     {
       "venue_id": "AT-VEN-01",
-      "name": "ACME Amphitheater",
+      "name": "Zava Amphitheater",
       "city": "Springfield",
       "viewbox": {"width": 100, "height": 62},
       "sections": [
@@ -16,7 +16,7 @@
     },
     {
       "venue_id": "AT-VEN-02",
-      "name": "ACME Hall",
+      "name": "Zava Hall",
       "city": "Springfield",
       "viewbox": {"width": 100, "height": 62},
       "sections": [
@@ -29,7 +29,7 @@
     },
     {
       "venue_id": "AT-VEN-03",
-      "name": "ACME Playhouse",
+      "name": "Zava Playhouse",
       "city": "Springfield",
       "viewbox": {"width": 100, "height": 62},
       "sections": [
@@ -40,7 +40,7 @@
     },
     {
       "venue_id": "AT-VEN-04",
-      "name": "ACME Concert Hall",
+      "name": "Zava Concert Hall",
       "city": "Springfield",
       "viewbox": {"width": 100, "height": 62},
       "sections": [

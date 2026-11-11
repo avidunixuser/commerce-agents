@@ -4,7 +4,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type AgentEvent, type Profile, StoreShell, type StoreView, useAgentTurn, useCatalogIndex, useResource, useSession } from "web-shared";
+import { type AgentEvent, type Profile, StoreShell, type StoreView, useAgentTurn, useCatalogIndex, useResource, useSession, ZavaLogo } from "web-shared";
 import Chat from "@/components/Chat";
 import OrderPanel from "@/components/OrderPanel";
 import AccountView from "@/components/views/AccountView";
@@ -18,7 +18,7 @@ const PROFILES: Profile[] = [
   { id: "demo-user-2", name: "Casey" },
 ];
 
-const ASSISTANT = "ACME Assistant";
+const ASSISTANT = "Zava Assistant";
 
 type View = "assistant" | "account";
 
@@ -32,9 +32,8 @@ const pendingComponent = (tool: string) => (tool === "present_plan_comparison" ?
 
 function Wordmark() {
   return (
-    <span className="flex items-baseline gap-2 pr-1 text-[19px] leading-none text-(--ink)">
-      <span className="am-live self-center" aria-hidden />
-      <span style={{ fontWeight: 800, letterSpacing: "-0.02em" }}>ACME</span>
+    <span className="flex items-center gap-2 pr-1 text-[19px] leading-none text-(--ink)">
+      <ZavaLogo />
       <span style={{ fontWeight: 100, letterSpacing: "0.01em" }}>Mobile</span>
     </span>
   );

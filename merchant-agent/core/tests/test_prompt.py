@@ -11,7 +11,7 @@ from merchant_agent.tools.registry import build_tools
 
 def test_static_system_mentions_store_skills_and_fence(config, skills):
     text = build_static_system(config, skills)
-    assert "ACME" in text
+    assert "Zava" in text
     assert "performance-insights" in text
     assert "merchant_data" in text  # the fence notice is present
     assert "apply_change" in text  # the approval rule is stated
@@ -37,7 +37,7 @@ def test_stage_tools_advertise_the_per_change_item_cap(config, skills):
 def test_dynamic_context_is_fenced_and_contains_store_data():
     block = build_dynamic_context(
         merchant_context={
-            "store": "ACME",
+            "store": "Zava",
             "current_period": "2026-06-19/2026-06-25",
             "alerts": {"low_stock": 2, "order_issues": 1},
             "operator": "demo-operator",

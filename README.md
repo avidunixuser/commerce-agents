@@ -40,7 +40,7 @@ once (prompt, skills, tool contracts, gates) and runs on the Messages API, the C
 SDK, and Managed Agents; four runnable verticals show both over the same libraries.
 
 > [!NOTE]
-> Every company, brand, product, and person here is fictional; the only company is ACME.
+> Every company, brand, product, and person here is fictional; the only company is Zava.
 > Nothing places an order, charges a card, or changes a live listing: `checkout` renders
 > the cart for the host to complete, and every merchant write is staged until a person
 > approves it. Business rules, authorization, and compliance are the deployment's.
@@ -160,10 +160,10 @@ the MCP servers bind to loopback.
 
 | Example | Storefront | Portal |
 |---|---|---|
-| [`examples/retail/`](examples/retail/) ACME | Search, comparison, plans, cart, checkout, memory over the built-in components | Digest, staged restocks and listing fixes, analysis delegate over a SQL view |
-| [`examples/travel/`](examples/travel/) ACME Travel | Date-bound inventory and a `present_itinerary` extension | Occupancy calendar and date-window rate moves |
-| [`examples/telecom/`](examples/telecom/) ACME Mobile | Account context, plan matrix, server-authored fee disclosures | Plan mix, price moves that state the lines affected, protected regulated fees |
-| [`examples/entertainment/`](examples/entertainment/) ACME Tickets | Timed holds, waitlists, transfers, venue map, all-in fee disclosures | Event pacing, hold releases that add real capacity, fee-preserving price moves |
+| [`examples/retail/`](examples/retail/) Zava | Search, comparison, plans, cart, checkout, memory over the built-in components | Digest, staged restocks and listing fixes, analysis delegate over a SQL view |
+| [`examples/travel/`](examples/travel/) Zava Travel | Date-bound inventory and a `present_itinerary` extension | Occupancy calendar and date-window rate moves |
+| [`examples/telecom/`](examples/telecom/) Zava Mobile | Account context, plan matrix, server-authored fee disclosures | Plan mix, price moves that state the lines affected, protected regulated fees |
+| [`examples/entertainment/`](examples/entertainment/) Zava Tickets | Timed holds, waitlists, transfers, venue map, all-in fee disclosures | Event pacing, hold releases that add real capacity, fee-preserving price moves |
 
 Each example's README has a `Try` section: the turns `scripts/smoke_chat.py` runs, and single
 prompts with what a good answer does.

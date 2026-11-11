@@ -1,4 +1,4 @@
-# ACME Mobile (telecom)
+# Zava Mobile (telecom)
 
 The telecom example runs both agents over one carrier catalog: the storefront compares
 plans in a matrix, answers upgrade questions from the signed-in account, shows a plan's
@@ -31,7 +31,7 @@ approval apply a change; by default the preview card's button applies it.
 Storefront (`scripts/smoke_chat.py --vertical telecom` runs the same three turns):
 
 1. I keep blowing through my data — I've bought top-ups three months running. What plans would actually fit around 15GB a month? Show them side by side.
-2. Am I eligible to upgrade my ACME Phone 4 yet? Show me what I could move to, and what the trade-in credit and early-upgrade terms would get me.
+2. Am I eligible to upgrade my Zava Phone 4 yet? Show me what I could move to, and what the trade-in credit and early-upgrade terms would get me.
 3. Switch me to the Unlimited plan and put it in my cart — and confirm there's no fee for changing plans mid-cycle.
 
 Portal (`scripts/smoke_chat.py --vertical telecom --merchant`; the third turn is refused
@@ -47,7 +47,7 @@ Single prompts, each in a fresh session:
 
 | Surface | Prompt | A good answer |
 |---|---|---|
-| Storefront | If the ACME Phone 3 I ordered isn't for me, how long do I have to send it back, and what would it cost me? | Reads the order and the returns policy: the phone has not arrived, so the 14-day window starts on delivery; names the restocking fee and that used prepaid service is not refunded. It does not open a return. |
+| Storefront | If the Zava Phone 3 I ordered isn't for me, how long do I have to send it back, and what would it cost me? | Reads the order and the returns policy: the phone has not arrived, so the 14-day window starts on delivery; names the restocking fee and that used prepaid service is not refunded. It does not open a return. |
 | Storefront | Add a Roaming Day Pass to my cart for my trip next week. | Finds the pass and adds it (one search, one add), and says a pass covers one day from first use, so a longer trip needs one per day. |
 | Portal | Cut the Plus 15GB plan to $39 to stop the churn. Show me what it touches. | Reads the pricing context: $39 is a 22% move, past the per-change limit, so it is not staged; offers $40 as the nearest permanent price or $39 as a date-bound promotion, with the lines and per-line margin the plan carries. |
 

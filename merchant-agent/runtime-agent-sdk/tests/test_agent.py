@@ -121,7 +121,7 @@ def test_default_surface_has_no_subagents_and_closes_on_the_chips_round():
 
 
 def test_analysis_maps_onto_a_read_only_subagent():
-    config = MerchantAgentConfig(brand_name="ACME", enable_analysis=True)
+    config = MerchantAgentConfig(brand_name="Zava", enable_analysis=True)
     options, _ = make_options(config=config)
     assert options.tools == ["Skill", "Task"]
     assert set(options.agents) == {ANALYSIS_AGENT_NAME}

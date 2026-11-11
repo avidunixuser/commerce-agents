@@ -10,7 +10,7 @@
       ],
       "total": 119.0,
       "currency": "USD",
-      "estimated_delivery": "delivered to your ACME Tickets wallet"
+      "estimated_delivery": "delivered to your Zava Tickets wallet"
     },
     {
       "user_id": "demo-user",
@@ -22,7 +22,7 @@
       ],
       "total": 178.0,
       "currency": "USD",
-      "estimated_delivery": "delivered to your ACME Tickets wallet"
+      "estimated_delivery": "delivered to your Zava Tickets wallet"
     }
   ]
 }

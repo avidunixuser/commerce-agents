@@ -179,7 +179,7 @@ export default function BoardingPass({ payload }: { payload: CheckoutPayload }) 
               letterSpacing: "0.18em",
             }}
           >
-            ACME TRAVEL
+            Zava TRAVEL
           </span>
           {/* In normal flow, so it overlaps neither neighbor at any pass height. */}
           <span

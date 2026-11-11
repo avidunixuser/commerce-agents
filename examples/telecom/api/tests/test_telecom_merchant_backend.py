@@ -346,15 +346,15 @@ async def test_apply_plan_price_change_moves_the_consumer_bill(merchant, backend
 
 async def test_apply_listing_update_writes_attributes(merchant, backend, operator_session):
     change = await merchant.stage_listing_update(
-        operator_session, "AM-NET-303", {"router_model": "ACME Mesh R2"}
+        operator_session, "AM-NET-303", {"router_model": "Zava Mesh R2"}
     )
     assert change.kind is ChangeKind.LISTING_UPDATE
     assert "router_model" not in backend.products["AM-NET-303"].attributes
 
     await merchant.apply_change(operator_session, change.change_id)
-    assert backend.products["AM-NET-303"].attributes["router_model"] == "ACME Mesh R2"
+    assert backend.products["AM-NET-303"].attributes["router_model"] == "Zava Mesh R2"
     listing = await merchant.get_listing(operator_session, "AM-NET-303")
-    assert listing.attributes["router_model"] == "ACME Mesh R2"
+    assert listing.attributes["router_model"] == "Zava Mesh R2"
 
 
 async def test_order_issues_load_from_the_messages_fixture(merchant, operator_session):
@@ -378,7 +378,7 @@ def test_today_snapshot_reads_the_latest_daily_row(merchant):
 
 async def test_merchant_context_names_the_carrier(merchant, operator_session):
     context = await merchant.get_merchant_context(operator_session)
-    assert context["carrier"] == "ACME Mobile — commercial operations"
+    assert context["carrier"] == "Zava Mobile — commercial operations"
     assert context["storefront"] == merchant.storefront.store_name
     assert "/" in context["current_period"]
     assert context["subscribers_total"] == 49620

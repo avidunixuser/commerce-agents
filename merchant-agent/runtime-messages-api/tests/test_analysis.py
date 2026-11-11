@@ -79,7 +79,7 @@ def sql_backend_cls(backend) -> type:
 
 def analysis_config(**overrides: Any) -> MerchantAgentConfig:
     settings: dict[str, Any] = {
-        "brand_name": "ACME",
+        "brand_name": "Zava",
         "enable_analysis": True,
         "analysis_use_code_execution": False,
     }
@@ -700,7 +700,7 @@ def test_agent_wires_the_delegate_only_when_enabled(backend, skills):
     disabled = MerchantAgent(
         backend=backend,
         skills=skills,
-        config=MerchantAgentConfig(brand_name="ACME"),
+        config=MerchantAgentConfig(brand_name="Zava"),
         client=fake_client,
     )
     assert disabled.delegates == ()

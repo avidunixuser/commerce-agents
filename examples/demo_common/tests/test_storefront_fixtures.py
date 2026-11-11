@@ -145,13 +145,13 @@ def test_session_carts_keep_sessions_apart():
 
 def test_a_family_fixture_fills_its_variants_and_derives_its_options(tmp_path):
     catalog = {
-        "store_name": "ACME",
+        "store_name": "Zava",
         "products": [
             {"product_id": "P-1", "title": "Lantern", "price": 25.0},
             {
                 "product_id": "P-2",
                 "title": "Pad",
-                "brand": "ACME Basecamp",
+                "brand": "Zava Basecamp",
                 "price": 59.0,
                 "category": "camping",
                 "attributes": {"fill": "foam"},
@@ -172,7 +172,7 @@ def test_a_family_fixture_fills_its_variants_and_derives_its_options(tmp_path):
     (tmp_path / "catalog.json").write_text(json.dumps(catalog), encoding="utf-8")
     raw, listings, variants = load_catalog(tmp_path)
 
-    assert raw["store_name"] == "ACME" and list(listings) == ["P-1", "P-2"]
+    assert raw["store_name"] == "Zava" and list(listings) == ["P-1", "P-2"]
     assert list(variants) == ["P-2-R", "P-2-L"]
     family = listings["P-2"]
     assert family.options == {"length": ["regular", "long"]}
@@ -183,7 +183,7 @@ def test_a_family_fixture_fills_its_variants_and_derives_its_options(tmp_path):
     long = variants["P-2-L"]
     assert (long.title, long.brand, long.category, long.price) == (
         "Pad",
-        "ACME Basecamp",
+        "Zava Basecamp",
         "camping",
         69.0,
     )

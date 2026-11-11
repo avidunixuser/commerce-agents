@@ -13,6 +13,7 @@ import {
   useMerchantChat,
   useResource,
   useSession,
+  ZavaLogo,
 } from "web-shared";
 import AssistantPanel from "@/components/AssistantPanel";
 import BookingsView from "@/components/views/BookingsView";
@@ -22,17 +23,6 @@ import { api, fetchOccupancy, fetchOverview, UNREACHABLE } from "@/lib/api";
 import type { StagedChange } from "@/lib/types";
 
 type PortalView = "home" | "properties" | "bookings";
-
-function StoreMark() {
-  return (
-    <span
-      aria-hidden
-      className="al-display grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[10px] bg-(--ink) text-[17px] font-[650] italic text-(--accent) shadow-[inset_0_-3px_0_rgba(0,0,0,0.18)]"
-    >
-      ◈
-    </span>
-  );
-}
 
 export default function PortalPage() {
   const session = useSession(api);
@@ -82,7 +72,7 @@ export default function PortalPage() {
   return (
     <>
       <PortalShell
-        brand={{ mark: <StoreMark />, name: "ACME Travel", detail: "Supplier workspace" }}
+        brand={{ mark: <ZavaLogo compact />, logo: <ZavaLogo />, name: "Zava Travel", detail: "Supplier workspace" }}
         nav={nav}
         view={view}
         onViewChange={setView}
@@ -93,7 +83,7 @@ export default function PortalPage() {
         rail={
           <AssistantRail
             open={assistantOpen}
-            storageKey="acme-travel-supplier-panel-width"
+            storageKey="zava-travel-supplier-panel-width"
             onClose={() => setAssistantOpen(false)}
           >
             {(rail) => (

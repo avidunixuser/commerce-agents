@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""ACME Tickets example API: the mock box office behind the shared storefront routes, the
+"""Zava Tickets example API: the mock box office behind the shared storefront routes, the
 box-office router under /api/merchant, and the ticketing routes below.
 
     uvicorn entertainment.api.main:app --app-dir examples --reload --port 8003
@@ -92,7 +92,7 @@ def deliver_notifications() -> None:
 
 
 host = build_storefront_host(
-    title="ACME Tickets demo API",
+    title="Zava Tickets demo API",
     example_root=DATA_DIR.parent,
     backend=backend,
     agent=agent,

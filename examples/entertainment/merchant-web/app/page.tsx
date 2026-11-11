@@ -13,6 +13,7 @@ import {
   useMerchantChat,
   useResource,
   useSession,
+  ZavaLogo,
 } from "web-shared";
 import AssistantPanel from "@/components/AssistantPanel";
 import EventsView from "@/components/views/EventsView";
@@ -22,18 +23,6 @@ import { api, fetchOverview, UNREACHABLE } from "@/lib/api";
 import type { StagedChange } from "@/lib/types";
 
 type PortalView = "home" | "events" | "holds";
-
-function StoreMark() {
-  return (
-    <span
-      aria-hidden
-      className="at-display relative grid h-[34px] w-[34px] shrink-0 place-items-center rounded-[8px] bg-(--well) text-[19px] text-(--ink) shadow-[inset_0_0_0_1px_var(--line-strong)]"
-    >
-      A
-      <span className="at-live absolute -right-0.5 -top-0.5" />
-    </span>
-  );
-}
 
 export default function PortalPage() {
   const session = useSession(api);
@@ -81,7 +70,7 @@ export default function PortalPage() {
   return (
     <>
       <PortalShell
-        brand={{ mark: <StoreMark />, name: "ACME Tickets", detail: "Box-office workspace" }}
+        brand={{ mark: <ZavaLogo compact />, logo: <ZavaLogo />, name: "Zava Tickets", detail: "Box-office workspace" }}
         nav={nav}
         view={view}
         onViewChange={setView}
@@ -92,7 +81,7 @@ export default function PortalPage() {
         rail={
           <AssistantRail
             open={assistantOpen}
-            storageKey="acme-tickets-boxoffice-panel-width"
+            storageKey="zava-tickets-boxoffice-panel-width"
             onClose={() => setAssistantOpen(false)}
           >
             {(rail) => (

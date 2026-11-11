@@ -9,7 +9,7 @@ from shopping_agent.prompt import build_dynamic_context, build_static_system
 
 def test_static_system_mentions_brand_and_skills(config, skills):
     text = build_static_system(config, skills)
-    assert "ACME" in text
+    assert "Zava" in text
     assert "search-discovery" in text
     assert "storefront_data" in text  # the fence notice is present
 

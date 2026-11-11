@@ -13,8 +13,8 @@ A storefront tour captures the home, a mid-stream frame, each turn, the vertical
 (orders, trips, account, tickets), the shopper's sheet, and the activity panel twice (memory
 marked, then the last reply's steps). A portal tour captures the views, the opening turns, the
 applied state after approving the staged change, the turns that follow the approval, and the
-same two activity-panel frames. Output goes to /tmp/acme-<vertical>-tour or
-/tmp/acme-<vertical>-merchant-tour.
+same two activity-panel frames. Output goes to /tmp/zava-<vertical>-tour or
+/tmp/zava-<vertical>-merchant-tour.
 """
 
 from __future__ import annotations
@@ -99,7 +99,7 @@ VERTICALS: dict[str, dict] = {
             ),
             (
                 "upgrade-eligibility",
-                "Am I eligible to upgrade my ACME Phone 4 yet? Show me what I could "
+                "Am I eligible to upgrade my Zava Phone 4 yet? Show me what I could "
                 "move to and what the trade-in would get me.",
             ),
             (
@@ -419,7 +419,7 @@ def main() -> int:
 
     config = (MERCHANT_TOURS if args.merchant else VERTICALS)[args.vertical]
     suffix = "merchant-tour" if args.merchant else "tour"
-    output_dir = Path(args.out or f"/tmp/acme-{args.vertical}-{suffix}")
+    output_dir = Path(args.out or f"/tmp/zava-{args.vertical}-{suffix}")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as playwright:

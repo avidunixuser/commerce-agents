@@ -21,7 +21,7 @@ const POSTCARD_CITIES = ["Lisbon", "Kyoto", "Mexico City", "Reykjavik", "Marrake
 /** Sends just before the 300ms mail animation ends. */
 const MAILING_MS = 260;
 
-const OPENER = "Say where you're headed and ACME Assistant finds the stays, flights, and days worth keeping.";
+const OPENER = "Say where you're headed and Zava Assistant finds the stays, flights, and days worth keeping.";
 
 function Brief({ trips }: { trips: Order[] | null }) {
   const open = trips ? upcoming(trips) : [];
@@ -91,7 +91,7 @@ export default function HomeView({ travelerName, trips, tripsFailed, onSeeTrips 
       </Greeting>
       <Starters items={STARTERS} />
       <ArrivingPanel orders={trips} failed={tripsFailed} nouns={NOUNS} thumb={(order) => <TripThumb order={order} />} onSeeAll={onSeeTrips} />
-      <HomeSection title="Start from a postcard" subtitle="Pick one and ACME Assistant starts planning">
+      <HomeSection title="Start from a postcard" subtitle="Pick one and Zava Assistant starts planning">
         <Postcards />
       </HomeSection>
     </div>

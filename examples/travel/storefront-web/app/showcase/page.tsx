@@ -47,7 +47,7 @@ export default function ShowcasePage() {
   return (
     <main className="relative z-[2] mx-auto max-w-3xl px-6 py-14">
       <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-(--ink-soft)">
-        ACME Travel component showcase (fixture data)
+        Zava Travel component showcase (fixture data)
       </p>
       {SECTIONS.map(({ component, id = component, payload, status = "final" }) => (
         <Section key={id} name={id}>

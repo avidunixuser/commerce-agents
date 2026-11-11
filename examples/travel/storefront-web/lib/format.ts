@@ -28,7 +28,7 @@ export function destinationGradientCss(city?: string | null, seed?: string): str
   const key = city?.trim().toLowerCase();
   const [from, to] =
     (key && DESTINATION_GRADIENTS[key]) ||
-    GRADIENT_FALLBACKS[hash(`${key ?? ""}·${seed ?? "acme-travel"}`) % GRADIENT_FALLBACKS.length];
+    GRADIENT_FALLBACKS[hash(`${key ?? ""}·${seed ?? "zava-travel"}`) % GRADIENT_FALLBACKS.length];
   return `linear-gradient(135deg, ${from}, ${to})`;
 }
 

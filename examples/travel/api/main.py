@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""ACME Travel example API: the mock travel platform behind the shared storefront routes,
+"""Zava Travel example API: the mock travel platform behind the shared storefront routes,
 with the ``present_itinerary`` extension, and the supplier router under /api/merchant.
 
     uvicorn travel.api.main:app --app-dir examples --reload --port 8001
@@ -29,7 +29,7 @@ agent = ShoppingAgent(
     extra_presentation_tools=[build_itinerary_extension()],
 )
 host = build_storefront_host(
-    title="ACME Travel demo API",
+    title="Zava Travel demo API",
     example_root=DATA_DIR.parent,
     backend=backend,
     agent=agent,

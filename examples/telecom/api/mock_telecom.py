@@ -399,7 +399,7 @@ class MockTelecom(StorefrontBackend):
             DisclosureRow(
                 label="Additional monthly fees",
                 value=f"${_NETWORK_SURCHARGE_USD:g}/line Network Compliance Surcharge",
-                note="an ACME Mobile charge, not a government tax; taxes vary by location",
+                note="an Zava Mobile charge, not a government tax; taxes vary by location",
             ),
             DisclosureRow(
                 label="One-time fees",
@@ -470,7 +470,7 @@ class MockTelecom(StorefrontBackend):
             DisclosureRow(
                 label="Estimated all-in",
                 value=f"${product.price + _NETWORK_SURCHARGE_USD:.2f}/mo",
-                note="plan + ACME surcharge, before location taxes",
+                note="plan + Zava surcharge, before location taxes",
             )
         )
 
@@ -538,7 +538,7 @@ class MockTelecom(StorefrontBackend):
                     method="pickup",
                     eta="ready today",
                     fee=0.0,
-                    location="ACME Mobile store",
+                    location="Zava Mobile store",
                 )
             )
         if "home-internet" in categories:

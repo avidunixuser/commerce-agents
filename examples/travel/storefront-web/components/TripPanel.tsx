@@ -132,7 +132,7 @@ export default function TripPanel({
         <>
           Nothing booked yet.
           <br />
-          Ask ACME Assistant where to go.
+          Ask Zava Assistant where to go.
         </>
       }
       footer={

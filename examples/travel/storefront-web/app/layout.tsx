@@ -6,8 +6,8 @@ import "web-shared/travel-fonts.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ACME Travel",
-  description: "Plan and book trips with the ACME Assistant.",
+  title: "Zava Travel",
+  description: "Plan and book trips with the Zava Assistant.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

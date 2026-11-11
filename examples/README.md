@@ -1,7 +1,7 @@
 # examples
 
-Four vertical demos, each running both agents over one catalog: `retail/` (ACME),
-`travel/` (ACME Travel), `telecom/` (ACME Mobile), and `entertainment/` (ACME Tickets).
+Four vertical demos, each running both agents over one catalog: `retail/` (Zava),
+`travel/` (Zava Travel), `telecom/` (Zava Mobile), and `entertainment/` (Zava Tickets).
 `python scripts/run_demo.py <vertical>` starts one; each vertical's README lists its ports,
 prompts to try on both surfaces, and what it adds to the libraries.
 
@@ -24,6 +24,10 @@ own components: `components/generative/` has one entry per presentation tool, ty
 app's `lib/types.ts`, so the four frontends are four builds of the same payload schemas
 (`shopping_agent/tools/presentation.py`, `merchant_agent/tools/presentation.py`); a
 deployment's frontend is a fifth.
+
+`web-shared/ZavaLogo.tsx` renders the supplied Zava artwork in full and compact
+forms across all eight app headers. `web-shared/assets/` retains the original
+PNG and its padded crops; each app's `app/icon.png` uses the matching symbol.
 
 ## Showcase pages
 

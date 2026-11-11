@@ -4,7 +4,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { type AgentEvent, OrdersView, plural, StoreShell, type StoreView, upcoming, useAgentTurn, useResource, useSession } from "web-shared";
+import { type AgentEvent, OrdersView, plural, StoreShell, type StoreView, upcoming, useAgentTurn, useResource, useSession, ZavaLogo } from "web-shared";
 import Chat from "@/components/Chat";
 import TripPanel from "@/components/TripPanel";
 import HomeView from "@/components/views/HomeView";
@@ -15,15 +15,13 @@ import type { CartPayload } from "@/lib/types";
 
 type View = "assistant" | "trips";
 
-const ASSISTANT = "ACME Assistant";
+const ASSISTANT = "Zava Assistant";
 
 function Wordmark() {
   return (
-    <span className="al-display pr-1 text-[22px] italic leading-none text-(--ink)" style={{ fontWeight: 650 }}>
-      <span className="mr-1 not-italic text-[13px] text-(--accent)" aria-hidden>
-        ◈
-      </span>
-      ACME Travel
+    <span className="flex items-center gap-2 pr-1">
+      <ZavaLogo />
+      <span className="al-display text-[18px] italic text-(--ink)">Travel</span>
     </span>
   );
 }

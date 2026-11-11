@@ -1,4 +1,4 @@
-# ACME Travel (travel)
+# Zava Travel (travel)
 
 The travel example runs both agents over one date-bound catalog of stays, flights, and
 experiences: the storefront quotes dated searches, lays a trip out day by day, and books
@@ -31,7 +31,7 @@ Storefront (`scripts/smoke_chat.py --vertical travel` runs the same three turns)
 
 1. Plan me a long weekend in Lisbon in mid-October — boutique stay, a couple of experiences, walkable neighborhood. Lay it out day by day.
 2. Compare the stay you picked against a refundable alternative — what's the price difference for flexibility?
-3. Add the refundable stay to my trip, and what does ACME Travel's cancellation window look like for it?
+3. Add the refundable stay to my trip, and what does Zava Travel's cancellation window look like for it?
 
 Portal (`scripts/smoke_chat.py --vertical travel --merchant`; the third turn is refused
 until the change is approved on its card, and the last two follow the approval):

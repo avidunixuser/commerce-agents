@@ -70,7 +70,7 @@ VERTICAL_TURNS: dict[str, list[dict[str, Any]]] = {
             "expect_events": {"ui", "turn_complete"},
         },
         {
-            "message": "Add the refundable stay to my trip, and what does ACME Travel's cancellation window look like for it?",
+            "message": "Add the refundable stay to my trip, and what does Zava Travel's cancellation window look like for it?",
             "expect_tools": {"add_to_cart"},
             "expect_events": {"cart_update", "turn_complete"},
         },
@@ -86,7 +86,7 @@ VERTICAL_TURNS: dict[str, list[dict[str, Any]]] = {
         },
         {
             "message": (
-                "Am I eligible to upgrade my ACME Phone 4 yet? Show me what I could move "
+                "Am I eligible to upgrade my Zava Phone 4 yet? Show me what I could move "
                 "to, and what the trade-in credit and early-upgrade terms would get me."
             ),
             "expect_tools": {"search_policies"},

@@ -44,13 +44,13 @@ NEXT = EXAMPLES_DIR / "node_modules" / ".bin" / "next"
 VERTICALS: dict[str, dict[str, object]] = {
     "retail": {
         "api_port": 8000,
-        "store": "ACME",
+        "store": "Zava",
         # Retail persists memory across restarts; --fresh-memory deletes these files.
         "memory_files": ("data/.memory-store.json", "data/.memory-seeded.json"),
     },
-    "travel": {"api_port": 8001, "store": "ACME Travel"},
-    "telecom": {"api_port": 8002, "store": "ACME Mobile"},
-    "entertainment": {"api_port": 8003, "store": "ACME Tickets"},
+    "travel": {"api_port": 8001, "store": "Zava Travel"},
+    "telecom": {"api_port": 8002, "store": "Zava Mobile"},
+    "entertainment": {"api_port": 8003, "store": "Zava Tickets"},
 }
 
 PYTHON_MODULES = (

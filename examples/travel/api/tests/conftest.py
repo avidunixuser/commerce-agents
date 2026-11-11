@@ -33,7 +33,7 @@ def make_storefront():
 
 @pytest.fixture
 def merchant(backend) -> MockTravelMerchant:
-    return MockTravelMerchant(backend, build_merchant_config("ACME Travel"))
+    return MockTravelMerchant(backend, build_merchant_config("Zava Travel"))
 
 
 @pytest.fixture

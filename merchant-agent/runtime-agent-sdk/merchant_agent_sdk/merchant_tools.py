@@ -70,7 +70,7 @@ class MerchantToolset(BaseToolset):
     config: MerchantAgentConfig = field(default_factory=MerchantAgentConfig)
     session: MerchantSessionContext = field(
         default_factory=lambda: MerchantSessionContext(
-            session_id="local", merchant_id="acme-retail", operator="demo-operator"
+            session_id="local", merchant_id="zava-retail", operator="demo-operator"
         )
     )
     state: MerchantSessionState = field(default_factory=MerchantSessionState)

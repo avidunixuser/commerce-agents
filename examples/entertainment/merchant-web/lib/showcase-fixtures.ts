@@ -69,7 +69,7 @@ const metrics: MetricsPayload = {
 };
 
 const digest: DigestPayload = {
-  title: "Morning check — the Friday ACME Amphitheater show",
+  title: "Morning check — the Friday Zava Amphitheater show",
   items: [
     {
       kind: "low_stock",
@@ -117,7 +117,7 @@ const event_pacing: EventPacingPayload = {
     {
       event_id: "AT-EVT-101",
       event_name: "The Headliner — Summer Tour",
-      venue: "ACME Amphitheater",
+      venue: "Zava Amphitheater",
       city: "Springfield",
       event_date: "2026-08-14",
       on_sale_date: "2026-05-08",

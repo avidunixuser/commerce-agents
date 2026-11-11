@@ -1,7 +1,7 @@
 # Copyright 2026 Anthropic PBC
 # SPDX-License-Identifier: Apache-2.0
 
-"""A console for the shopping agent on the Agent SDK, over the mock ACME storefront::
+"""A console for the shopping agent on the Agent SDK, over the mock Zava storefront::
 
     python shopping-agent/runtime-agent-sdk/main.py [--once "find me a tent"]
 
@@ -48,7 +48,7 @@ def print_turn(result: TurnResult) -> None:
 
 async def chat() -> None:
     options, toolset = make_options()
-    print("ACME shopping agent (Agent SDK path). Type 'exit' to quit.\n")
+    print("Zava shopping agent (Agent SDK path). Type 'exit' to quit.\n")
     async with ClaudeSDKClient(options=options) as client:
         while True:
             try:
@@ -71,7 +71,7 @@ async def once(prompt: str) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="ACME shopping agent on the Claude Agent SDK")
+    parser = argparse.ArgumentParser(description="Zava shopping agent on the Claude Agent SDK")
     parser.add_argument("--once", metavar="QUERY", help="run a single query and exit")
     args = parser.parse_args()
     with contextlib.suppress(KeyboardInterrupt):

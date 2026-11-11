@@ -22,4 +22,4 @@ def test_an_unknown_field_name_fails_at_construction(config_class):
 
 
 def test_a_subclass_accepts_the_fields_it_adds():
-    assert RoleConfig(brand_name="ACME", role_only=2).role_only == 2
+    assert RoleConfig(brand_name="Zava", role_only=2).role_only == 2

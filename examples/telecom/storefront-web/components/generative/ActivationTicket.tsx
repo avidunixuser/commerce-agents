@@ -171,7 +171,7 @@ export default function ActivationTicket({
               Activates in minutes after you check out.
             </p>
           </div>
-          <QrPlate seed={items.map((i) => i.product_id).join("|") || "acme-mobile"} />
+          <QrPlate seed={items.map((i) => i.product_id).join("|") || "zava-mobile"} />
         </div>
       </div>
 

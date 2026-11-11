@@ -6,8 +6,8 @@ import "web-shared/entertainment-fonts.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ACME Tickets",
-  description: "Find shows and hold seats with the ACME Assistant.",
+  title: "Zava Tickets",
+  description: "Find shows and hold seats with the Zava Assistant.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

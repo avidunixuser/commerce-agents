@@ -18,7 +18,7 @@ import type {
   WalletTicket,
 } from "./types";
 
-// --- Box-office tiers: The Headliner at ACME Amphitheater, Fri Aug 14 ------------
+// --- Box-office tiers: The Headliner at Zava Amphitheater, Fri Aug 14 ------------
 
 const HEADLINER_PIT: Product = {
   product_id: "AT-TIX-101-PIT",
@@ -30,7 +30,7 @@ const HEADLINER_PIT: Product = {
   labels: ["Selling fast, 6 left"],
   attributes: {
     event_name: "The Headliner — Summer Tour",
-    venue: "ACME Amphitheater",
+    venue: "Zava Amphitheater",
     city: "Springfield",
     event_date: "2026-08-14",
     event_time: "19:30",
@@ -54,7 +54,7 @@ const HEADLINER_LOWER: Product = {
   category: "tickets",
   attributes: {
     event_name: "The Headliner — Summer Tour",
-    venue: "ACME Amphitheater",
+    venue: "Zava Amphitheater",
     city: "Springfield",
     event_date: "2026-08-14",
     event_time: "19:30",
@@ -78,7 +78,7 @@ const HEADLINER_TERRACE: Product = {
   category: "tickets",
   attributes: {
     event_name: "The Headliner — Summer Tour",
-    venue: "ACME Amphitheater",
+    venue: "Zava Amphitheater",
     city: "Springfield",
     event_date: "2026-08-14",
     event_time: "19:30",
@@ -105,7 +105,7 @@ const RESALE_SYNTH_PIT: Product = {
   labels: ["Selling fast, 2 left"],
   attributes: {
     event_name: "The Synth-Pop Act — Fall Tour",
-    venue: "ACME Amphitheater",
+    venue: "Zava Amphitheater",
     city: "Springfield",
     event_date: "2026-08-28",
     event_time: "20:00",
@@ -135,7 +135,7 @@ const RESALE_SYNTH_TERRACE: Product = {
   labels: ["Selling fast, 2 left"],
   attributes: {
     event_name: "The Synth-Pop Act — Fall Tour",
-    venue: "ACME Amphitheater",
+    venue: "Zava Amphitheater",
     city: "Springfield",
     event_date: "2026-08-28",
     event_time: "20:00",
@@ -165,7 +165,7 @@ const RESALE_HEADLINER_LOWER: Product = {
   labels: ["Selling fast, 2 left"],
   attributes: {
     event_name: "The Headliner — Summer Tour",
-    venue: "ACME Amphitheater",
+    venue: "Zava Amphitheater",
     city: "Springfield",
     event_date: "2026-08-14",
     event_time: "19:30",
@@ -188,7 +188,7 @@ const RESALE_HEADLINER_LOWER: Product = {
 // --- Payloads ------------------------------------------------------------------
 
 const products: ProductsPayload = {
-  title: "The Headliner at ACME Amphitheater — Friday, every way in",
+  title: "The Headliner at Zava Amphitheater — Friday, every way in",
   items: [
     {
       product: HEADLINER_PIT,
@@ -216,7 +216,7 @@ const resale: ProductsPayload = {
 };
 
 const comparison: ComparisonPayload = {
-  title: "Friday at ACME Amphitheater — GA Pit vs Lower Bowl vs Upper Terrace",
+  title: "Friday at Zava Amphitheater — GA Pit vs Lower Bowl vs Upper Terrace",
   entries: [
     {
       product_id: "AT-TIX-101-PIT",
@@ -246,7 +246,7 @@ const comparison: ComparisonPayload = {
 
 const plan: PlanPayload = {
   title: "Your Summer Tour Friday",
-  intro: "Three beats for the ACME Amphitheater closing weekend, all prices all-in.",
+  intro: "Three beats for the Zava Amphitheater closing weekend, all prices all-in.",
   steps: [
     {
       label: "Lock the seats",
@@ -378,7 +378,7 @@ const hold: HoldPayload = {
 const order_status: OrderStatusPayload = {
   order_id: "AT-ORD-9002",
   summary:
-    "Two Lower Bowl tickets for The Headliner on Friday Aug 14 — delivered to your ACME Tickets wallet on July 1.",
+    "Two Lower Bowl tickets for The Headliner on Friday Aug 14 — delivered to your Zava Tickets wallet on July 1.",
   next_step: "Your mobile tickets are in the wallet; the barcode rotates on its own.",
   order: {
     order_id: "AT-ORD-9002",
@@ -394,13 +394,13 @@ const order_status: OrderStatusPayload = {
     ],
     total: 178.0,
     currency: "USD",
-    estimated_delivery: "delivered to your ACME Tickets wallet",
+    estimated_delivery: "delivered to your Zava Tickets wallet",
   },
 };
 
 /** Sections from data/venues.json; tier state from data/inventory.json. */
 const venue_map: VenueMapPayload = {
-  title: "ACME Amphitheater — the room for Friday",
+  title: "Zava Amphitheater — the room for Friday",
   event: {
     event_id: "AT-EVT-101",
     name: "The Headliner — Summer Tour",
@@ -409,7 +409,7 @@ const venue_map: VenueMapPayload = {
   },
   venue: {
     venue_id: "AT-VEN-01",
-    name: "ACME Amphitheater",
+    name: "Zava Amphitheater",
     city: "Springfield",
     viewbox: { width: 100, height: 62 },
   },
@@ -522,7 +522,7 @@ export const SHOWCASE_WALLET_ACTIVE: WalletTicket = {
   ticket_id: "AT-TKT-7003",
   event: "The Headliner — Summer Tour",
   date: "2026-08-14",
-  venue: "ACME Amphitheater",
+  venue: "Zava Amphitheater",
   tier: "Lower Bowl",
   seat: "Section 104, Row J, Seat 12",
   status: "active",

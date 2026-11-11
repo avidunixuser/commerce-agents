@@ -25,7 +25,7 @@ inputs. The local operator ID is retained in the ignored
 
 1. Use the supplied isolated demo registration in the confirmed deployment
    tenant, with accounts in this organizational directory only. If none has
-   been supplied, register `ACME Retail Demo`. Confirm the approved operator
+   been supplied, register `Zava Retail Demo`. Confirm the approved operator
    owns it. Do not reuse a production application's credentials or permissions.
 2. In the application manifest, set `api.requestedAccessTokenVersion` to `2`.
    Set the application ID URI to `api://<application-client-id>`. Expose the

@@ -17,7 +17,7 @@ ARG WEB_APP
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
 RUN case "$VERTICAL" in retail|travel|telecom|entertainment) ;; *) exit 1 ;; esac \
     && case "$WEB_APP" in storefront-web|merchant-web) ;; *) exit 1 ;; esac \
-    && npm run build --workspace "acme-${VERTICAL}-${WEB_APP}" \
+    && npm run build --workspace "zava-${VERTICAL}-${WEB_APP}" \
     && mkdir -p /output \
     && cp -a "${VERTICAL}/${WEB_APP}/.next/standalone/." /output/ \
     && mkdir -p /output/licenses \

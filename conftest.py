@@ -86,7 +86,7 @@ CATALOG: dict[str, ProductDetails] = {
     "p-100": ProductDetails(
         product_id="p-100",
         title="2-Person Backpacking Tent",
-        brand="ACME Basecamp",
+        brand="Zava Basecamp",
         price=149.0,
         rating=4.6,
         review_count=812,
@@ -100,7 +100,7 @@ CATALOG: dict[str, ProductDetails] = {
     "p-200": ProductDetails(
         product_id="p-200",
         title="Two-Burner Camp Stove",
-        brand="ACME Signature",
+        brand="Zava Signature",
         price=64.5,
         rating=4.4,
         review_count=233,
@@ -111,7 +111,7 @@ CATALOG: dict[str, ProductDetails] = {
     "p-300": ProductDetails(
         product_id="p-300",
         title="Drift Insulated Sleeping Bag",
-        brand="ACME Basecamp",
+        brand="Zava Basecamp",
         price=89.0,
         rating=4.2,
         review_count=145,
@@ -123,7 +123,7 @@ CATALOG: dict[str, ProductDetails] = {
     "p-400": ProductDetails(
         product_id="p-400",
         title="Trail Sleeping Pad",
-        brand="ACME Basecamp",
+        brand="Zava Basecamp",
         price=59.0,
         category="outdoor",
         short_description="Self-inflating pad in two lengths.",
@@ -636,7 +636,7 @@ class FakeMerchantBackend(MerchantBackend):
     async def get_merchant_context(self, session: MerchantSessionContext) -> dict[str, Any] | None:
         del session
         return {
-            "store": "ACME",
+            "store": "Zava",
             "current_period": "2026-06-19/2026-06-25",
             "alerts": {"low_stock": 1, "order_issues": 1},
             "operator": "demo-operator",
@@ -661,9 +661,9 @@ def config(role) -> ShoppingAgentConfig | MerchantAgentConfig:
     if role == "merchant":
         # The conversational apply flow; the host-approval gate is switched on where tested.
         return MerchantAgentConfig(
-            brand_name="ACME", max_items_per_change=10, require_host_approval=False
+            brand_name="Zava", max_items_per_change=10, require_host_approval=False
         )
-    return ShoppingAgentConfig(brand_name="ACME", assistant_name="Scout", max_quantity_per_item=10)
+    return ShoppingAgentConfig(brand_name="Zava", assistant_name="Scout", max_quantity_per_item=10)
 
 
 @pytest.fixture
@@ -675,7 +675,7 @@ def backend(role, config) -> FakeBackend | FakeMerchantBackend:
 def session(role) -> ShoppingSessionContext | MerchantSessionContext:
     if role == "merchant":
         return MerchantSessionContext(
-            session_id="ms-1", merchant_id="acme-retail", operator="demo-operator"
+            session_id="ms-1", merchant_id="zava-retail", operator="demo-operator"
         )
     return ShoppingSessionContext(session_id="s-1", user_id="u-1")
 

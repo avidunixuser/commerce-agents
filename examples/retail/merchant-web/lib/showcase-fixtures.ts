@@ -15,7 +15,7 @@ const digest: DigestPayload = {
       why_it_matters: "Selling roughly 52 units a month; at that pace the listing goes dark this week.",
       listing: {
         listing_id: "AR-2102",
-        title: "ACME Kids Peel-and-Stick Ocean Wall Decals (36 pc)",
+        title: "Zava Kids Peel-and-Stick Ocean Wall Decals (36 pc)",
         status: "active",
         price: 24.0,
         stock: 3,
@@ -43,7 +43,7 @@ const change_preview: ChangePreviewPayload = {
     change_id: "chg-3021",
     kind: "inventory_action",
     status: "staged",
-    summary: "Add 52 units of ACME Kids Peel-and-Stick Ocean Wall Decals (AR-2102)",
+    summary: "Add 52 units of Zava Kids Peel-and-Stick Ocean Wall Decals (AR-2102)",
     items: [{ target: "AR-2102", field: "stock", before: 3, after: 55 }],
     created_at: "2026-07-09",
     created_by: "Avery",

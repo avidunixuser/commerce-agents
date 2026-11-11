@@ -48,11 +48,11 @@ def names(tools: list[dict]) -> list[str]:
 
 
 def shopping(**switches) -> ShoppingAgentConfig:
-    return ShoppingAgentConfig(brand_name="ACME", **switches)
+    return ShoppingAgentConfig(brand_name="Zava", **switches)
 
 
 def merchant(**switches) -> MerchantAgentConfig:
-    return MerchantAgentConfig(brand_name="ACME", **switches)
+    return MerchantAgentConfig(brand_name="Zava", **switches)
 
 
 # -- tools[] ---------------------------------------------------------------------------
@@ -116,7 +116,7 @@ def test_shopping_prompt_follows_the_switches():
 
     no_policies = shopping_static_system(shopping(enable_policies=False), skills)
     assert "search_policies" not in no_policies and "store's terms (return" not in no_policies
-    assert "Stay within shopping, planning, and orders for ACME" in no_policies
+    assert "Stay within shopping, planning, and orders for Zava" in no_policies
 
     no_fulfillment = shopping_static_system(shopping(enable_fulfillment=False), skills)
     assert "get_fulfillment_options" not in no_fulfillment
@@ -126,14 +126,14 @@ def test_shopping_prompt_follows_the_switches():
     assert "This store has no" not in full
     no_orders = shopping_static_system(shopping(enable_orders=False), skills)
     assert "get_orders" not in no_orders
-    assert "Stay within shopping, planning, and store terms for ACME" in no_orders
+    assert "Stay within shopping, planning, and store terms for Zava" in no_orders
     assert "This store has no order history or tracking here." in no_orders
     assert "not an outage" in no_orders
     both = shopping_static_system(shopping(enable_cart=False, enable_policies=False), skills)
     assert "no a cart or checkout, no a lookup of the store's terms here" in both
 
     bare = shopping(**{switch: False for switch in SHOPPING_SWITCHES})
-    assert "Stay within shopping and planning for ACME" in shopping_static_system(bare, skills)
+    assert "Stay within shopping and planning for Zava" in shopping_static_system(bare, skills)
 
 
 def test_merchant_prompt_drops_the_write_contract_only_when_every_write_is_off():

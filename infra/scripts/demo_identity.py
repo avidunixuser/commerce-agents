@@ -13,7 +13,7 @@ from urllib.request import HTTPRedirectHandler, Request, build_opener
 from azure.identity import AzureCliCredential
 
 ROOT = Path(__file__).resolve().parents[2]
-SCOPE_ID = str(uuid.uuid5(uuid.NAMESPACE_URL, "https://acme.invalid/commerce-demo/access-as-user"))
+SCOPE_ID = "e4cd0562-8efc-5d95-818c-81f3c1a9d935"
 
 
 class IdentityError(RuntimeError):
@@ -94,10 +94,10 @@ def owned_patch(app: dict) -> dict:
                     "value": "access_as_user",
                     "type": "User",
                     "isEnabled": True,
-                    "adminConsentDisplayName": "Use the ACME retail demo",
-                    "adminConsentDescription": "Access the isolated ACME retail demo as the signed-in user.",
-                    "userConsentDisplayName": "Use the ACME retail demo",
-                    "userConsentDescription": "Access the isolated ACME retail demo as you.",
+                    "adminConsentDisplayName": "Use the Zava retail demo",
+                    "adminConsentDescription": "Access the isolated Zava retail demo as the signed-in user.",
+                    "userConsentDisplayName": "Use the Zava retail demo",
+                    "userConsentDescription": "Access the isolated Zava retail demo as you.",
                 }
             ],
             "preAuthorizedApplications": [

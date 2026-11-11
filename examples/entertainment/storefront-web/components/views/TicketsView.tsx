@@ -51,7 +51,7 @@ export default function TicketsView() {
   const pending = tickets.filter((ticket) => ticket.status === "transfer_pending").length;
   const events = new Set(tickets.map((ticket) => ticket.event)).size;
   const subtitle = tickets.length
-    ? `${plural(tickets.length, "ticket")} across ${plural(events, "show")}${pending ? `, ${plural(pending, "transfer")} pending` : ""}. Ask ACME Assistant about a transfer, resale, or refund.`
+    ? `${plural(tickets.length, "ticket")} across ${plural(events, "show")}${pending ? `, ${plural(pending, "transfer")} pending` : ""}. Ask Zava Assistant about a transfer, resale, or refund.`
     : EMPTY_WALLET;
   return (
     <StorePage>

@@ -1,7 +1,7 @@
 {
   "_comment": "The window and every week_start are shifted forward by whole weeks at load time, relative to dates_anchored_to (load_occupancy in api/mock_travel.py), the same shift catalog.json gets. Author the dates as if dates_anchored_to were today.",
   "dates_anchored_to": "2026-08-24",
-  "supplier": "ACME Travel \u2014 city stays portfolio",
+  "supplier": "Zava Travel \u2014 city stays portfolio",
   "window": {
     "from": "2026-08-01",
     "to": "2026-12-20"

@@ -80,7 +80,7 @@ def build_analysis_agent(config: MerchantAgentConfig) -> AgentDefinition:
 
 def default_config() -> MerchantAgentConfig:
     """The demo store's identity; a deployment supplies its own config."""
-    return MerchantAgentConfig(brand_name="ACME")
+    return MerchantAgentConfig(brand_name="Zava")
 
 
 def load_skill_registry(skills_dir: Path | None = None) -> SkillRegistry:
@@ -99,7 +99,7 @@ def make_options(
     backend: MerchantBackend | None = None,
     config: MerchantAgentConfig | None = None,
     session_id: str = "local-session",
-    merchant_id: str = "acme-retail",
+    merchant_id: str = "zava-retail",
     operator: str = "demo-operator",
     max_turns: int = 16,
     skills_dir: Path | None = None,

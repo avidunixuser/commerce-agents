@@ -131,7 +131,7 @@ class MockTicketingMerchant(MerchantBackend):
         pacing = _shift_pacing(
             load_json(data_dir, "merchant_pacing.json"), storefront.calendar_shift
         )
-        self.promoter_name: str = pacing.get("promoter", "ACME Tickets promoter")
+        self.promoter_name: str = pacing.get("promoter", "Zava Tickets promoter")
         self._baselines: dict[str, list[list[float]]] = pacing.get("baselines", {})
         self._events: dict[str, dict[str, Any]] = {
             row["event_id"]: dict(row) for row in pacing["events"]
@@ -806,7 +806,7 @@ class MockTicketingMerchant(MerchantBackend):
                 raise ValueError(f"no listing {item.listing_id}")
             if item.action != "restock":
                 raise ChangeNotApplicable(
-                    "ACME Tickets doesn't pause tiers mid-sale in this example — "
+                    "Zava Tickets doesn't pause tiers mid-sale in this example — "
                     "right-size the room with hold releases and pricing instead."
                 )
             quantity = item.quantity or 0

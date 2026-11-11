@@ -47,7 +47,7 @@ async def test_headless_turn_returns_the_digest_payload(monkeypatch):
 
 
 async def test_the_session_comes_from_the_merchant_environment_variables(monkeypatch):
-    monkeypatch.setenv("MERCHANT_ID", "acme-outlet")
+    monkeypatch.setenv("MERCHANT_ID", "zava-outlet")
     monkeypatch.setenv("MERCHANT_OPERATOR", "night-shift")
     monkeypatch.setenv("MERCHANT_TIMEZONE", "Europe/Lisbon")
     sessions = []
@@ -60,5 +60,5 @@ async def test_the_session_comes_from_the_merchant_environment_variables(monkeyp
 
     await _load_script().run_digest(RecordingAgent())
     (session,) = sessions
-    assert (session.merchant_id, session.operator) == ("acme-outlet", "night-shift")
+    assert (session.merchant_id, session.operator) == ("zava-outlet", "night-shift")
     assert session.timezone == "Europe/Lisbon"

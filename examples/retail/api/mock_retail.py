@@ -368,7 +368,7 @@ class MockRetail(StorefrontBackend):
                 method="pickup",
                 eta=self._pickup_eta(datetime.now()),
                 fee=0.0,
-                location=f"ACME {location}",
+                location=f"Zava {location}",
             ),
         ]
         if any(

@@ -336,7 +336,7 @@ def settle_deployment(
 
 
 def remote_build(config: Config, state: dict, mode: str, folder: pathlib.Path) -> str:
-    identifier(mode, r"smoke|retail-storefront|all", "build mode")
+    identifier(mode, r"smoke|retail-storefront|retail-release|all", "build mode")
     values = {
         "repository": config.repository,
         "sha": state["sha"],
@@ -417,6 +417,8 @@ def remote_build(config: Config, state: dict, mode: str, folder: pathlib.Path) -
                 expected = {"gateway"}
             elif mode == "retail-storefront":
                 expected = {"retail-storefront-web"}
+            elif mode == "retail-release":
+                expected = {"gateway", "api", "retail-storefront-web", "retail-merchant-web"}
             else:
                 expected = {
                     "gateway",
@@ -591,7 +593,9 @@ def main() -> None:
     run = sub.add_parser("run")
     run.add_argument("--source-sha", required=True)
     run.add_argument("--run-id", required=True)
-    run.add_argument("--images", choices=("smoke", "retail-storefront", "all"), default="smoke")
+    run.add_argument(
+        "--images", choices=("smoke", "retail-storefront", "retail-release", "all"), default="smoke"
+    )
     run.add_argument("--state-file", type=pathlib.Path, required=True)
     run.add_argument("--operator", action="store_true")
     run.add_argument("--approve-disposable-cleanup", action="store_true")

@@ -45,7 +45,7 @@ REPO_ROOT = SERVER_DIR.parents[2]
 
 DEFAULT_HOST = os.environ.get("MERCHANT_MCP_HOST", "127.0.0.1")
 DEFAULT_PORT = int(os.environ.get("MERCHANT_MCP_PORT", "8201"))
-DEMO_MERCHANT_ID = os.environ.get("MERCHANT_MCP_MERCHANT_ID", "acme-retail")
+DEMO_MERCHANT_ID = os.environ.get("MERCHANT_MCP_MERCHANT_ID", "zava-retail")
 DEMO_OPERATOR = os.environ.get("MERCHANT_MCP_OPERATOR", "demo-operator")
 DEMO_SESSION_ID = os.environ.get("MERCHANT_MCP_SESSION_ID", "managed-agent-demo")
 
@@ -68,7 +68,7 @@ def default_config() -> MerchantAgentConfig:
     not cross MCP, so a stage call cannot show its preview and the agent's
     present_change_preview custom tool does."""
     return MerchantAgentConfig(
-        brand_name="ACME", require_host_approval=False, stage_shows_preview=False
+        brand_name="Zava", require_host_approval=False, stage_shows_preview=False
     )
 
 

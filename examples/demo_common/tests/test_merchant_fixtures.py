@@ -185,7 +185,7 @@ def test_filter_listings_narrows_sorts_and_pages():
 
 
 def test_campaign_staging_and_promotion_windows():
-    ledger = ChangeLedger(MerchantAgentConfig(brand_name="ACME"))
+    ledger = ChangeLedger(MerchantAgentConfig(brand_name="Zava"))
     campaigns = {
         "C-1": Campaign(
             campaign_id="C-1",

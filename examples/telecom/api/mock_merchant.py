@@ -116,7 +116,7 @@ class MockTelecomMerchant(MerchantBackend):
         self._daily = rebase_daily(metrics["daily"])
         self._currency: str = metrics.get("currency", "USD")
         subscribers = load_json(data_dir, "merchant_subscribers.json")
-        self.carrier_name: str = subscribers.get("carrier", "ACME Mobile commercial operations")
+        self.carrier_name: str = subscribers.get("carrier", "Zava Mobile commercial operations")
         self._wholesale: dict[str, Any] = subscribers.get("wholesale", {})
         self._plans: dict[str, dict[str, Any]] = {
             row["plan_id"]: {**row, "weeks": rebase_weeks(row.get("weeks") or [])}
@@ -798,7 +798,7 @@ class MockTelecomMerchant(MerchantBackend):
                 if inventory is None:
                     raise ChangeNotApplicable(
                         f"{product.title} is a service, not stocked "
-                        "hardware — ACME Mobile holds no inventory for it. Pause or activate "
+                        "hardware — Zava Mobile holds no inventory for it. Pause or activate "
                         "its availability, or use the pricing tools instead."
                     )
                 current: Any = int(inventory["stock"])

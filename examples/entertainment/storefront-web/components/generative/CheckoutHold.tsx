@@ -133,7 +133,7 @@ export default function CheckoutHold({
       </div>
       <p className="mt-1 text-right text-[11px] text-(--ink-soft)">
         {expired
-          ? "These seats went back on sale. Ask ACME Assistant to hold them again."
+          ? "These seats went back on sale. Ask Zava Assistant to hold them again."
           : "At 0:00 these seats release to other buyers."}
       </p>
 
@@ -247,7 +247,7 @@ export default function CheckoutHold({
           </>
         ) : (
           <p className="mt-3 text-center text-[11px] text-(--ink-soft)/80">
-            Ask ACME Assistant to check out before the timer ends, or let the hold lapse and
+            Ask Zava Assistant to check out before the timer ends, or let the hold lapse and
             the seats go back on sale. Nothing is charged here.
           </p>
         )}

@@ -44,7 +44,7 @@ async def test_disclosure_requires_provenance(executor):
 
 
 async def test_no_disclosure_for_devices(executor):
-    await executor.execute("search_products", {"query": "ACME Phone", "limit": 25})
+    await executor.execute("search_products", {"query": "Zava Phone", "limit": 25})
     result = await executor.execute("present_disclosure", {"product_id": "AM-DEV-202"})
     assert result.is_error
     assert "No disclosure exists" in result.result_text

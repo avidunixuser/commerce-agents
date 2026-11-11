@@ -85,7 +85,7 @@ def test_validate_fact_normalizes_the_key_and_clamps_to_the_schema_caps():
         "call me on 010 555 0100 about deliveries",
         "call (010) 555-0100 after six",
         "loyalty account 001122334455",
-        "pay from ZZ12ACME00001234567890",
+        "pay from ZZ12Zava00001234567890",
         "reach me at avery@example.test",
     ],
 )
