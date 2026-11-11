@@ -124,6 +124,18 @@ def test_private_boundary_required(settings):
     assert replace(settings, role="merchant", private_boundary=True).role == "merchant"
 
 
+@pytest.mark.parametrize("role", ["shopping", "merchant"])
+@pytest.mark.parametrize("path", ["/", "/api/auth/session"])
+async def test_same_origin_referrer_supports_platform_csrf_without_cross_site_disclosure(
+    settings, role, path
+):
+    browser, _, _ = setup(replace(settings, role=role, private_boundary=role == "merchant"))
+    async with browser:
+        response = await browser.get(path)
+    assert response.status_code == (303 if role == "merchant" and path == "/" else 200)
+    assert response.headers["Referrer-Policy"] == "same-origin"
+
+
 @pytest.mark.parametrize("mode", ["production", "fixture"])
 async def test_runtime_demo_label_comes_from_validated_server_configuration(settings, mode):
     browser, _, requests = setup(replace(settings, mode=mode))
