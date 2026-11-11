@@ -1,6 +1,6 @@
 # Azure deployment plan
 
-**Status: Approved - shared catalog startup repair and one retail-storefront-only protected build; deployed shopper remains operator-protected.**
+**Status: Deployed - six Container Apps healthy; operator-only shopper catalog, chat and durable replay verified.**
 
 ## Current deployment request
 
@@ -38,9 +38,10 @@ route rejection. Public health and anonymous API rejection pass. The operator
 completed platform and gateway sign-in. After the referrer repair, ordinary
 browser session creation, streaming product comparison, a context-aware
 follow-up and persisted event replay after a fresh document load pass.
-A 403 warning remains visible despite successful current requests; its display
-cause is unresolved. Private merchant interactive sign-in/approval and an
-actual second-account allowlist rejection have not been verified.
+The catalog startup race is repaired: fresh signed-in pages read products with
+200, render the featured catalog and show no 403 warning. Private merchant
+interactive sign-in/approval and an actual second-account allowlist rejection
+have not been verified.
 
 The async transport repair passed normal source review and the single approved
 protected gateway build. Its digest and independent disposable-runner cleanup
@@ -250,15 +251,16 @@ Do not leave the build VM or setup permissions running after their bounded work.
 - [x] Repair gateway dependencies and verify focused regression coverage.
 - [x] Publish the gateway repair through normal exact-head CI and merge.
 - [x] Validate and complete the single protected repair build, digest acceptance and independent cleanup.
-- [ ] Validate and update only the two gateways with public shopper ingress closed.
-- [ ] Complete application verification and separately validate public shopper ingress.
-- [ ] Complete interactive sign-in, conversation, streaming and persistence acceptance.
+- [x] Validate and update only the two gateways with public shopper ingress closed.
+- [x] Complete application verification and separately validate public shopper ingress.
+- [x] Complete interactive shopper sign-in, conversation, streaming and persistence acceptance.
 
 ## 7. Validation Proof
 
-Initial foundation deployment and isolated access preflight are recorded below.
-Application workload validation and acceptance have not run. Read-only discovery
-and image-build acceptance are not substitute application validation proof.
+Foundation, access, workload and repair validations are recorded below.
+The final isolated-demo acceptance includes actual replicas, private/public
+HTTP boundaries and signed-in shopper catalog, streaming and durable replay.
+Image-build acceptance alone is not application or production acceptance.
 
 Source checks passed for the gateway, private setup and managed-identity telemetry (75 tests),
 infrastructure tooling (66 tests, one existing skip), both retail production
@@ -287,13 +289,13 @@ The standalone Bicep validation checklist applies separately to each approved
 deployment stage:
 
 - [x] Compile the demo foundation, access, setup and application templates.
-- [ ] Validate each stage with `az deployment group validate` and actual approved parameters.
-- [ ] Inspect each stage with `az deployment group what-if`; reject unrelated changes.
-- [ ] Refresh explicit subscription/tenant authentication before execution.
-- [ ] Check applicable Azure Policy assignments.
-- [ ] Verify runtime and temporary role definitions, scopes and required data operations.
-- [ ] Verify the reviewed source release and new private immutable image manifest.
-- [ ] Record all passing proof before setting the relevant deployment stage Validated.
+- [x] Validate each stage with `az deployment group validate` and actual approved parameters.
+- [x] Inspect each stage with `az deployment group what-if`; reject unrelated changes.
+- [x] Refresh explicit subscription/tenant authentication before execution.
+- [x] Check applicable Azure Policy assignments.
+- [x] Verify runtime and temporary role definitions, scopes and required data operations.
+- [x] Verify the reviewed source release and new private immutable image manifest.
+- [x] Record all passing proof before setting the relevant deployment stage Validated.
 
 ### Static role verification
 
@@ -305,7 +307,7 @@ namespaced secret readers. Existing image-pull identity permissions are reused,
 not duplicated on application identities. The setup identity's vault writer
 and demo-container data grant require separate approval and exact revocation.
 No new runtime Owner, Contributor or account-key access is defined. Live role
-verification remains a post-application gate.
+verification is recorded in the corresponding stage proofs.
 
 Owned-registration configuration is a separate, non-billable directory stage.
 Its exact API/role-definition patch and administrator assignment request bodies
@@ -668,7 +670,7 @@ remains. No additional build or retry was used.
 
 ### Two-gateway image-only repair validation
 
-- [ ] All image-only rollout validation checks pass.
+- [x] All image-only rollout validation checks pass.
   - [x] Capture secret-free live gateway snapshots and the exact shopper auth configuration.
   - [x] Calibrate the literal resource projection with provider validation and a no-op preview: exactly the two existing gateways are `NoChange`; no other resource is modified.
   - [x] Accept the exact single gateway digest from the protected workflow only after source, successful steps, manifest cardinality and independent cleanup verify.
@@ -729,7 +731,7 @@ environment-internal. No role, credential, model, image or foundation changes.
 - [x] Record template fingerprint, exact auth binding and unchanged isolation.
 - [x] Deploy only after this stage is Validated.
 - [x] Verify actual replica readiness, public health and anonymous sign-in enforcement.
-- [ ] Verify interactive operator sign-in and a persisted streamed conversation.
+- [x] Verify interactive operator sign-in and a persisted streamed conversation.
 
 On 2026-11-11 UTC, `demo_public_shopper.py generate` snapshots all six apps and
 verifies the exact existing operator-only HTTPS auth configuration.
@@ -792,7 +794,7 @@ OS disk absent and no run-owned/generation-tagged resources remaining. The
 original complete-image release and async-transport repair proofs are retained
 separately. No automatic retry or additional build was used.
 
-- [ ] All referrer image-only rollout validation checks pass.
+- [x] All referrer image-only rollout validation checks pass.
   - [x] Capture fresh six-app and unchanged operator-only auth snapshots.
   - [x] Calibrate the literal gateway projection with Provider validation and exactly two `NoChange` targets.
   - [x] Accept the exact single repair digest only after source, successful workflow and independent cleanup verification.
@@ -831,14 +833,12 @@ read the completed prior turn and replay its persisted text/completion events
 with 200. No order or payment is created. No token, cookie or raw user content
 is retained in verification artifacts.
 
-The frontend still displays a 403 warning although all current observed API
-requests pass and the new authentication sidecar logs show no matching CSRF
-rejection. Its display cause has not been resolved; do not describe the UI as
-warning-free. The initial comparison also repeats its narrative in the rendered
-output. Private merchant browser sign-in/approval has not been exercised, and
-the exact operator allowlist is configuration-verified rather than tested with
-a second account. No VPN or public merchant exposure was added. These remain
-explicit acceptance limitations, not reasons to weaken access control.
+At this stage the frontend still displayed a 403 warning, and one comparison
+repeated its narrative. The subsequent catalog stage below identifies and
+resolves the warning without weakening access control. Private merchant browser
+sign-in/approval has not been exercised, and the exact operator allowlist is
+configuration-verified rather than tested with a second account. No VPN or
+public merchant exposure was added.
 
 ### Session-bound catalog repair
 
@@ -860,12 +860,12 @@ Do not rebuild gateways, APIs or other frontends for this rollout.
 
 - [x] Pass catalog race/cache/session-change regressions and affected web builds.
 - [x] Pass targeted build selection and manifest-cardinality checks.
-- [ ] Publish source and merge only after exact-head CI.
-- [ ] Validate the unchanged disposable VM plan and protected configuration.
-- [ ] Run the single approved normally reviewed retail storefront build.
-- [ ] Verify its exact digest/source and independent compute cleanup.
-- [ ] Validate and deploy exactly the shopper-web image change.
-- [ ] Verify normal-browser catalog startup has no 403 and retains streamed chat.
+- [x] Publish source and merge only after exact-head CI.
+- [x] Validate the unchanged disposable VM plan and protected configuration.
+- [x] Run the single approved normally reviewed retail storefront build.
+- [x] Verify its exact digest/source and independent compute cleanup.
+- [x] Validate and deploy exactly the shopper-web image change.
+- [x] Verify normal-browser catalog startup has no 403 and retains streamed chat.
 
 Local validation passed: the shared web test command covers 23 cases, including
 six catalog regressions. Retail and telecom production Next.js builds completed
@@ -873,15 +873,97 @@ with TypeScript checking. The private-build unittest command passed 27 cases
 with two Linux-only checks deferred to CI. `scripts/check.py` and focused Ruff
 checks passed. This is source validation, not live release authorization proof.
 
-- [ ] All gateway repair validation checks pass.
+### Retail storefront build validation
+
+Validation completed at `2026-11-11T03:30:40Z` through `azure-validate` for the
+single approved private build. All 16 exact-head PR checks passed, including
+the Linux shell image selector and all eight frontend images. The merged source
+is `f70dca132308460e16edfef39be8a93c156f4011`.
+
+`demo_storefront_build.py validate-build` verified the exact reviewed main,
+unchanged protected configuration, owner review with administrator bypass
+disabled and main-only dispatch. Azure authentication matches the already
+approved tenant/subscription. Bicep `0.46.1` compiled the unchanged VM template.
+Provider-level resource-group validation and a full-payload what-if passed;
+the strict guard accepted only the exact fresh disposable VM/NIC creations
+and known unchanged bootstrap resources. The VM/bootstrap templates and scoped
+role definitions are byte-identical to the accepted previous build stage.
+The current policy assignments were retrieved through the Azure Policy tool;
+provider validation reports no blocking policy error for this Sweden Central
+template. No new roles, credentials or network changes are proposed.
+
+The generated validation and preview evidence is retained in ignored
+`demo-storefront-repair.*` files. This status authorizes only the one approved
+`retail-storefront` build under normal exact-run review, not application rollout.
+The new digest, independent cleanup, snapshot-bound image-only preview and live
+browser acceptance are still required before completing the deployment.
+
+### Retail storefront image-only rollout
+
+The normally owner-reviewed single build succeeded. Its exact source and
+one-image manifest were verified; separate ARM reads confirm the owned VM,
+NIC and OS disk are absent and no run/generation-tagged resources remain.
+The accepted immutable storefront digest is
+`sha256:74ce5110d51f6eda9468e17c0ea8a7ce16ddc8ca5d5a7e014e0b4bb39cbabb59`.
+
+Validate a literal one-resource template from a fresh six-app/auth snapshot.
+Require provider validation, an accepted no-op calibration and a full-payload
+preview whose only effective change is the shopper-web container image.
+Require all other five app configurations and operator-only auth unchanged,
+the existing registry-pull grant, and a final concurrent-state guard before
+the approved incremental deployment. No full foundation deployment is allowed.
+
+Image-only validation completed at `2026-11-11T03:45:07Z` through
+`azure-validate`. The exact literal snapshot template passed resource-group
+provider validation and full-payload what-if. Its no-op calibration is
+`NoChange`; its release preview is exactly one effective container-image
+modification. Strict provider-only metadata checks, all six live configuration
+comparisons and operator-auth equality passed. The existing attached managed
+identity has the exact registry-scoped `AcrPull`; no new grant or propagation
+wait is required. Azure resource ID comparisons are case-insensitive.
+The deployment template SHA-256 is
+`db09dd1273a6edd1d27eb0565ccdef2c9cc29a9116588eac01a0b004922ef2e9`.
+Only the existing shopper-web resource is included; the final pre-apply guard
+must still pass. Earlier VM-only build validation does not substitute for
+this application release proof.
+
+The incremental `retail-demo-storefront-repair` deployment succeeded with
+exactly the existing shopper-web resource. Separate read-back confirms its
+accepted digest, five unchanged app configurations, unchanged operator auth,
+and ready/started/running application containers on all six latest revisions.
+Both replica-pinned private gateway probes pass, including frontend readiness,
+private dependencies, same-origin referrer policy and unauthenticated/wrong-role
+rejection. Public health returns 200, anonymous APIs return 401, and sign-in
+redirects to the configured tenant. Three fresh signed-in page loads show the
+catalog request returning 200 with populated featured products and no warning.
+
+Final browser acceptance completed at `2026-11-11T03:59:17Z`. Ordinary
+comparison and follow-up chat requests both return 200 and finish streaming.
+The comparison renders the two-product UI; the follow-up correctly recalls
+the lighter product and its earlier weight. Its named SSE events include one
+accepted turn, 20 text deltas and one completion. There are no stream read
+errors or visible access-denied warnings. A fresh document load reads that
+completed turn and replays its persisted text/completion events with 200.
+The cart remains empty; no order or payment is created. Temporary browser
+observation hooks and replay metadata were removed. The sanitized ignored
+browser proof contains only statuses, counts and acceptance flags.
+
+The private merchant deployment remains deliberately VNet-only. Its actual
+replica, frontend, private dependencies and authentication/routing boundaries
+are verified, but interactive merchant approval and a second-account operator
+allowlist test are not claimed. Neither VPN nor public merchant exposure was
+authorized. This is completion of the approved isolated fixture demo, not
+production-commerce acceptance.
+
+- [x] All gateway repair validation checks pass.
   - [x] Declare the async HTTP transport in gateway package dependencies, retaining the existing release constraint.
   - [x] `pytest apps/gateway/tests -q`: 58 pass, including real offline Azure async client construction and managed-identity selection; focused ruff check and format checks pass.
   - [x] Add a Docker build-time gate that constructs and closes both async clients without requesting tokens or connecting to a service. Docker is unavailable locally; exact-head container CI must execute this gate before the private build.
   - [x] Publish the surgical repair and pass exact-head required CI before merging.
   - [x] Validate the existing protected `smoke` build plan and normal review; execute only one approved build.
   - [x] Verify gateway digest, reviewed source, non-root/transport checks and exact disposable compute cleanup.
-  - [ ] Record a two-gateway image-only preview; reject unrelated changes or public exposure.
-  - [ ] Verify actual gateway replicas and HTTP readiness after update, not only ARM provisioning metadata.
+  - [x] Record a two-gateway image-only preview; reject unrelated changes or public exposure.
+  - [x] Verify actual gateway replicas and HTTP readiness after update, not only ARM provisioning metadata.
 
 ### Owned-identity readiness
 
@@ -904,8 +986,8 @@ merchant/approver assignments now verify; this identity gate is resolved.
 
 Do not grant the operator a privileged directory role automatically, weaken the
 host's merchant checks, or deploy an unusable merchant portal and report it as
-accepted. Demo source artifacts are published and merged and the new image
-release is accepted; application acceptance remains incomplete.
+accepted. Demo source artifacts are published and merged, the image releases
+are deployed, and the scoped application acceptance is recorded above.
 
 ## Completed private-build scope
 
@@ -952,8 +1034,8 @@ Image scanning, signing and promotion are separate release gates.
 
 ## Production rollout gates
 
-Retail production integration and application deployment are deferred outside
-the completed build milestone. Before implementing or deploying that release:
+Retail production integration remains outside the completed isolated fixture
+demo. Before implementing or deploying that production release:
 
 1. Supply the authoritative retail backend contract or existing adapter,
    including idempotency and conditional merchant approval semantics.
